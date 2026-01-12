@@ -15,7 +15,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualität im Detail.",
-      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für exklusive Plattenarbeiten, Wandpaneele und Komplettrenovierungen. Mit über 5.000 zufriedenen Kunden in der Schweiz stehen wir für Zuverlässigkeit und höchste Ausführungsqualität.",
+      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für exklusive Plattenarbeiten, Wandpaneele und Komplettrenovierungen. Malerarbeiten bieten wir ergänzend an – unser Hauptfokus bleibt der Innenausbau. Mit über 5.000 zufriedenen Kunden in der Schweiz stehen wir für Zuverlässigkeit und höchste Ausführungsqualität.",
       since: "SEIT 2015",
       location: "SCHWEIZ / ZÜRICH"
     },
@@ -65,7 +65,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Quality in Detail.",
-      text: "Welcome to Danielbau. We are your partner for exclusive tiling, wall panels, and complete renovations. With over 5,000 satisfied customers in Switzerland, we stand for reliability and the highest quality of execution.",
+      text: "Welcome to Danielbau. We are your partner for exclusive tiling, wall panels, and complete renovations. We also offer painting services as a complementary option—interior renovation remains our core focus. With over 5,000 satisfied customers in Switzerland, we stand for reliability and the highest quality of execution.",
       since: "SINCE 2015",
       location: "SWITZERLAND / ZURICH"
     },
@@ -115,7 +115,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "La Qualité en Détail.",
-      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour les travaux de carrelage exclusifs, les panneaux muraux et les rénovations complètes. Avec plus de 5 000 clients satisfaits en Suisse, nous sommes synonymes de fiabilité et de qualité d'exécution supérieure.",
+      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour les travaux de carrelage exclusifs, les panneaux muraux et les rénovations complètes. Nous proposons aussi des travaux de peinture en complément – notre attraction principale demeure la rénovation intérieure. Avec plus de 5 000 clients satisfaits en Suisse, nous sommes synonymes de fiabilité et de qualité d'exécution supérieure.",
       since: "DEPUIS 2015",
       location: "SUISSE / ZURICH"
     },
@@ -165,7 +165,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualità nel Dettaglio.",
-      text: "Benvenuti da Danielbau. Siamo il vostro partner per lavori esclusivi di piastrellatura, pannelli murali e ristrutturazioni complete. Con oltre 5.000 clienti soddisfatti in Svizzera, siamo sinonimo di affidabilità e massima qualità di esecuzione.",
+      text: "Benvenuti da Danielbau. Siamo il vostro partner per lavori esclusivi di piastrellatura, pannelli murali e ristrutturazioni complete. Offriamo anche servizi di pittura come opzione complementare: la nostra attrazione principale resta la ristrutturazione d'interni. Con oltre 5.000 clienti soddisfatti in Svizzera, siamo sinonimo di affidabilità e massima qualità di esecuzione.",
       since: "DAL 2015",
       location: "SVIZZERA / ZURIGO"
     },
