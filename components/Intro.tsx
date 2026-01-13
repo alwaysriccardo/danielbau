@@ -21,7 +21,7 @@ const Intro: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && count === 0) {
-            const duration = 2000; // 2 seconds
+            const duration = 800; // 0.8 seconds - faster animation
             const steps = 100;
             const increment = 5000 / steps;
             const stepDuration = duration / steps;
