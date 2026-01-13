@@ -13,6 +13,13 @@ const ServiceStack: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      // Clear any existing ScrollTriggers
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.vars.trigger?.closest('#services')) {
+          trigger.kill();
+        }
+      });
+
       cardsRef.current.forEach((card, i) => {
         const nextCard = cardsRef.current[i + 1];
         if (nextCard && card) {
@@ -26,10 +33,23 @@ const ServiceStack: React.FC = () => {
               trigger: nextCard,
               start: "top bottom",
               end: "top 10vh",
-              scrub: true
+              scrub: true,
+              invalidateOnRefresh: true
             }
           });
         }
+      });
+
+      // Add shine effect to view project buttons
+      const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
+      buttons?.forEach((btn) => {
+        gsap.to(btn, {
+          textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
       });
     }, sectionRef);
 
@@ -54,11 +74,11 @@ const ServiceStack: React.FC = () => {
             <div 
               key={serviceConstant.id}
               ref={el => (cardsRef.current[index] = el)}
-              className="sticky top-[10vh] h-[80vh] w-full flex items-center justify-center mb-[5vh]"
+              className="sticky top-[10vh] h-[80vh] md:h-[80vh] min-h-[600px] w-full flex items-center justify-center mb-[5vh]"
             >
               <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group">
                 
-                <div className="p-8 md:p-16 flex flex-col justify-between bg-[#1a1a1a] z-10 relative">
+                <div className="p-8 md:p-16 flex flex-col justify-between bg-[#1a1a1a] z-10 relative min-h-0">
                   <div>
                     <div className={`font-display text-5xl mb-2 ${serviceConstant.accentColor}`}>
                       {serviceConstant.number}
@@ -73,20 +93,36 @@ const ServiceStack: React.FC = () => {
                     {textData.description}
                   </div>
 
-                  <button 
-                    className="text-left uppercase tracking-widest text-xs border-b border-white/30 pb-2 w-max hover:text-white transition-colors"
+                  <a
+                    href="#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const footer = document.getElementById('contact');
+                      if (footer) {
+                        footer.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="view-project-btn text-left uppercase tracking-widest text-xs border-b border-white/30 pb-2 w-max hover:text-white transition-all duration-300 inline-block"
                     aria-label={`${t.services.viewProject}: ${textData.title}`}
                   >
                     {t.services.viewProject}
-                  </button>
+                  </a>
                 </div>
 
-                <div className="relative w-full h-full overflow-hidden order-first md:order-last">
-                  <img 
-                    src={serviceConstant.image} 
-                    alt={textData.title}
-                    className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
-                  />
+                <div className="relative w-full h-full min-h-[300px] md:min-h-0 overflow-hidden order-first md:order-last">
+                  {serviceConstant.image.endsWith('.gif') ? (
+                    <img 
+                      src={serviceConstant.image} 
+                      alt={textData.title}
+                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
+                    />
+                  ) : (
+                    <img 
+                      src={serviceConstant.image} 
+                      alt={textData.title}
+                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
+                    />
+                  )}
                 </div>
 
               </div>

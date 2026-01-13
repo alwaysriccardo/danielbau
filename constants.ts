@@ -25,7 +25,7 @@ export const SERVICES: ServiceItem[] = [
     title: "INNENAUSBAU",
     subtitle: "Komplettrenovierung",
     description: "Von der Planung bis zur Schlüsselübergabe. Wir koordinieren und realisieren Ihren kompletten Innenausbau effizient und sauber – Malerei, Boden, Putz und mehr.",
-    image: "/images/interior-3.jpg", // Replace with your uploaded image
+    image: "/images/interior-3.gif", // GIF for service 03
     accentColor: "text-blue-600"
   },
   {

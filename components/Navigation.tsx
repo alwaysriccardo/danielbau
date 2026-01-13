@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Navigation: React.FC = () => {
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const logoRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  useEffect(() => {
+    if (logoRef.current) {
+      gsap.to(logoRef.current, {
+        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+    }
+  }, []);
 
   return (
     <>
       <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white">
-        <div className="font-display font-bold text-xl tracking-tighter z-[60]">DANIELBAU</div>
+        <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo" style={{
+          WebkitTextStroke: '0.5px rgba(255,255,255,0.3)',
+          textStroke: '0.5px rgba(255,255,255,0.3)'
+        }}>DANIELBAU</div>
         
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-10 text-xs uppercase tracking-widest" aria-label="Main navigation">
@@ -59,7 +76,14 @@ const Navigation: React.FC = () => {
         </a>
         <a 
           href="#contact" 
-          onClick={toggleMenu}
+          onClick={(e) => {
+            e.preventDefault();
+            toggleMenu();
+            const footer = document.getElementById('contact');
+            if (footer) {
+              footer.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
           {t.nav.contact}

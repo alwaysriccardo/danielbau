@@ -29,6 +29,25 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
+      // Animated outline/shine effect for hero text
+      gsap.to('.hero-text-line', {
+        textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 2
+      });
+
+      gsap.to('.hero-fade', {
+        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 2.5
+      });
+
       // Parallax Image
       gsap.to(imageRef.current, {
         yPercent: 30,
@@ -56,13 +75,22 @@ const Hero: React.FC = () => {
       
       <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference">
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
-          <span className="hero-text-line block translate-y-full">{t.hero.line1}</span>
+          <span className="hero-text-line block translate-y-full" style={{ 
+            WebkitTextStroke: '1px rgba(255,255,255,0.3)',
+            textStroke: '1px rgba(255,255,255,0.3)'
+          }}>{t.hero.line1}</span>
         </h1>
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
-          <span className="hero-text-line block translate-y-full">{t.hero.line2}</span>
+          <span className="hero-text-line block translate-y-full" style={{ 
+            WebkitTextStroke: '1px rgba(255,255,255,0.3)',
+            textStroke: '1px rgba(255,255,255,0.3)'
+          }}>{t.hero.line2}</span>
         </h1>
         
-        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference">
+        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference" style={{
+          WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
+          textStroke: '0.5px rgba(255,255,255,0.2)'
+        }}>
           {t.hero.subtitle}
         </p>
       </div>

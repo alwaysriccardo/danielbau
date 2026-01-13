@@ -64,6 +64,14 @@ const AppContent = () => {
           <div className="max-w-xl text-gray-600 font-light mb-12 leading-relaxed px-6">
             {t.final.text}
           </div>
+          {/* Switzerland Flag */}
+          <div className="w-16 h-16 md:w-20 md:h-20 mb-8">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              <rect x="0" y="0" width="100" height="100" fill="white" />
+              <rect x="0" y="40" width="100" height="20" fill="black" />
+              <rect x="40" y="0" width="20" height="100" fill="black" />
+            </svg>
+          </div>
           <div className="h-16 w-px bg-black/20"></div>
         </section>
       </div>

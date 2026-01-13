@@ -15,9 +15,11 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualität im Detail.",
-      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten. Zusätzlich bieten wir Reinigungsdienstleistungen an. Mit über 5.000 zufriedenen Kunden in der Schweiz stehen wir für Zuverlässigkeit und höchste Ausführungsqualität.",
+      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten. Zusätzlich bieten wir Reinigungsdienstleistungen an.",
       since: "SEIT 2015",
-      location: "SCHWEIZ / ZÜRICH"
+      location: "SCHWEIZ / ZÜRICH",
+      satisfiedClients: "zufriedene Kunden",
+      nextClient: "Sie können der Nächste sein"
     },
     services: {
       header: "UNSERE LEISTUNGEN",
@@ -64,7 +66,12 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Bereit für Veränderung?",
       offer: "ANGEBOT",
-      copyright: "© 2025 DANIELBAU SCHWEIZ"
+      copyright: "© 2025 DANIELBAU SCHWEIZ",
+      namePlaceholder: "Name",
+      emailPlaceholder: "E-Mail",
+      messagePlaceholder: "Nachricht",
+      send: "Senden",
+      sending: "Wird gesendet..."
     }
   },
   en: {
@@ -81,9 +88,11 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Quality in Detail.",
-      text: "Welcome to Danielbau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work. We also offer cleaning services as an additional option. With over 5,000 satisfied customers in Switzerland, we stand for reliability and the highest quality of execution.",
+      text: "Welcome to Danielbau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work. We also offer cleaning services as an additional option.",
       since: "SINCE 2015",
-      location: "SWITZERLAND / ZURICH"
+      location: "SWITZERLAND / ZURICH",
+      satisfiedClients: "satisfied clients",
+      nextClient: "You can be the next one"
     },
     services: {
       header: "OUR SERVICES",
@@ -147,9 +156,11 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "La Qualité en Détail.",
-      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation. Nous proposons également des services de nettoyage. Avec plus de 5 000 clients satisfaits en Suisse, nous sommes synonymes de fiabilité et de qualité d'exécution supérieure.",
+      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation. Nous proposons également des services de nettoyage.",
       since: "DEPUIS 2015",
-      location: "SUISSE / ZURICH"
+      location: "SUISSE / ZURICH",
+      satisfiedClients: "clients satisfaits",
+      nextClient: "Vous pouvez être le prochain"
     },
     services: {
       header: "NOS SERVICES",
@@ -213,9 +224,11 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualità nel Dettaglio.",
-      text: "Benvenuti da Danielbau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento. Offriamo anche servizi di pulizia. Con oltre 5.000 clienti soddisfatti in Svizzera, siamo sinonimo di affidabilità e massima qualità di esecuzione.",
+      text: "Benvenuti da Danielbau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento. Offriamo anche servizi di pulizia.",
       since: "DAL 2015",
-      location: "SVIZZERA / ZURIGO"
+      location: "SVIZZERA / ZURIGO",
+      satisfiedClients: "clienti soddisfatti",
+      nextClient: "Puoi essere il prossimo"
     },
     services: {
       header: "I NOSTRI SERVIZI",
