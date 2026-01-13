@@ -21,10 +21,9 @@ const Intro: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && count === 0) {
-            const duration = 1500; // 1.5 seconds
-            const steps = 100;
-            const increment = 1000 / steps;
-            const stepDuration = duration / steps;
+            const duration = 2000; // 2 seconds total
+            const increment = 99; // Larger increments for faster counting
+            const stepDuration = 50; // Update every 50ms for smooth animation
             let current = 0;
 
             const timer = setInterval(() => {
@@ -32,11 +31,11 @@ const Intro: React.FC = () => {
               if (current >= 1000) {
                 setCount(1000);
                 clearInterval(timer);
-                // After showing 1000, replace with text
+                // After showing 1000, replace with text quickly
                 setTimeout(() => {
                   setCount(t.intro.nextClientNumber || 'You');
                   setShowNextClient(true);
-                }, 300);
+                }, 200);
               } else {
                 setCount(Math.floor(current));
               }
