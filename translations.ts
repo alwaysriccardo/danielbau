@@ -15,7 +15,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualität im Detail.",
-      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für exklusive Plattenarbeiten, Wandpaneele und Komplettrenovierungen. Malerarbeiten bieten wir ergänzend an – unser Hauptfokus bleibt der Innenausbau. Mit über 5.000 zufriedenen Kunden in der Schweiz stehen wir für Zuverlässigkeit und höchste Ausführungsqualität.",
+      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten. Zusätzlich bieten wir Reinigungsdienstleistungen an. Mit über 5.000 zufriedenen Kunden in der Schweiz stehen wir für Zuverlässigkeit und höchste Ausführungsqualität.",
       since: "SEIT 2015",
       location: "SCHWEIZ / ZÜRICH"
     },
@@ -25,20 +25,36 @@ export const TRANSLATIONS = {
       viewProject: "Projekt Ansehen",
       items: [
         {
-          title: "PLATTENARBEITEN",
-          subtitle: "Wand & Boden",
-          description: "Fachgerechte Verlegung von Keramik, Naturstein und Mosaik. Wir schaffen langlebige, ästhetische Oberflächen für Bäder, Küchen und Wohnräume."
+          title: "MALERARBEITEN & DEKORATION",
+          subtitle: "Anstrich & Gestaltung",
+          description: "Professionelle Malerarbeiten, Tapetenverlegung und dekorative Techniken. Von Innen- und Außenanstrichen bis hin zu Isolierung, Bodenverlegung und Putzarbeiten – wir veredeln Ihre Räume mit Präzision."
         },
         {
-          title: "WANDPANEELE",
-          subtitle: "Design & Akustik",
-          description: "Hochwertige Wandverkleidungen und dekorative Paneele. Individuelle Lösungen, die Ihren Räumen Charakter und Wärme verleihen."
+          title: "BODEN & FASSADE",
+          subtitle: "Komplettlösungen",
+          description: "Hochwertige Bodenverlegung mit Holz, Laminat und Fliesen. Fassadenrenovierung und Isolierung für optimalen Schutz und Energieeffizienz. Wir schaffen langlebige, ästhetische Oberflächen."
         },
         {
-          title: "RENOVIERUNG",
-          subtitle: "Komplettausbau",
-          description: "Von der Planung bis zur Schlüsselübergabe. Wir koordinieren und realisieren Ihren kompletten Innenausbau effizient und sauber."
+          title: "INNENAUSBAU",
+          subtitle: "Komplettrenovierung",
+          description: "Von der Planung bis zur Schlüsselübergabe. Wir koordinieren und realisieren Ihren kompletten Innenausbau effizient und sauber – Malerei, Boden, Putz und mehr."
+        },
+        {
+          title: "PUTZ & ISOLIERUNG",
+          subtitle: "Fachgerechte Ausführung",
+          description: "Professionelle Putzarbeiten für perfekte Wandoberflächen. Isolierungsarbeiten für optimale Energieeffizienz und Komfort in Ihrem Zuhause."
         }
+      ]
+    },
+    cleaning: {
+      header: "REINIGUNGSDIENSTE",
+      subheader: "Zusätzliche Services",
+      note: "Wir bieten auch professionelle Reinigungsdienstleistungen an",
+      items: [
+        "Tiefenreinigung",
+        "Auszugsreinigung",
+        "Fensterreinigung",
+        "Entsorgung"
       ]
     },
     final: {
@@ -65,7 +81,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Quality in Detail.",
-      text: "Welcome to Danielbau. We are your partner for exclusive tiling, wall panels, and complete renovations. We also offer painting services as a complementary option—interior renovation remains our core focus. With over 5,000 satisfied customers in Switzerland, we stand for reliability and the highest quality of execution.",
+      text: "Welcome to Danielbau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work. We also offer cleaning services as an additional option. With over 5,000 satisfied customers in Switzerland, we stand for reliability and the highest quality of execution.",
       since: "SINCE 2015",
       location: "SWITZERLAND / ZURICH"
     },
@@ -75,20 +91,36 @@ export const TRANSLATIONS = {
       viewProject: "View Project",
       items: [
         {
-          title: "TILING WORK",
-          subtitle: "Wall & Floor",
-          description: "Professional laying of ceramics, natural stone, and mosaics. We create durable, aesthetic surfaces for bathrooms, kitchens, and living spaces."
+          title: "PAINTING & DECORATING",
+          subtitle: "Paint & Design",
+          description: "Professional painting, wallpapering, and decorative techniques. From interior and exterior painting to insulation, flooring, and plastering work – we enhance your spaces with precision."
         },
         {
-          title: "WALL PANELS",
-          subtitle: "Design & Acoustics",
-          description: "High-quality wall coverings and decorative panels. Individual solutions that add character and warmth to your rooms."
+          title: "FLOORING & FACADE",
+          subtitle: "Complete Solutions",
+          description: "High-quality flooring with wood, laminate, and tiles. Facade renovation and insulation for optimal protection and energy efficiency. We create durable, aesthetic surfaces."
         },
         {
-          title: "RENOVATION",
-          subtitle: "Complete Fitting",
-          description: "From planning to handover. We coordinate and realize your complete interior fitting efficiently and cleanly."
+          title: "INTERIOR RENOVATION",
+          subtitle: "Complete Renovation",
+          description: "From planning to handover. We coordinate and realize your complete interior renovation efficiently and cleanly – painting, flooring, plastering, and more."
+        },
+        {
+          title: "PLASTERING & INSULATION",
+          subtitle: "Professional Execution",
+          description: "Professional plastering work for perfect wall surfaces. Insulation work for optimal energy efficiency and comfort in your home."
         }
+      ]
+    },
+    cleaning: {
+      header: "CLEANING SERVICES",
+      subheader: "Additional Services",
+      note: "We also offer professional cleaning services",
+      items: [
+        "Deep cleaning",
+        "Move-out cleaning",
+        "Window cleaning",
+        "Waste disposal"
       ]
     },
     final: {
@@ -115,7 +147,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "La Qualité en Détail.",
-      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour les travaux de carrelage exclusifs, les panneaux muraux et les rénovations complètes. Nous proposons aussi des travaux de peinture en complément – notre attraction principale demeure la rénovation intérieure. Avec plus de 5 000 clients satisfaits en Suisse, nous sommes synonymes de fiabilité et de qualité d'exécution supérieure.",
+      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation. Nous proposons également des services de nettoyage. Avec plus de 5 000 clients satisfaits en Suisse, nous sommes synonymes de fiabilité et de qualité d'exécution supérieure.",
       since: "DEPUIS 2015",
       location: "SUISSE / ZURICH"
     },
@@ -125,20 +157,36 @@ export const TRANSLATIONS = {
       viewProject: "Voir le projet",
       items: [
         {
-          title: "CARRELAGE",
-          subtitle: "Murs & Sols",
-          description: "Pose professionnelle de céramique, pierre naturelle et mosaïque. Nous créons des surfaces durables et esthétiques pour salles de bains, cuisines et espaces de vie."
+          title: "PEINTURE & DÉCORATION",
+          subtitle: "Peinture & Design",
+          description: "Travaux de peinture professionnels, pose de papier peint et techniques décoratives. De la peinture intérieure et extérieure à l'isolation, au revêtement de sol et au plâtrage – nous embellissons vos espaces avec précision."
         },
         {
-          title: "PANNEAUX MURAUX",
-          subtitle: "Design & Acoustique",
-          description: "Revêtements muraux de haute qualité et panneaux décoratifs. Des solutions individuelles qui donnent du caractère et de la chaleur à vos pièces."
+          title: "SOL & FAÇADE",
+          subtitle: "Solutions Complètes",
+          description: "Revêtement de sol de haute qualité avec bois, stratifié et carrelage. Rénovation de façade et isolation pour une protection optimale et une efficacité énergétique. Nous créons des surfaces durables et esthétiques."
         },
         {
-          title: "RÉNOVATION",
-          subtitle: "Aménagement Complet",
-          description: "De la planification à la remise des clés. Nous coordonnons et réalisons votre aménagement intérieur complet de manière efficace et propre."
+          title: "RÉNOVATION INTÉRIEURE",
+          subtitle: "Rénovation Complète",
+          description: "De la planification à la remise des clés. Nous coordonnons et réalisons votre rénovation intérieure complète de manière efficace et propre – peinture, sol, plâtrage et plus encore."
+        },
+        {
+          title: "PLÂTRAGE & ISOLATION",
+          subtitle: "Exécution Professionnelle",
+          description: "Travaux de plâtrage professionnels pour des surfaces murales parfaites. Travaux d'isolation pour une efficacité énergétique et un confort optimaux dans votre maison."
         }
+      ]
+    },
+    cleaning: {
+      header: "SERVICES DE NETTOYAGE",
+      subheader: "Services Supplémentaires",
+      note: "Nous proposons également des services de nettoyage professionnels",
+      items: [
+        "Nettoyage en profondeur",
+        "Nettoyage de déménagement",
+        "Nettoyage de vitres",
+        "Élimination des déchets"
       ]
     },
     final: {
@@ -165,7 +213,7 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualità nel Dettaglio.",
-      text: "Benvenuti da Danielbau. Siamo il vostro partner per lavori esclusivi di piastrellatura, pannelli murali e ristrutturazioni complete. Offriamo anche servizi di pittura come opzione complementare: la nostra attrazione principale resta la ristrutturazione d'interni. Con oltre 5.000 clienti soddisfatti in Svizzera, siamo sinonimo di affidabilità e massima qualità di esecuzione.",
+      text: "Benvenuti da Danielbau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento. Offriamo anche servizi di pulizia. Con oltre 5.000 clienti soddisfatti in Svizzera, siamo sinonimo di affidabilità e massima qualità di esecuzione.",
       since: "DAL 2015",
       location: "SVIZZERA / ZURIGO"
     },
@@ -175,20 +223,36 @@ export const TRANSLATIONS = {
       viewProject: "Vedi Progetto",
       items: [
         {
-          title: "PIASTRELLATURA",
-          subtitle: "Pareti & Pavimenti",
-          description: "Posa professionale di ceramica, pietra naturale e mosaico. Creiamo superfici durevoli ed estetiche per bagni, cucine e spazi abitativi."
+          title: "LAVORI DI PITTURA & DECORAZIONE",
+          subtitle: "Verniciatura & Design",
+          description: "Lavori di pittura professionali, tappezzeria e tecniche decorative. Dalla pittura interna ed esterna all'isolamento, posa di pavimenti e intonaci – valorizziamo i vostri spazi con precisione."
         },
         {
-          title: "PANNELLI MURALI",
-          subtitle: "Design & Acustica",
-          description: "Rivestimenti murali di alta qualità e pannelli decorativi. Soluzioni individuali che danno carattere e calore ai vostri ambienti."
+          title: "PAVIMENTI & FACCIATE",
+          subtitle: "Soluzioni Complete",
+          description: "Posa di pavimenti di alta qualità con legno, laminato e piastrelle. Ristrutturazione facciate e isolamento per protezione ottimale ed efficienza energetica. Creiamo superfici durevoli ed estetiche."
         },
         {
-          title: "RISTRUTTURAZIONE",
-          subtitle: "Finiture Complete",
-          description: "Dalla pianificazione alla consegna delle chiavi. Coordiniamo e realizziamo il vostro arredamento interno completo in modo efficiente e pulito."
+          title: "RISTRUTTURAZIONE INTERNA",
+          subtitle: "Ristrutturazione Completa",
+          description: "Dalla pianificazione alla consegna delle chiavi. Coordiniamo e realizziamo la vostra ristrutturazione interna completa in modo efficiente e pulito – pittura, pavimenti, intonaci e altro ancora."
+        },
+        {
+          title: "INTONACI & ISOLAMENTO",
+          subtitle: "Esecuzione Professionale",
+          description: "Lavori di intonaco professionali per superfici murali perfette. Lavori di isolamento per efficienza energetica e comfort ottimali nella vostra casa."
         }
+      ]
+    },
+    cleaning: {
+      header: "SERVIZI DI PULIZIA",
+      subheader: "Servizi Aggiuntivi",
+      note: "Offriamo anche servizi di pulizia professionali",
+      items: [
+        "Pulizia approfondita",
+        "Pulizia post-trasloco",
+        "Pulizia vetri",
+        "Smaltimento rifiuti"
       ]
     },
     final: {

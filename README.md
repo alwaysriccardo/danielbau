@@ -10,6 +10,8 @@ A high-end construction and renovation portfolio website featuring smooth animat
 - 📱 **Responsive** - Fully responsive design for all devices
 - 🎯 **Performance** - Optimized with Vite for fast loading times
 - 💬 **WhatsApp Integration** - Direct contact via WhatsApp button
+- 🎨 **Interior Renovation Services** - Painting, flooring, plastering, and more
+- 🧹 **Cleaning Services** - Professional cleaning solutions
 
 ## Tech Stack
 
@@ -40,12 +42,21 @@ A high-end construction and renovation portfolio website featuring smooth animat
    npm install
    ```
 
-3. Start the development server:
+3. Add your images to the `public/images/` directory:
+   - `hero-hardwood.jpg` - Hero background (interior with hardwood floors)
+   - `interior-1.jpg` - First service image
+   - `interior-2.jpg` - Second service image
+   - `interior-3.jpg` - Third service image
+   - `interior-4.jpg` - Fourth service image
+   
+   See `public/images/README.md` for detailed specifications.
+
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+5. Open your browser and navigate to `http://localhost:3000`
 
 ### Build for Production
 
@@ -66,6 +77,7 @@ npm run preview
 ```
 danielbau/
 ├── components/          # React components
+│   ├── CleaningServices.tsx
 │   ├── Footer.tsx
 │   ├── Hero.tsx
 │   ├── Intro.tsx
@@ -77,6 +89,8 @@ danielbau/
 │   └── WhatsAppButton.tsx
 ├── contexts/            # React contexts
 │   └── LanguageContext.tsx
+├── public/              # Static assets
+│   └── images/          # Image files
 ├── constants.ts         # App constants and data
 ├── translations.ts      # Multi-language translations
 ├── types.ts            # TypeScript type definitions

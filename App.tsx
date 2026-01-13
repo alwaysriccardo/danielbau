@@ -6,6 +6,7 @@ import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
+import CleaningServices from './components/CleaningServices';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -53,6 +54,7 @@ const AppContent = () => {
         <Hero />
         <Intro />
         <ServiceStack />
+        <CleaningServices />
         
         {/* Final Text Section */}
         <section className="py-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
