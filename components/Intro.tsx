@@ -14,6 +14,7 @@ const Intro: React.FC = () => {
   const nextClientRef = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState<number | string>(0);
   const [showNextClient, setShowNextClient] = useState(false);
+  const [isCounting, setIsCounting] = useState(false);
 
   useEffect(() => {
     // Animate counter from 0 to 1000, then replace with text
@@ -21,9 +22,10 @@ const Intro: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && count === 0) {
-            const duration = 3000; // 3 seconds total
-            const increment = 15; // Smaller increments for smoother counting
-            const stepDuration = 45; // Update every 45ms for smooth animation
+            setIsCounting(true);
+            const duration = 2000; // 2 seconds total
+            const increment = 20; // Optimized increment for 2 seconds
+            const stepDuration = 40; // Update every 40ms for smooth animation
             let current = 0;
 
             const timer = setInterval(() => {
@@ -31,7 +33,8 @@ const Intro: React.FC = () => {
               if (current >= 1000) {
                 setCount(1000);
                 clearInterval(timer);
-                // Immediately replace with text - no delay
+                // Immediately replace with text - no delay, remove blur
+                setIsCounting(false);
                 setCount(t.intro.nextClientNumber || 'You');
                 setShowNextClient(true);
               } else {
@@ -155,10 +158,17 @@ const Intro: React.FC = () => {
               <div className="flex items-baseline gap-2 mb-2">
                 {typeof count === 'number' ? (
                   <>
-                    <span className="font-display text-4xl md:text-5xl font-bold text-black">
+                    <span 
+                      className={`font-display text-4xl md:text-5xl font-bold text-black transition-all duration-300 ${
+                        isCounting ? 'blur-[2px]' : ''
+                      }`}
+                      style={{ willChange: isCounting ? 'filter' : 'auto' }}
+                    >
                       {count.toLocaleString()}
                     </span>
-                    <span className="text-sm uppercase tracking-widest opacity-70">
+                    <span className={`text-sm uppercase tracking-widest opacity-70 transition-all duration-300 ${
+                        isCounting ? 'blur-[1px]' : ''
+                      }`}>
                       {t.intro.satisfiedClients || 'satisfied clients'}
                     </span>
                   </>
