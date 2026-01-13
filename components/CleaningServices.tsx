@@ -50,20 +50,23 @@ const CleaningServices: React.FC = () => {
         }
       });
 
-      // Animate bubbles
+      // Animate bubbles with transform for better performance
       bubbles.forEach((bubble) => {
         const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
         if (bubbleEl) {
+          const moveY = 50 + Math.random() * 100;
+          const moveX = -20 + Math.random() * 40;
           gsap.to(bubbleEl, {
-            y: `-=${50 + Math.random() * 100}`,
-            x: `+=${-20 + Math.random() * 40}`,
+            y: `-=${moveY}`,
+            x: `+=${moveX}`,
             opacity: 0.6 + Math.random() * 0.4,
             scale: 0.8 + Math.random() * 0.4,
             duration: 3 + Math.random() * 2,
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut',
-            delay: bubble.delay
+            delay: bubble.delay,
+            force3D: true // GPU acceleration
           });
         }
       });
@@ -90,7 +93,8 @@ const CleaningServices: React.FC = () => {
               width: `${bubble.size}px`,
               height: `${bubble.size}px`,
               background: `radial-gradient(circle, hsla(${bubble.hue}, 70%, 60%, 0.6), hsla(${bubble.hue}, 70%, 50%, 0.3))`,
-              boxShadow: `0 0 ${bubble.size}px hsla(${bubble.hue}, 70%, 60%, 0.5)`
+              boxShadow: `0 0 ${bubble.size}px hsla(${bubble.hue}, 70%, 60%, 0.5)`,
+              willChange: 'transform, opacity'
             }}
           />
         ))}

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SERVICES } from '../constants';
@@ -10,51 +10,145 @@ const ServiceStack: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const { t } = useLanguage();
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  // Wait for images to load
+  useEffect(() => {
+    const images = sectionRef.current?.querySelectorAll('img');
+    if (!images || images.length === 0) {
+      setImagesLoaded(true);
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalImages = images.length;
+
+    const checkAllLoaded = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        // Small delay to ensure layout is calculated
+        setTimeout(() => {
+          setImagesLoaded(true);
+          ScrollTrigger.refresh();
+        }, 100);
+      }
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        checkAllLoaded();
+      } else {
+        img.addEventListener('load', checkAllLoaded);
+        img.addEventListener('error', checkAllLoaded);
+      }
+    });
+
+    // Fallback timeout
+    const timeout = setTimeout(() => {
+      setImagesLoaded(true);
+      ScrollTrigger.refresh();
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeout);
+      images.forEach((img) => {
+        img.removeEventListener('load', checkAllLoaded);
+        img.removeEventListener('error', checkAllLoaded);
+      });
+    };
+  }, []);
 
   useLayoutEffect(() => {
+    if (!imagesLoaded) return;
+
     const ctx = gsap.context(() => {
-      // Clear any existing ScrollTriggers
+      // Clear any existing ScrollTriggers for this section
       ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.vars.trigger?.closest('#services')) {
+        const triggerEl = trigger.vars.trigger as Element;
+        if (triggerEl && sectionRef.current?.contains(triggerEl)) {
           trigger.kill();
         }
       });
 
-      cardsRef.current.forEach((card, i) => {
-        const nextCard = cardsRef.current[i + 1];
-        if (nextCard && card) {
-          const inner = card.querySelector('.card-inner');
-          
-          gsap.to(inner, {
-            scale: 0.9,
-            opacity: 0.4,
-            ease: "none",
-            scrollTrigger: {
-              trigger: nextCard,
-              start: "top bottom",
-              end: "top 10vh",
-              scrub: true,
-              invalidateOnRefresh: true
+      // Wait for DOM to be fully ready
+      const initScrollTriggers = () => {
+        cardsRef.current.forEach((card, i) => {
+          const nextCard = cardsRef.current[i + 1];
+          if (nextCard && card) {
+            const inner = card.querySelector('.card-inner') as HTMLElement;
+            
+            if (inner) {
+              gsap.to(inner, {
+                scale: 0.9,
+                opacity: 0.4,
+                ease: "none",
+                force3D: true, // GPU acceleration
+                scrollTrigger: {
+                  trigger: nextCard,
+                  start: "top bottom",
+                  end: "top 10vh",
+                  scrub: true,
+                  invalidateOnRefresh: true,
+                  refreshPriority: -1
+                }
+              });
             }
-          });
-        }
-      });
-
-      // Add shine effect to view project buttons
-      const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
-      buttons?.forEach((btn) => {
-        gsap.to(btn, {
-          textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
-          duration: 2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
+          }
         });
+
+        // Refresh ScrollTrigger after all animations are set up
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
+      };
+
+      // Multiple attempts to ensure proper initialization
+      requestAnimationFrame(() => {
+        initScrollTriggers();
+        // Double-check after a short delay
+        setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 200);
       });
     }, sectionRef);
 
-    return () => ctx.revert();
-  }, [t]);
+    return () => {
+      ctx.revert();
+    };
+  }, [t, imagesLoaded]);
+
+  // Refresh on window resize (debounced)
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // Add shine effect to view project buttons
+  useEffect(() => {
+    if (!imagesLoaded) return;
+
+    const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
+    buttons?.forEach((btn) => {
+      gsap.to(btn, {
+        textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+    });
+  }, [imagesLoaded]);
 
   return (
     <section ref={sectionRef} className="py-[10vh] bg-[#121212] text-[#E3E1DC] relative" id="services">
@@ -73,10 +167,17 @@ const ServiceStack: React.FC = () => {
           return (
             <div 
               key={serviceConstant.id}
-              ref={el => (cardsRef.current[index] = el)}
+              ref={el => {
+                cardsRef.current[index] = el;
+                // Refresh ScrollTrigger when refs are set
+                if (el && imagesLoaded) {
+                  requestAnimationFrame(() => ScrollTrigger.refresh());
+                }
+              }}
               className="sticky top-[10vh] h-[80vh] md:h-[80vh] min-h-[600px] w-full flex items-center justify-center mb-[5vh]"
+              style={{ willChange: 'transform' }}
             >
-              <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group">
+              <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group" style={{ willChange: 'transform, opacity' }}>
                 
                 <div className="p-8 md:p-16 flex flex-col justify-between bg-[#1a1a1a] z-10 relative min-h-0">
                   <div>
@@ -114,13 +215,17 @@ const ServiceStack: React.FC = () => {
                     <img 
                       src={serviceConstant.image} 
                       alt={textData.title}
-                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
+                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <img 
                       src={serviceConstant.image} 
                       alt={textData.title}
-                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
+                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
                     />
                   )}
                 </div>

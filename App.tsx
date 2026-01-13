@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Lenis from '@studio-freight/lenis';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import Preloader from './components/Preloader';
 import Navigation from './components/Navigation';
@@ -21,22 +22,29 @@ const AppContent = () => {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
+      smoothTouch: false, // Disable on touch devices for better performance
     });
 
+    let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     if (loading) {
       lenis.stop();
     } else {
       lenis.start();
+      // Refresh ScrollTrigger after Lenis starts
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
     }
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, [loading]);
