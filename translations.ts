@@ -57,11 +57,14 @@ export const TRANSLATIONS = {
         "Auszugsreinigung",
         "Fensterreinigung",
         "Entsorgung"
-      ]
+      ],
+      quoteButton: "Angebot",
+      call: "Anrufen",
+      email: "E-Mail"
     },
     final: {
       title: "Ihr Partner für die Schweiz",
-      text: "Unser Ziel ist es, Ihre Vision Realität werden zu lassen. Mit einem Fokus auf Termintreue und Präzision haben wir bereits zahlreiche zufriedene Kunden."
+      text: "Unser Ziel ist es, Ihre Vision Realität werden zu lassen. Mit einem Fokus auf Termintreue und Präzision haben wir bereits zahlreiche zufriedene Kunden erfolgreich betreut."
     },
     footer: {
       ready: "Bereit für Veränderung?",
@@ -134,7 +137,7 @@ export const TRANSLATIONS = {
     },
     final: {
       title: "Your Partner for Switzerland",
-      text: "Our goal is to make your vision a reality. With a focus on punctuality and precision, we have numerous satisfied clients."
+      text: "Our goal is to make your vision a reality. With a focus on punctuality and precision, we have already successfully served numerous satisfied clients."
     },
     footer: {
       ready: "Ready for change?",
@@ -202,7 +205,7 @@ export const TRANSLATIONS = {
     },
     final: {
       title: "Votre Partenaire pour la Suisse",
-      text: "Notre objectif est de faire de votre vision une réalité. En mettant l'accent sur la ponctualité et la précision, nous avons de nombreux clients satisfaits."
+      text: "Notre objectif est de faire de votre vision une réalité. En mettant l'accent sur la ponctualité et la précision, nous avons déjà servi de nombreux clients satisfaits."
     },
     footer: {
       ready: "Prêt pour le changement ?",
@@ -270,7 +273,7 @@ export const TRANSLATIONS = {
     },
     final: {
       title: "Il Vostro Partner per la Svizzera",
-      text: "Il nostro obiettivo è trasformare la vostra visione in realtà. Con un focus sulla puntualità e la precisione, abbiamo numerosi clienti soddisfatti."
+      text: "Il nostro obiettivo è trasformare la vostra visione in realtà. Con un focus sulla puntualità e la precisione, abbiamo già servito numerosi clienti soddisfatti."
     },
     footer: {
       ready: "Pronto per il cambiamento?",
