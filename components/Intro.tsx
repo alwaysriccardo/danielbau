@@ -12,10 +12,11 @@ const Intro: React.FC = () => {
   const underlineRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const nextClientRef = useRef<HTMLDivElement>(null);
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number | string>(0);
+  const [showNextClient, setShowNextClient] = useState(false);
 
   useEffect(() => {
-    // Animate counter from 0 to 5000 when section is visible
+    // Animate counter from 0 to 5000, then replace with text
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -31,6 +32,11 @@ const Intro: React.FC = () => {
               if (current >= 5000) {
                 setCount(5000);
                 clearInterval(timer);
+                // After showing 5000, replace with text
+                setTimeout(() => {
+                  setCount(t.intro.nextClientNumber || 'You');
+                  setShowNextClient(true);
+                }, 500);
               } else {
                 setCount(Math.floor(current));
               }
@@ -52,7 +58,7 @@ const Intro: React.FC = () => {
         observer.unobserve(counterRef.current);
       }
     };
-  }, [count]);
+  }, [count, t]);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -144,26 +150,35 @@ const Intro: React.FC = () => {
             <div className="h-px w-full bg-black/10 my-8" />
             
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 text-sm uppercase tracking-widest mb-8">
-              <SplitText>{t.intro.since}</SplitText>
               <SplitText>{t.intro.location}</SplitText>
             </div>
 
             {/* Animated Counter Section */}
             <div ref={counterRef} className="mt-12 p-6 bg-white/30 rounded-lg border border-black/10">
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="font-display text-4xl md:text-5xl font-bold text-black">
-                  {count.toLocaleString()}
-                </span>
-                <span className="text-sm uppercase tracking-widest opacity-70">
-                  {t.intro.satisfiedClients || 'satisfied clients'}
-                </span>
+                {typeof count === 'number' ? (
+                  <>
+                    <span className="font-display text-4xl md:text-5xl font-bold text-black">
+                      {count.toLocaleString()}
+                    </span>
+                    <span className="text-sm uppercase tracking-widest opacity-70">
+                      {t.intro.satisfiedClients || 'satisfied clients'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-display text-3xl md:text-4xl font-bold text-black">
+                    {count}
+                  </span>
+                )}
               </div>
-              <div 
-                ref={nextClientRef}
-                className="text-sm font-light italic text-gray-600 mt-2"
-              >
-                {t.intro.nextClient || 'You can be the next one'}
-              </div>
+              {showNextClient && (
+                <div 
+                  ref={nextClientRef}
+                  className="text-base md:text-lg font-light italic text-gray-700 mt-2"
+                >
+                  {t.intro.nextClient || 'You can be the next one'}
+                </div>
+              )}
             </div>
           </div>
         </div>
