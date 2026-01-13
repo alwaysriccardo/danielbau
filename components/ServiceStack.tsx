@@ -211,7 +211,29 @@ const ServiceStack: React.FC = () => {
                 </div>
 
                 <div className="relative w-full h-full min-h-[300px] md:min-h-0 overflow-hidden order-first md:order-last">
-                  {serviceConstant.image.endsWith('.gif') ? (
+                  {serviceConstant.image2 ? (
+                    // Split view for two images
+                    <div className="w-full h-full grid grid-cols-2 gap-0">
+                      <div className="relative overflow-hidden group/image1">
+                        <img 
+                          src={serviceConstant.image} 
+                          alt={textData.title}
+                          className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover/image1:scale-110"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                      <div className="relative overflow-hidden group/image2">
+                        <img 
+                          src={serviceConstant.image2} 
+                          alt={`${textData.title} - Bathroom`}
+                          className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover/image2:scale-110"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    </div>
+                  ) : serviceConstant.image.endsWith('.gif') ? (
                     <img 
                       src={serviceConstant.image} 
                       alt={textData.title}

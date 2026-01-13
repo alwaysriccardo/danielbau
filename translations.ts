@@ -29,7 +29,7 @@ export const TRANSLATIONS = {
         {
           title: "MALERARBEITEN & DEKORATION",
           subtitle: "Anstrich & Gestaltung",
-          description: "Professionelle Malerarbeiten, Tapetenverlegung und dekorative Techniken. Von Innen- und Außenanstrichen bis hin zu Isolierung, Bodenverlegung und Putzarbeiten – wir veredeln Ihre Räume mit Präzision."
+          description: "Professionelle Malerarbeiten, Tapetenverlegung und dekorative Techniken. Von Innen- und Außenanstrichen bis hin zu Isolierung, Bodenverlegung und Putzarbeiten. Spezialisiert auf Badezimmer-Fliesenarbeiten – wir veredeln Ihre Räume mit Präzision."
         },
         {
           title: "BODEN & FASSADE",
@@ -102,7 +102,7 @@ export const TRANSLATIONS = {
         {
           title: "PAINTING & DECORATING",
           subtitle: "Paint & Design",
-          description: "Professional painting, wallpapering, and decorative techniques. From interior and exterior painting to insulation, flooring, and plastering work – we enhance your spaces with precision."
+          description: "Professional painting, wallpapering, and decorative techniques. From interior and exterior painting to insulation, flooring, and plastering work. Specialized in bathroom tiling – we enhance your spaces with precision."
         },
         {
           title: "FLOORING & FACADE",
@@ -170,7 +170,7 @@ export const TRANSLATIONS = {
         {
           title: "PEINTURE & DÉCORATION",
           subtitle: "Peinture & Design",
-          description: "Travaux de peinture professionnels, pose de papier peint et techniques décoratives. De la peinture intérieure et extérieure à l'isolation, au revêtement de sol et au plâtrage – nous embellissons vos espaces avec précision."
+          description: "Travaux de peinture professionnels, pose de papier peint et techniques décoratives. De la peinture intérieure et extérieure à l'isolation, au revêtement de sol et au plâtrage. Spécialisés dans le carrelage de salle de bain – nous embellissons vos espaces avec précision."
         },
         {
           title: "SOL & FAÇADE",
@@ -238,7 +238,7 @@ export const TRANSLATIONS = {
         {
           title: "LAVORI DI PITTURA & DECORAZIONE",
           subtitle: "Verniciatura & Design",
-          description: "Lavori di pittura professionali, tappezzeria e tecniche decorative. Dalla pittura interna ed esterna all'isolamento, posa di pavimenti e intonaci – valorizziamo i vostri spazi con precisione."
+          description: "Lavori di pittura professionali, tappezzeria e tecniche decorative. Dalla pittura interna ed esterna all'isolamento, posa di pavimenti e intonaci. Specializzati in piastrelle per bagni – valorizziamo i vostri spazi con precisione."
         },
         {
           title: "PAVIMENTI & FACCIATE",

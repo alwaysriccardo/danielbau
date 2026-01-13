@@ -5,6 +5,7 @@ export interface ServiceItem {
   subtitle: string;
   description: string;
   image: string;
+  image2?: string; // Optional second image for split view
   accentColor: string;
 }
 

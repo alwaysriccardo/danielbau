@@ -16,27 +16,27 @@ const Intro: React.FC = () => {
   const [showNextClient, setShowNextClient] = useState(false);
 
   useEffect(() => {
-    // Animate counter from 0 to 5000, then replace with text
+    // Animate counter from 0 to 1000, then replace with text
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && count === 0) {
-            const duration = 800; // 0.8 seconds - faster animation
+            const duration = 1500; // 1.5 seconds
             const steps = 100;
-            const increment = 5000 / steps;
+            const increment = 1000 / steps;
             const stepDuration = duration / steps;
             let current = 0;
 
             const timer = setInterval(() => {
               current += increment;
-              if (current >= 5000) {
-                setCount(5000);
+              if (current >= 1000) {
+                setCount(1000);
                 clearInterval(timer);
-                // After showing 5000, replace with text
+                // After showing 1000, replace with text
                 setTimeout(() => {
                   setCount(t.intro.nextClientNumber || 'You');
                   setShowNextClient(true);
-                }, 500);
+                }, 300);
               } else {
                 setCount(Math.floor(current));
               }

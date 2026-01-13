@@ -7,7 +7,8 @@ export const SERVICES: ServiceItem[] = [
     title: "MALERARBEITEN & DEKORATION",
     subtitle: "Anstrich & Gestaltung",
     description: "Professionelle Malerarbeiten, Tapetenverlegung und dekorative Techniken. Von Innen- und Außenanstrichen bis hin zu Isolierung, Bodenverlegung und Putzarbeiten – wir veredeln Ihre Räume mit Präzision.",
-    image: "/images/interior-1.jpg", // Replace with your uploaded image
+    image: "/images/interior-1.jpg",
+    image2: "/images/bathroom-tiling.jpg", // Second image for split view
     accentColor: "text-red-600"
   },
   {
