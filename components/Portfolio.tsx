@@ -21,8 +21,11 @@ const Portfolio: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [uploadUrl, setUploadUrl] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
+  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('file');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   // Load images from localStorage on mount
@@ -80,12 +83,67 @@ const Portfolio: React.FC = () => {
     }
   };
 
-  const handleAddImage = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      
+      // Check if it's an image
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      setUploadFile(file);
+    }
+  };
+
+  const handleAddImage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uploadUrl.trim()) {
+    
+    let imageUrl = '';
+    
+    if (uploadMethod === 'file' && uploadFile) {
+      // Convert file to base64 data URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        const newImage: PortfolioImage = {
+          id: Date.now().toString(),
+          url: base64String,
+          title: uploadTitle.trim() || undefined,
+          description: uploadDescription.trim() || undefined,
+          uploadedAt: new Date().toISOString()
+        };
+        setImages([...images, newImage]);
+        setUploadFile(null);
+        setUploadTitle('');
+        setUploadDescription('');
+        setShowUpload(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      };
+      reader.onerror = () => {
+        alert('Error reading file');
+      };
+      reader.readAsDataURL(uploadFile);
+      return;
+    } else if (uploadMethod === 'url' && uploadUrl.trim()) {
+      imageUrl = uploadUrl.trim();
+    } else {
+      alert('Please select a file or enter an image URL');
+      return;
+    }
+    
+    if (imageUrl) {
       const newImage: PortfolioImage = {
         id: Date.now().toString(),
-        url: uploadUrl.trim(),
+        url: imageUrl,
         title: uploadTitle.trim() || undefined,
         description: uploadDescription.trim() || undefined,
         uploadedAt: new Date().toISOString()
@@ -223,14 +281,79 @@ const Portfolio: React.FC = () => {
         {isAdmin && showUpload && (
           <form onSubmit={handleAddImage} className="mb-8 p-6 bg-white/50 rounded-lg border border-gray-300">
             <h3 className="text-xl font-bold mb-4">Add New Image</h3>
-            <input
-              type="url"
-              placeholder="Image URL"
-              value={uploadUrl}
-              onChange={(e) => setUploadUrl(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-              required
-            />
+            
+            {/* Upload Method Toggle */}
+            <div className="flex gap-4 mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadMethod('file');
+                  setUploadUrl('');
+                  setUploadFile(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+                className={`px-4 py-2 text-sm uppercase tracking-widest transition-colors ${
+                  uploadMethod === 'file'
+                    ? 'bg-[#121212] text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Upload from Device
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadMethod('url');
+                  setUploadFile(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+                className={`px-4 py-2 text-sm uppercase tracking-widest transition-colors ${
+                  uploadMethod === 'url'
+                    ? 'bg-[#121212] text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Image URL
+              </button>
+            </div>
+
+            {/* File Upload */}
+            {uploadMethod === 'file' && (
+              <div className="mb-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
+                />
+                {uploadFile && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    Selected: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-gray-500">
+                  Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                </p>
+              </div>
+            )}
+
+            {/* URL Input */}
+            {uploadMethod === 'url' && (
+              <input
+                type="url"
+                placeholder="Image URL"
+                value={uploadUrl}
+                onChange={(e) => setUploadUrl(e.target.value)}
+                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                required={uploadMethod === 'url'}
+              />
+            )}
+
             <input
               type="text"
               placeholder="Title (optional)"
@@ -257,8 +380,12 @@ const Portfolio: React.FC = () => {
                 onClick={() => {
                   setShowUpload(false);
                   setUploadUrl('');
+                  setUploadFile(null);
                   setUploadTitle('');
                   setUploadDescription('');
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
                 }}
                 className="px-6 py-2 bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors"
               >
