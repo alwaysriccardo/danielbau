@@ -413,10 +413,9 @@ const Portfolio: React.FC = () => {
           <div className="relative">
             <div className="overflow-hidden">
               <div 
-                className="flex gap-6"
+                className="flex gap-6 transition-transform duration-500 ease-in-out"
                 style={{ 
-                  transform: `translateX(calc(-${currentIndex} * (100% + 1.5rem)))`,
-                  transition: 'transform 0.5s ease-in-out'
+                  transform: `translateX(calc(-${currentIndex} * (100% + 1.5rem)))`
                 }}
               >
                 {images.map((image) => (
