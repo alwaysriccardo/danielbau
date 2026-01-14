@@ -28,7 +28,7 @@ export const TRANSLATIONS = {
       viewProject: "Projekt Ansehen",
       items: [
         {
-          title: "MALERARBEITEN & DEKORATION",
+          title: "MALERARBEITEN & FLIESEN",
           subtitle: "Anstrich & Gestaltung",
           description: "Professionelle Malerarbeiten, Tapetenverlegung und dekorative Techniken. Von Innen- und Außenanstrichen bis hin zu Isolierung, Bodenverlegung und Putzarbeiten. Spezialisiert auf Badezimmer-Fliesenarbeiten – wir veredeln Ihre Räume mit Präzision."
         },
@@ -104,7 +104,7 @@ export const TRANSLATIONS = {
       viewProject: "View Project",
       items: [
         {
-          title: "PAINTING & DECORATING",
+          title: "PAINTING & TILING",
           subtitle: "Paint & Design",
           description: "Professional painting, wallpapering, and decorative techniques. From interior and exterior painting to insulation, flooring, and plastering work. Specialized in bathroom tiling – we enhance your spaces with precision."
         },
@@ -172,7 +172,7 @@ export const TRANSLATIONS = {
       viewProject: "Voir le projet",
       items: [
         {
-          title: "PEINTURE & DÉCORATION",
+          title: "PEINTURE & CARRELAGE",
           subtitle: "Peinture & Design",
           description: "Travaux de peinture professionnels, pose de papier peint et techniques décoratives. De la peinture intérieure et extérieure à l'isolation, au revêtement de sol et au plâtrage. Spécialisés dans le carrelage de salle de bain – nous embellissons vos espaces avec précision."
         },
@@ -240,7 +240,7 @@ export const TRANSLATIONS = {
       viewProject: "Vedi Progetto",
       items: [
         {
-          title: "LAVORI DI PITTURA & DECORAZIONE",
+          title: "LAVORI DI PITTURA & PIASTRELLE",
           subtitle: "Verniciatura & Design",
           description: "Lavori di pittura professionali, tappezzeria e tecniche decorative. Dalla pittura interna ed esterna all'isolamento, posa di pavimenti e intonaci. Specializzati in piastrelle per bagni – valorizziamo i vostri spazi con precisione."
         },

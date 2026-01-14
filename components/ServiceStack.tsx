@@ -62,13 +62,12 @@ const ServiceStack: React.FC = () => {
     if (!imagesLoaded) return;
 
     const ctx = gsap.context(() => {
-      // Clear any existing ScrollTriggers for this section
-      ScrollTrigger.getAll().forEach(trigger => {
+      // Clear any existing ScrollTriggers for this section - optimized
+      const existingTriggers = ScrollTrigger.getAll().filter(trigger => {
         const triggerEl = trigger.vars.trigger as Element;
-        if (triggerEl && sectionRef.current?.contains(triggerEl)) {
-          trigger.kill();
-        }
+        return triggerEl && sectionRef.current?.contains(triggerEl);
       });
+      existingTriggers.forEach(trigger => trigger.kill());
 
       // Wait for DOM to be fully ready
       const initScrollTriggers = () => {
@@ -78,7 +77,7 @@ const ServiceStack: React.FC = () => {
             const inner = card.querySelector('.card-inner') as HTMLElement;
           
             if (inner) {
-          gsap.to(inner, {
+            gsap.to(inner, {
             scale: 0.9,
             opacity: 0.4,
             ease: "none",
@@ -87,9 +86,10 @@ const ServiceStack: React.FC = () => {
               trigger: nextCard,
               start: "top bottom",
               end: "top 10vh",
-                  scrub: true,
+                  scrub: 0.5, // Smoother scrubbing
                   invalidateOnRefresh: true,
-                  refreshPriority: -1
+                  refreshPriority: -1,
+                  markers: false // Disable markers in production
             }
           });
         }

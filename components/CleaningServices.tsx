@@ -21,16 +21,16 @@ const CleaningServices: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const [bubbles] = useState<Bubble[]>(() => {
-    // Create rainbow bubbles
+    // Create rainbow bubbles - reduced count for performance
     const newBubbles: Bubble[] = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) { // Reduced from 15 to 10
       newBubbles.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
         size: 20 + Math.random() * 40,
         delay: Math.random() * 2,
-        hue: (i * 24) % 360 // Rainbow colors
+        hue: (i * 36) % 360 // Rainbow colors
       });
     }
     return newBubbles;

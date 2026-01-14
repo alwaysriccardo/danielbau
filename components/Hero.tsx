@@ -29,23 +29,25 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
-      // Animated outline/shine effect for hero text
+      // Animated outline/shine effect for hero text - optimized
       gsap.to('.hero-text-line', {
         textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
-        duration: 2,
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
-        delay: 2
+        delay: 2,
+        force3D: true
       });
 
       gsap.to('.hero-fade', {
         textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 2,
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
-        delay: 2.5
+        delay: 2.5,
+        force3D: true
       });
 
       // Parallax Image

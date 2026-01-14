@@ -20,17 +20,26 @@ const AppContent = () => {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.0, // Reduced from 1.2 for snappier feel
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
-      smoothTouch: false, // Disable on touch devices for better performance
+      smoothTouch: false,
+      wheelMultiplier: 0.8, // Reduce scroll sensitivity
+      touchMultiplier: 1.5,
     });
 
     let rafId: number;
+    let lastTime = 0;
     function raf(time: number) {
       lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
+      // Throttle to ~60fps
+      if (time - lastTime >= 16) {
+        lastTime = time;
+        rafId = requestAnimationFrame(raf);
+      } else {
+        rafId = requestAnimationFrame(raf);
+      }
     }
 
     rafId = requestAnimationFrame(raf);
@@ -39,10 +48,16 @@ const AppContent = () => {
       lenis.stop();
     } else {
       lenis.start();
-      // Refresh ScrollTrigger after Lenis starts
-      setTimeout(() => {
+      // Debounced ScrollTrigger refresh
+      const refreshTimeout = setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 100);
+      }, 200);
+      
+      return () => {
+        clearTimeout(refreshTimeout);
+        cancelAnimationFrame(rafId);
+        lenis.destroy();
+      };
     }
 
     return () => {

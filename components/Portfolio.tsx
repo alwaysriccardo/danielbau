@@ -25,6 +25,7 @@ const Portfolio: React.FC = () => {
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('file');
+  const [currentIndex, setCurrentIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -162,6 +163,17 @@ const Portfolio: React.FC = () => {
     }
   };
 
+  // Auto-advance carousel
+  useEffect(() => {
+    if (images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
     
@@ -226,14 +238,15 @@ const Portfolio: React.FC = () => {
           </div>
         )}
 
-        {/* Login Form */}
+        {/* Login Form - Hidden, only visible on hover/focus */}
         {!isLoggedIn && (
-          <div className="mb-8 text-center">
+          <div className="mb-8 text-center opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 group">
             <button
               onClick={() => setShowLogin(!showLogin)}
-              className="px-6 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+              className="px-3 py-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              title="Admin Login"
             >
-              Admin Login
+              ⚙
             </button>
             {showLogin && (
               <form onSubmit={handleLogin} className="mt-4 max-w-md mx-auto bg-white/50 p-6 rounded-lg border border-gray-300">
@@ -395,52 +408,95 @@ const Portfolio: React.FC = () => {
           </form>
         )}
 
-        {/* Portfolio Grid */}
-        {images.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-lg">No images in portfolio yet.</p>
-            {isAdmin && <p className="text-sm mt-2">Click "Add Image" to get started.</p>}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className="portfolio-item group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+        {/* Portfolio Carousel */}
+        {images.length > 0 ? (
+          <div className="relative">
+            <div className="overflow-hidden">
+              <div 
+                className="flex gap-6"
+                style={{ 
+                  transform: `translateX(calc(-${currentIndex} * (100% + 1.5rem)))`,
+                  transition: 'transform 0.5s ease-in-out'
+                }}
               >
-                <div className="aspect-square relative overflow-hidden">
-                  <img
-                    src={image.url}
-                    alt={image.title || 'Portfolio image'}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ddd" width="400" height="400"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3EImage not found%3C/text%3E%3C/svg%3E';
-                    }}
-                  />
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleDeleteImage(image.id)}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                      aria-label="Delete image"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                {(image.title || image.description) && (
-                  <div className="p-4">
-                    {image.title && (
-                      <h3 className="font-bold text-gray-800 mb-1">{image.title}</h3>
-                    )}
-                    {image.description && (
-                      <p className="text-sm text-gray-600">{image.description}</p>
+                {images.map((image) => (
+                  <div
+                    key={image.id}
+                    className="portfolio-item flex-shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                  >
+                    <div className="aspect-square relative overflow-hidden">
+                      <img
+                        src={image.url}
+                        alt={image.title || 'Portfolio image'}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ddd" width="400" height="400"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3EImage not found%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteImage(image.id)}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                          aria-label="Delete image"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    {(image.title || image.description) && (
+                      <div className="p-4">
+                        {image.title && (
+                          <h3 className="font-bold text-gray-800 mb-1">{image.title}</h3>
+                        )}
+                        {image.description && (
+                          <p className="text-sm text-gray-600">{image.description}</p>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+            
+            {/* Carousel Navigation */}
+            {images.length > 1 && (
+              <div className="flex justify-center items-center gap-4 mt-8">
+                <button
+                  onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
+                  className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
+                  aria-label="Previous image"
+                >
+                  ←
+                </button>
+                <div className="flex gap-2">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentIndex ? 'bg-[#121212] w-8' : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))}
+                  className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
+                  aria-label="Next image"
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="min-h-[400px] flex items-center justify-center">
+            {/* Empty state - looks normal, no message */}
           </div>
         )}
       </div>
