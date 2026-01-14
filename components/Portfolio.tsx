@@ -105,19 +105,24 @@ const Portfolio: React.FC = () => {
   };
 
   useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+    
     const ctx = gsap.context(() => {
-      gsap.from('.portfolio-item', {
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      const items = sectionRef.current?.querySelectorAll('.portfolio-item');
+      if (items && items.length > 0) {
+        gsap.from(items, {
+          y: 50,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
