@@ -53,7 +53,7 @@ const OfficeMap: React.FC = () => {
         </div>
         <div className="w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden border border-gray-300 shadow-lg">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890"
+            src="https://www.google.com/maps?q=Rheistrasse+3,+4410+Liestal+Switzerland&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0 }}
@@ -63,6 +63,16 @@ const OfficeMap: React.FC = () => {
             title="DANIELBAU Offices Map"
           />
         </div>
+        <p className="text-center text-sm text-gray-500 mt-4">
+          <a 
+            href="https://www.google.com/maps/dir/Rheistrasse+3,+4410+Liestal/Fluhrweg+16,+3250+Lyss" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            View both locations on Google Maps →
+          </a>
+        </p>
       </div>
     </section>
   );
