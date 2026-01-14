@@ -116,12 +116,12 @@ const Intro: React.FC = () => {
     <section className="py-32 px-6 md:px-20 bg-[#E3E1DC]" id="about">
       <div className="max-w-[1800px] mx-auto">
         <div className="grid md:grid-cols-2 gap-16">
-          <div>
+      <div>
             <div ref={titleRef} className="relative inline-block">
               <div className="flex items-center gap-4 mb-4">
-                <SplitText tag="h2" className="font-display text-4xl md:text-5xl leading-tight">
-                  {t.intro.title}
-                </SplitText>
+        <SplitText tag="h2" className="font-display text-4xl md:text-5xl leading-tight">
+          {t.intro.title}
+        </SplitText>
                 {/* Switzerland Flag */}
                 <div className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
                   <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -138,16 +138,16 @@ const Intro: React.FC = () => {
                 style={{ width: 0 }}
               />
             </div>
-          </div>
+      </div>
           <div className="text-lg md:text-xl font-light leading-relaxed text-gray-700">
             <SplitText tag="p" className="mb-8 max-w-full md:max-w-none">
-              {t.intro.text}
-            </SplitText>
-            
-            <div className="h-px w-full bg-black/10 my-8" />
-            
+          {t.intro.text}
+        </SplitText>
+        
+        <div className="h-px w-full bg-black/10 my-8" />
+        
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 text-sm uppercase tracking-widest mb-8">
-              <SplitText>{t.intro.location}</SplitText>
+          <SplitText>{t.intro.location}</SplitText>
             </div>
 
             {/* Animated Counter Section */}

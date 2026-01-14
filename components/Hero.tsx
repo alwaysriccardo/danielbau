@@ -50,17 +50,17 @@ const Hero: React.FC = () => {
 
       // Parallax Image
       if (imageRef.current) {
-        gsap.to(imageRef.current, {
-          yPercent: 30,
-          ease: 'none',
+      gsap.to(imageRef.current, {
+        yPercent: 30,
+        ease: 'none',
           force3D: true, // GPU acceleration
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true
-          }
-        });
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
       }
     }, containerRef);
 
@@ -73,7 +73,7 @@ const Hero: React.FC = () => {
         ref={imageRef}
         src={IMAGES.HERO} 
         className="absolute inset-0 w-full h-full object-cover brightness-75 scale-110" 
-        alt="Hero Background"
+        alt="Hero Background" 
         loading="eager"
         decoding="async"
         style={{ willChange: 'transform' }}

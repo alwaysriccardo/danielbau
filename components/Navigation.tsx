@@ -37,7 +37,21 @@ const Navigation: React.FC = () => {
           <a href="#about" className="hover:text-blue-400 transition-colors" aria-label={t.nav.about}>
             {t.nav.about}
           </a>
-          <a href="#contact" className="hover:text-blue-400 transition-colors" aria-label={t.nav.contact}>
+          <a href="#portfolio" className="hover:text-blue-400 transition-colors" aria-label={t.nav.portfolio}>
+            {t.nav.portfolio}
+          </a>
+          <a 
+            href="#contact" 
+            onClick={(e) => {
+              e.preventDefault();
+              const footer = document.getElementById('contact');
+              if (footer) {
+                footer.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="hover:text-blue-400 transition-colors" 
+            aria-label={t.nav.contact}
+          >
             {t.nav.contact}
           </a>
         </nav>
@@ -73,6 +87,13 @@ const Navigation: React.FC = () => {
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
           {t.nav.about}
+        </a>
+        <a 
+          href="#portfolio" 
+          onClick={toggleMenu}
+          className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
+        >
+          {t.nav.portfolio}
         </a>
         <a 
           href="#contact" 

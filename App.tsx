@@ -8,9 +8,10 @@ import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
+import Portfolio from './components/Portfolio';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
-import WhatsAppButton from './components/WhatsAppButton';
+import EmailButton from './components/EmailButton';
 
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,7 @@ const AppContent = () => {
       
       <Navigation />
       <LanguageSidebar />
-      <WhatsAppButton />
+      <EmailButton />
 
       {/* Main Content Wrapper */}
       <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
@@ -63,6 +64,7 @@ const AppContent = () => {
         <Intro />
         <ServiceStack />
         <CleaningServices />
+        <Portfolio />
         
         {/* Final Text Section */}
         <section className="py-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">

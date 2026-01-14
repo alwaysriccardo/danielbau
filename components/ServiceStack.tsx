@@ -72,27 +72,27 @@ const ServiceStack: React.FC = () => {
 
       // Wait for DOM to be fully ready
       const initScrollTriggers = () => {
-        cardsRef.current.forEach((card, i) => {
-          const nextCard = cardsRef.current[i + 1];
-          if (nextCard && card) {
+      cardsRef.current.forEach((card, i) => {
+        const nextCard = cardsRef.current[i + 1];
+        if (nextCard && card) {
             const inner = card.querySelector('.card-inner') as HTMLElement;
-            
+          
             if (inner) {
-              gsap.to(inner, {
-                scale: 0.9,
-                opacity: 0.4,
-                ease: "none",
+          gsap.to(inner, {
+            scale: 0.9,
+            opacity: 0.4,
+            ease: "none",
                 force3D: true, // GPU acceleration
-                scrollTrigger: {
-                  trigger: nextCard,
-                  start: "top bottom",
-                  end: "top 10vh",
+            scrollTrigger: {
+              trigger: nextCard,
+              start: "top bottom",
+              end: "top 10vh",
                   scrub: true,
                   invalidateOnRefresh: true,
                   refreshPriority: -1
-                }
-              });
             }
+          });
+        }
           }
         });
 
@@ -242,13 +242,13 @@ const ServiceStack: React.FC = () => {
                       decoding="async"
                     />
                   ) : (
-                    <img 
-                      src={serviceConstant.image} 
-                      alt={textData.title}
-                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+                  <img 
+                    src={serviceConstant.image} 
+                    alt={textData.title}
+                    className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
                       loading="lazy"
                       decoding="async"
-                    />
+                  />
                   )}
                 </div>
 

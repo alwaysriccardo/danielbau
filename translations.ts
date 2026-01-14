@@ -5,6 +5,7 @@ export const TRANSLATIONS = {
     nav: {
       services: "Leistungen",
       about: "Über Uns",
+      portfolio: "Portfolio",
       contact: "Kontakt",
       menu: "MENÜ"
     },
@@ -16,7 +17,7 @@ export const TRANSLATIONS = {
     intro: {
       title: "Qualität im Detail.",
       text: "Willkommen bei Danielbau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten. Zusätzlich bieten wir Reinigungsdienstleistungen an.",
-      location: "SCHWEIZ / ZÜRICH",
+      location: "SCHWEIZ / ZÜRICH / AARGAU / BASEL / ZUG / LUZERN / BERN",
       satisfiedClients: "zufriedene Kunden",
       nextClientNumber: "Sie",
       nextClient: "können der nächste zufriedene Kunde sein"
@@ -53,8 +54,8 @@ export const TRANSLATIONS = {
       subheader: "Zusätzliche Services",
       note: "Wir bieten auch professionelle Reinigungsdienstleistungen an",
       items: [
-        "Tiefenreinigung",
-        "Auszugsreinigung",
+        "Grundreinigung",
+        "Umzugsreinigung",
         "Fensterreinigung",
         "Entsorgung"
       ],
@@ -92,7 +93,7 @@ export const TRANSLATIONS = {
     intro: {
       title: "Quality in Detail.",
       text: "Welcome to Danielbau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work. We also offer cleaning services as an additional option.",
-      location: "SWITZERLAND / ZURICH",
+      location: "SWITZERLAND / ZURICH / AARGAU / BASEL / ZUG / LUZERN / BERN",
       satisfiedClients: "satisfied clients",
       nextClientNumber: "You",
       nextClient: "can be the next satisfied client"
@@ -160,7 +161,7 @@ export const TRANSLATIONS = {
     intro: {
       title: "La Qualité en Détail.",
       text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation. Nous proposons également des services de nettoyage.",
-      location: "SUISSE / ZURICH",
+      location: "SUISSE / ZURICH / ARGOVIE / BÂLE / ZOUG / LUCERNE / BERNE",
       satisfiedClients: "clients satisfaits",
       nextClientNumber: "Vous",
       nextClient: "pouvez être le prochain client satisfait"
@@ -228,7 +229,7 @@ export const TRANSLATIONS = {
     intro: {
       title: "Qualità nel Dettaglio.",
       text: "Benvenuti da Danielbau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento. Offriamo anche servizi di pulizia.",
-      location: "SVIZZERA / ZURIGO",
+      location: "SVIZZERA / ZURIGO / ARGOVIA / BASILEA / ZUGO / LUCERNA / BERNA",
       satisfiedClients: "clienti soddisfatti",
       nextClientNumber: "Tu",
       nextClient: "puoi essere il prossimo cliente soddisfatto"

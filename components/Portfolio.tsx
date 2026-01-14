@@ -1,0 +1,310 @@
+import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+interface PortfolioImage {
+  id: string;
+  url: string;
+  title?: string;
+  description?: string;
+  uploadedAt: string;
+}
+
+const Portfolio: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [images, setImages] = useState<PortfolioImage[]>([]);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadUrl, setUploadUrl] = useState('');
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDescription, setUploadDescription] = useState('');
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Load images from localStorage on mount
+  useEffect(() => {
+    const storedImages = localStorage.getItem('danielbau_portfolio');
+    if (storedImages) {
+      try {
+        setImages(JSON.parse(storedImages));
+      } catch (e) {
+        console.error('Error loading portfolio images:', e);
+      }
+    }
+
+    // Check if admin is already logged in
+    const adminSession = sessionStorage.getItem('danielbau_admin');
+    if (adminSession === 'true') {
+      setIsAdmin(true);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // Save images to localStorage whenever they change
+  useEffect(() => {
+    if (images.length > 0 || localStorage.getItem('danielbau_portfolio')) {
+      localStorage.setItem('danielbau_portfolio', JSON.stringify(images));
+    }
+  }, [images]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'danielbauadmin' && password === 'danielbau') {
+      setIsAdmin(true);
+      setIsLoggedIn(true);
+      setShowLogin(false);
+      sessionStorage.setItem('danielbau_admin', 'true');
+      setUsername('');
+      setPassword('');
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
+    setIsLoggedIn(false);
+    sessionStorage.removeItem('danielbau_admin');
+  };
+
+  const handleAddImage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (uploadUrl.trim()) {
+      const newImage: PortfolioImage = {
+        id: Date.now().toString(),
+        url: uploadUrl.trim(),
+        title: uploadTitle.trim() || undefined,
+        description: uploadDescription.trim() || undefined,
+        uploadedAt: new Date().toISOString()
+      };
+      setImages([...images, newImage]);
+      setUploadUrl('');
+      setUploadTitle('');
+      setUploadDescription('');
+      setShowUpload(false);
+    }
+  };
+
+  const handleDeleteImage = (id: string) => {
+    if (confirm('Are you sure you want to delete this image?')) {
+      setImages(images.filter(img => img.id !== id));
+    }
+  };
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.portfolio-item', {
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [images]);
+
+  return (
+    <section 
+      ref={sectionRef}
+      className="py-24 px-6 md:px-20 bg-[#E3E1DC] min-h-screen" 
+      id="portfolio"
+    >
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="font-display text-5xl md:text-7xl mb-4 text-gray-800">
+            PORTFOLIO
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Showcasing our completed projects and craftsmanship
+          </p>
+        </div>
+
+        {/* Admin Controls */}
+        {isAdmin && (
+          <div className="mb-8 p-4 bg-white/50 rounded-lg border border-gray-300 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Admin Mode: <span className="font-bold">Active</span>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowUpload(!showUpload)}
+                className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+              >
+                {showUpload ? 'Cancel' : 'Add Image'}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Login Form */}
+        {!isLoggedIn && (
+          <div className="mb-8 text-center">
+            <button
+              onClick={() => setShowLogin(!showLogin)}
+              className="px-6 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+            >
+              Admin Login
+            </button>
+            {showLogin && (
+              <form onSubmit={handleLogin} className="mt-4 max-w-md mx-auto bg-white/50 p-6 rounded-lg border border-gray-300">
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                  required
+                />
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  >
+                    Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowLogin(false);
+                      setUsername('');
+                      setPassword('');
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* Upload Form */}
+        {isAdmin && showUpload && (
+          <form onSubmit={handleAddImage} className="mb-8 p-6 bg-white/50 rounded-lg border border-gray-300">
+            <h3 className="text-xl font-bold mb-4">Add New Image</h3>
+            <input
+              type="url"
+              placeholder="Image URL"
+              value={uploadUrl}
+              onChange={(e) => setUploadUrl(e.target.value)}
+              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Title (optional)"
+              value={uploadTitle}
+              onChange={(e) => setUploadTitle(e.target.value)}
+              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+            />
+            <textarea
+              placeholder="Description (optional)"
+              value={uploadDescription}
+              onChange={(e) => setUploadDescription(e.target.value)}
+              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+              rows={3}
+            />
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors"
+              >
+                Add Image
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUpload(false);
+                  setUploadUrl('');
+                  setUploadTitle('');
+                  setUploadDescription('');
+                }}
+                className="px-6 py-2 bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Portfolio Grid */}
+        {images.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            <p className="text-lg">No images in portfolio yet.</p>
+            {isAdmin && <p className="text-sm mt-2">Click "Add Image" to get started.</p>}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {images.map((image) => (
+              <div
+                key={image.id}
+                className="portfolio-item group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <div className="aspect-square relative overflow-hidden">
+                  <img
+                    src={image.url}
+                    alt={image.title || 'Portfolio image'}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ddd" width="400" height="400"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3EImage not found%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteImage(image.id)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                      aria-label="Delete image"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                {(image.title || image.description) && (
+                  <div className="p-4">
+                    {image.title && (
+                      <h3 className="font-bold text-gray-800 mb-1">{image.title}</h3>
+                    )}
+                    {image.description && (
+                      <p className="text-sm text-gray-600">{image.description}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default Portfolio;
