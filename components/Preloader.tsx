@@ -60,14 +60,18 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       </div>
       <div 
         ref={flagRef}
-        className="w-16 h-16 md:w-20 md:h-20 relative"
+        className="w-32 h-32 md:w-40 md:h-40 relative"
       >
-        {/* Switzerland Flag - Black and White */}
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <rect x="0" y="0" width="100" height="100" fill="white" />
-          <rect x="0" y="40" width="100" height="20" fill="black" />
-          <rect x="40" y="0" width="20" height="100" fill="black" />
-        </svg>
+        {/* Logo */}
+        <img 
+          src="/images/logo.png" 
+          alt="DANIELBAU Logo" 
+          className="w-full h-full object-contain"
+          onError={(e) => {
+            // Fallback if logo not found
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
+        />
       </div>
       <div ref={barRef} className="absolute bottom-0 left-0 h-1 bg-white w-0" />
     </div>

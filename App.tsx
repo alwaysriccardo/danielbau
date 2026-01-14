@@ -9,6 +9,7 @@ import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
 import Portfolio from './components/Portfolio';
+import OfficeMap from './components/OfficeMap';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import EmailButton from './components/EmailButton';
@@ -86,6 +87,7 @@ const AppContent = () => {
         </section>
       </div>
 
+      <OfficeMap />
       <Footer />
     </>
   );
