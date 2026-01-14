@@ -68,8 +68,13 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           alt="DANIELBAU Logo" 
           className="w-full h-full object-contain"
           onError={(e) => {
-            // Fallback if logo not found
-            (e.target as HTMLImageElement).style.display = 'none';
+            console.error('Logo failed to load:', e);
+            // Fallback if logo not found - show placeholder
+            const img = e.target as HTMLImageElement;
+            img.style.display = 'none';
+          }}
+          onLoad={() => {
+            console.log('Logo loaded successfully');
           }}
         />
       </div>
