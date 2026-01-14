@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -27,6 +27,9 @@ const Portfolio: React.FC = () => {
 
   // Load images from localStorage on mount
   useEffect(() => {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return;
+    
     const storedImages = localStorage.getItem('danielbau_portfolio');
     if (storedImages) {
       try {
@@ -46,6 +49,8 @@ const Portfolio: React.FC = () => {
 
   // Save images to localStorage whenever they change
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (images.length > 0 || localStorage.getItem('danielbau_portfolio')) {
       localStorage.setItem('danielbau_portfolio', JSON.stringify(images));
     }
@@ -57,7 +62,9 @@ const Portfolio: React.FC = () => {
       setIsAdmin(true);
       setIsLoggedIn(true);
       setShowLogin(false);
-      sessionStorage.setItem('danielbau_admin', 'true');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('danielbau_admin', 'true');
+      }
       setUsername('');
       setPassword('');
     } else {
@@ -68,7 +75,9 @@ const Portfolio: React.FC = () => {
   const handleLogout = () => {
     setIsAdmin(false);
     setIsLoggedIn(false);
-    sessionStorage.removeItem('danielbau_admin');
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('danielbau_admin');
+    }
   };
 
   const handleAddImage = (e: React.FormEvent) => {
