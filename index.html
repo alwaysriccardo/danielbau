@@ -40,14 +40,16 @@
         transition: background-color 0.3s ease;
       }
       
-      body:not(.loaded) #root > *:not(.preloader-container) {
-        opacity: 0;
-        visibility: hidden;
+      /* Ensure scroll position stays at top */
+      html, body {
+        scroll-behavior: auto;
       }
       
-      /* Ensure smooth transition from preloader */
-      #root > *:not(.preloader-container) {
-        transition: opacity 0.5s ease;
+      /* Prevent any auto-scrolling */
+      body:not(.loaded) {
+        position: fixed;
+        width: 100%;
+        height: 100%;
       }
       .font-display { font-family: var(--font-display); }
       .font-body { font-family: var(--font-body); }

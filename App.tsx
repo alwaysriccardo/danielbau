@@ -15,24 +15,47 @@ import EmailButton from './components/EmailButton';
 
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
   const { t } = useLanguage();
 
+  // Ensure scroll is at top when loading completes
   useEffect(() => {
+    if (!loading) {
+      // Force scroll to top immediately
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      
+      // Wait a frame for content to be ready, then show it
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setContentReady(true);
+        });
+      });
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    // Only initialize Lenis after content is ready
+    if (!contentReady) return;
+
     const lenis = new Lenis({
-      duration: 1.0, // Reduced from 1.2 for snappier feel
+      duration: 1.0,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
       smoothTouch: false,
-      wheelMultiplier: 0.8, // Reduce scroll sensitivity
+      wheelMultiplier: 0.8,
       touchMultiplier: 1.5,
     });
+
+    // Ensure scroll position is at top
+    lenis.scrollTo(0, { immediate: true });
 
     let rafId: number;
     let lastTime = 0;
     function raf(time: number) {
       lenis.raf(time);
-      // Throttle to ~60fps
       if (time - lastTime >= 16) {
         lastTime = time;
         rafId = requestAnimationFrame(raf);
@@ -42,53 +65,47 @@ const AppContent = () => {
     }
 
     rafId = requestAnimationFrame(raf);
-
-    if (loading) {
-      lenis.stop();
-    } else {
-      // Start Lenis immediately when loading is false
-      lenis.start();
-      // Enable scrolling immediately
-      document.body.style.overflow = '';
-      
-      // Debounced ScrollTrigger refresh
-      const refreshTimeout = setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 100);
-      
-      return () => {
-        clearTimeout(refreshTimeout);
-        cancelAnimationFrame(rafId);
-        lenis.destroy();
-      };
-    }
-
+    
+    // Refresh ScrollTrigger after a short delay to ensure layout is calculated
+    const refreshTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+      // Ensure scroll is still at top after refresh
+      lenis.scrollTo(0, { immediate: true });
+    }, 150);
+    
     return () => {
+      clearTimeout(refreshTimeout);
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, [loading]);
+  }, [contentReady]);
 
   // Ensure body overflow is enabled when loading completes
   useEffect(() => {
-    if (!loading) {
+    if (!loading && contentReady) {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.style.pointerEvents = 'auto';
-      // Add loaded class to body
       document.body.classList.add('loaded');
     } else {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       document.body.classList.remove('loaded');
     }
-  }, [loading]);
+  }, [loading, contentReady]);
 
   return (
     <>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
-      <div className={loading ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}>
+      {/* Render content immediately but keep it hidden until ready */}
+      <div 
+        className={contentReady ? 'opacity-100' : 'opacity-0'} 
+        style={{ 
+          visibility: contentReady ? 'visible' : 'hidden',
+          transition: contentReady ? 'opacity 0.3s ease' : 'none'
+        }}
+      >
         <Navigation />
         <LanguageSidebar />
         <EmailButton />
