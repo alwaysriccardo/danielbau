@@ -19,26 +19,20 @@ const AppContent = () => {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.0, // Reduced from 1.2 for snappier feel
+      duration: 0.8, // Further reduced for better performance
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
       smoothTouch: false,
-      wheelMultiplier: 0.8, // Reduce scroll sensitivity
+      wheelMultiplier: 0.7, // Reduce scroll sensitivity
       touchMultiplier: 1.5,
+      lerp: 0.1, // Add lerp for smoother performance
     });
 
     let rafId: number;
-    let lastTime = 0;
     function raf(time: number) {
       lenis.raf(time);
-      // Throttle to ~60fps
-      if (time - lastTime >= 16) {
-        lastTime = time;
-        rafId = requestAnimationFrame(raf);
-      } else {
-        rafId = requestAnimationFrame(raf);
-      }
+      rafId = requestAnimationFrame(raf);
     }
 
     rafId = requestAnimationFrame(raf);

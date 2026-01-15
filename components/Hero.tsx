@@ -29,26 +29,8 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
-      // Animated outline/shine effect for hero text - optimized
-      gsap.to('.hero-text-line', {
-        textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
-        duration: 3, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 2,
-        force3D: true
-      });
-
-      gsap.to('.hero-fade', {
-        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 3, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 2.5,
-        force3D: true
-      });
+      // Animated outline/shine effect for hero text - optimized with CSS animation instead
+      // Using CSS animations is more performant than GSAP for infinite loops
 
       // Parallax Image
       if (imageRef.current) {
@@ -83,24 +65,43 @@ const Hero: React.FC = () => {
       
       <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference">
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
-          <span className="hero-text-line block translate-y-full" style={{ 
+          <span className="hero-text-line block translate-y-full hero-shine" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
             textStroke: '1px rgba(255,255,255,0.3)'
           }}>{t.hero.line1}</span>
         </h1>
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
-          <span className="hero-text-line block translate-y-full" style={{ 
+          <span className="hero-text-line block translate-y-full hero-shine" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
             textStroke: '1px rgba(255,255,255,0.3)'
           }}>{t.hero.line2}</span>
         </h1>
         
-        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference" style={{
+        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference hero-shine-subtitle" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
           textStroke: '0.5px rgba(255,255,255,0.2)'
         }}>
           {t.hero.subtitle}
         </p>
+        
+        <style>{`
+          .hero-shine {
+            animation: heroShine 4s ease-in-out infinite;
+            animation-delay: 2s;
+          }
+          .hero-shine-subtitle {
+            animation: heroShineSubtitle 4s ease-in-out infinite;
+            animation-delay: 2.5s;
+          }
+          @keyframes heroShine {
+            0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4); }
+            50% { text-shadow: 0 0 15px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4), 0 0 45px rgba(255,255,255,0.2); }
+          }
+          @keyframes heroShineSubtitle {
+            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4); }
+            50% { text-shadow: 0 0 12px rgba(255,255,255,0.4), 0 0 24px rgba(255,255,255,0.2); }
+          }
+        `}</style>
       </div>
     </section>
   );

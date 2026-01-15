@@ -21,16 +21,16 @@ const CleaningServices: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const [bubbles] = useState<Bubble[]>(() => {
-    // Create rainbow bubbles - reduced count for performance
+    // Create rainbow bubbles - further reduced for performance
     const newBubbles: Bubble[] = [];
-    for (let i = 0; i < 10; i++) { // Reduced from 15 to 10
+    for (let i = 0; i < 8; i++) { // Reduced from 10 to 8
       newBubbles.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
         size: 20 + Math.random() * 40,
         delay: Math.random() * 2,
-        hue: (i * 36) % 360 // Rainbow colors
+        hue: (i * 45) % 360 // Rainbow colors
       });
     }
     return newBubbles;
@@ -82,26 +82,7 @@ const CleaningServices: React.FC = () => {
         });
       }
 
-      // Animate bubbles with transform for better performance
-      bubbles.forEach((bubble) => {
-        const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
-        if (bubbleEl) {
-          const moveY = 50 + Math.random() * 100;
-          const moveX = -20 + Math.random() * 40;
-          gsap.to(bubbleEl, {
-            y: `-=${moveY}`,
-            x: `+=${moveX}`,
-            opacity: 0.6 + Math.random() * 0.4,
-            scale: 0.8 + Math.random() * 0.4,
-            duration: 3 + Math.random() * 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            delay: bubble.delay,
-            force3D: true // GPU acceleration
-          });
-        }
-      });
+      // Bubbles now use CSS animations (more performant than GSAP for many elements)
     }, sectionRef);
 
     return () => ctx.revert();
@@ -112,13 +93,12 @@ const CleaningServices: React.FC = () => {
       ref={sectionRef} 
       className="py-24 px-6 md:px-20 bg-[#E3E1DC] relative overflow-hidden"
     >
-      {/* Rainbow Bubbles */}
+      {/* Rainbow Bubbles - CSS animations for better performance */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {bubbles.map((bubble) => (
           <div
             key={bubble.id}
-            id={`bubble-${bubble.id}`}
-            className="absolute rounded-full opacity-60 blur-sm"
+            className="absolute rounded-full opacity-60 blur-sm bubble-float"
             style={{
               left: `${bubble.x}%`,
               top: `${bubble.y}%`,
@@ -126,11 +106,38 @@ const CleaningServices: React.FC = () => {
               height: `${bubble.size}px`,
               background: `radial-gradient(circle, hsla(${bubble.hue}, 70%, 60%, 0.6), hsla(${bubble.hue}, 70%, 50%, 0.3))`,
               boxShadow: `0 0 ${bubble.size}px hsla(${bubble.hue}, 70%, 60%, 0.5)`,
-              willChange: 'transform, opacity'
+              willChange: 'transform, opacity',
+              animationDelay: `${bubble.delay}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
             }}
           />
         ))}
       </div>
+      
+      <style>{`
+        .bubble-float {
+          animation: bubbleFloat 4s ease-in-out infinite;
+          transform: translateZ(0); /* Force GPU acceleration */
+        }
+        @keyframes bubbleFloat {
+          0%, 100% {
+            transform: translate(0, 0) scale(1) translateZ(0);
+            opacity: 0.6;
+          }
+          25% {
+            transform: translate(10px, -30px) scale(1.05) translateZ(0);
+            opacity: 0.7;
+          }
+          50% {
+            transform: translate(-5px, -60px) scale(0.95) translateZ(0);
+            opacity: 0.8;
+          }
+          75% {
+            transform: translate(-10px, -30px) scale(1.02) translateZ(0);
+            opacity: 0.7;
+          }
+        }
+      `}</style>
 
       <div ref={contentRef} className="max-w-[1200px] mx-auto relative z-10">
         <div className="text-center mb-12">

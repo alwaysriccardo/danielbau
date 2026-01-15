@@ -86,29 +86,25 @@ const ServiceStack: React.FC = () => {
               trigger: nextCard,
               start: "top bottom",
               end: "top 10vh",
-                  scrub: 0.5, // Smoother scrubbing
-                  invalidateOnRefresh: true,
-                  refreshPriority: -1,
-                  markers: false // Disable markers in production
+              scrub: 1, // Less frequent updates for better performance
+              invalidateOnRefresh: false, // Disable to reduce recalculations
+              refreshPriority: -1,
+              markers: false
             }
           });
         }
           }
         });
 
-        // Refresh ScrollTrigger after all animations are set up
+        // Refresh ScrollTrigger after all animations are set up (only once)
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
       };
 
-      // Multiple attempts to ensure proper initialization
+      // Single initialization
       requestAnimationFrame(() => {
         initScrollTriggers();
-        // Double-check after a short delay
-        setTimeout(() => {
-          ScrollTrigger.refresh();
-        }, 200);
       });
     }, sectionRef);
 
@@ -117,17 +113,17 @@ const ServiceStack: React.FC = () => {
     };
   }, [t, imagesLoaded]);
 
-  // Refresh on window resize (debounced)
+  // Refresh on window resize (debounced - longer delay for better performance)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 150);
+      }, 300); // Increased from 150ms to 300ms
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timeoutId);
