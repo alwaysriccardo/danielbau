@@ -88,12 +88,13 @@ const AppContent = () => {
     <>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
-      <Navigation />
-      <LanguageSidebar />
-      <EmailButton />
+      <div className={loading ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-500'}>
+        <Navigation />
+        <LanguageSidebar />
+        <EmailButton />
 
-      {/* Main Content Wrapper */}
-      <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
+        {/* Main Content Wrapper */}
+        <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
         <Hero />
         <Intro />
         <ServiceStack />
@@ -118,9 +119,10 @@ const AppContent = () => {
           </div>
           <div className="h-16 w-px bg-black/20"></div>
         </section>
-      </div>
+        </div>
 
-      <Footer />
+        <Footer />
+      </div>
     </>
   );
 };

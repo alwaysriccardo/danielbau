@@ -32,11 +32,22 @@
       /* Prevent flash of content before preloader */
       body:not(.loaded) {
         overflow: hidden;
+        background-color: #000; /* Black background during preloader */
+      }
+      
+      body.loaded {
+        background-color: var(--c-bg);
+        transition: background-color 0.3s ease;
       }
       
       body:not(.loaded) #root > *:not(.preloader-container) {
         opacity: 0;
         visibility: hidden;
+      }
+      
+      /* Ensure smooth transition from preloader */
+      #root > *:not(.preloader-container) {
+        transition: opacity 0.5s ease;
       }
       .font-display { font-family: var(--font-display); }
       .font-body { font-family: var(--font-body); }

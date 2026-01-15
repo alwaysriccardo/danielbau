@@ -43,6 +43,11 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           stagger: 0.05
         }, "-=0.2")
         .to(containerRef.current, {
+          backgroundColor: '#E3E1DC', // Fade to site background color
+          duration: 0.3,
+          ease: 'power2.inOut'
+        }, "-=0.1")
+        .to(containerRef.current, {
           yPercent: -100,
           duration: 0.8,
           ease: 'power3.inOut'
