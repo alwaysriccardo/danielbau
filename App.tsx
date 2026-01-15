@@ -117,7 +117,7 @@ const AppContent = () => {
         <EmailButton />
 
         {/* Main Content Wrapper */}
-        <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
+        <div className="relative z-[10] bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]" style={{ position: 'relative' }}>
         <Hero />
         <Intro />
         <ServiceStack />

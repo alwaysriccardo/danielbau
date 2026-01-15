@@ -115,8 +115,9 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-start md:justify-center items-center overflow-y-auto"
+      className="fixed bottom-0 left-0 w-full h-screen z-[100] bg-[#111] text-white flex flex-col justify-start md:justify-center items-center overflow-y-auto"
       id="contact"
+      style={{ isolation: 'isolate' }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 pt-16 pb-8 md:py-12 md:pt-12">
         <div 
