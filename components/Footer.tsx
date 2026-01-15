@@ -34,6 +34,40 @@ const Footer: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      // Control footer visibility based on scroll position
+      // Footer should only be visible when at the bottom
+      if (footerRef.current) {
+        ScrollTrigger.create({
+          trigger: document.body,
+          start: 'bottom bottom',
+          end: 'bottom bottom',
+          onEnter: () => {
+            if (footerRef.current) {
+              footerRef.current.style.opacity = '1';
+              footerRef.current.style.pointerEvents = 'auto';
+            }
+          },
+          onLeave: () => {
+            if (footerRef.current) {
+              footerRef.current.style.opacity = '0';
+              footerRef.current.style.pointerEvents = 'none';
+            }
+          },
+          onEnterBack: () => {
+            if (footerRef.current) {
+              footerRef.current.style.opacity = '1';
+              footerRef.current.style.pointerEvents = 'auto';
+            }
+          },
+          onLeaveBack: () => {
+            if (footerRef.current) {
+              footerRef.current.style.opacity = '0';
+              footerRef.current.style.pointerEvents = 'none';
+            }
+          }
+        });
+      }
+
       // Animate ready text
       if (readyRef.current) {
         gsap.from(readyRef.current, {
@@ -73,19 +107,21 @@ const Footer: React.FC = () => {
       }
 
       // Animate phone and form
-      gsap.from([phoneRef.current, formRef.current], {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.2,
-        delay: 0.4,
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      if (phoneRef.current && formRef.current) {
+        gsap.from([phoneRef.current, formRef.current], {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          stagger: 0.2,
+          delay: 0.4,
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
 
       // Hover animations - use CSS hover instead to avoid blocking clicks
       if (quoteRef.current) {
@@ -114,6 +150,11 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center"
       id="contact"
+      style={{ 
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: 'opacity 0.3s ease'
+      }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-4xl px-6">
         <div 
@@ -128,12 +169,20 @@ const Footer: React.FC = () => {
           ref={quoteRef}
           href="mailto:zitat@danielbau.de"
           onClick={(e) => {
-            // Ensure click works even with GSAP animations
+            // Ensure click works - prevent any event interference
+            e.preventDefault();
             e.stopPropagation();
             window.location.href = 'mailto:zitat@danielbau.de';
+            return false;
           }}
-          className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8 pointer-events-auto"
-          style={{ pointerEvents: 'auto', zIndex: 10 }}
+          className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8"
+          style={{ 
+            pointerEvents: 'auto', 
+            zIndex: 10,
+            position: 'relative',
+            userSelect: 'none',
+            WebkitUserSelect: 'none'
+          }}
         >
           {t.footer.offer}
         </a>
