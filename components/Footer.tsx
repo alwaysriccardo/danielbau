@@ -34,8 +34,36 @@ const Footer: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Control footer visibility based on scroll position
-      // Footer should only be visible when at the bottom
+      // Ensure footer visibility is controlled properly
+      // Check scroll position on mount and scroll events
+      const checkScrollPosition = () => {
+        if (!footerRef.current) return;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const isAtBottom = scrollTop + windowHeight >= documentHeight - 10; // 10px threshold
+        
+        if (isAtBottom) {
+          footerRef.current.style.opacity = '1';
+          footerRef.current.style.pointerEvents = 'auto';
+        } else {
+          footerRef.current.style.opacity = '0';
+          footerRef.current.style.pointerEvents = 'none';
+        }
+      };
+      
+      // Initial check
+      checkScrollPosition();
+      
+      // Listen to scroll events
+      const handleScroll = () => {
+        requestAnimationFrame(checkScrollPosition);
+      };
+      
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('resize', checkScrollPosition, { passive: true });
+      
+      // Also use ScrollTrigger for more reliable detection
       if (footerRef.current) {
         ScrollTrigger.create({
           trigger: document.body,
@@ -67,6 +95,11 @@ const Footer: React.FC = () => {
           }
         });
       }
+      
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', checkScrollPosition);
+      };
 
       // Animate ready text
       if (readyRef.current) {
