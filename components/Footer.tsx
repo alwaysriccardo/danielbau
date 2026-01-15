@@ -200,27 +200,38 @@ const Footer: React.FC = () => {
             <div 
               className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg relative"
               onTouchStart={(e) => {
-                // Only allow touch if it's a 2-finger touch or click
+                // Only allow touch if it's a 2-finger touch
                 if (e.touches.length === 1) {
-                  // Single touch - prevent default to stop scrolling
+                  // Single touch - prevent default to stop page scrolling
                   e.preventDefault();
+                  e.stopPropagation();
                 }
-                // 2-finger touches are allowed (default behavior for map interaction)
+                // 2-finger touches are allowed for map interaction
               }}
               onTouchMove={(e) => {
                 // Only allow touch move if it's a 2-finger touch
                 if (e.touches.length === 1) {
                   // Single touch move - prevent to stop scrolling
                   e.preventDefault();
+                  e.stopPropagation();
                 }
               }}
-              style={{ touchAction: 'pan-y pinch-zoom' }}
+              style={{ 
+                touchAction: 'none', // Prevent all default touch actions
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                userSelect: 'none'
+              }}
             >
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
                 height="100%"
-                style={{ border: 0, pointerEvents: 'auto' }}
+                style={{ 
+                  border: 0, 
+                  pointerEvents: 'auto',
+                  touchAction: 'manipulation' // Allow map interaction with 2 fingers
+                }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
