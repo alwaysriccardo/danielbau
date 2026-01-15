@@ -206,32 +206,31 @@ const Footer: React.FC = () => {
           <div className="flex-1 max-w-md">
             <div 
               className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg relative"
-              style={{ 
-                touchAction: 'none',
-                userSelect: 'none'
-              }}
               onTouchStart={(e) => {
-                // Allow 2-finger touches (pinch/zoom/pan) but prevent single-finger scrolling
+                // Prevent single-finger scrolling - only allow 2-finger map interaction
                 if (e.touches.length === 1) {
-                  // Prevent single-finger scrolling by stopping propagation to parent
+                  // Stop event from propagating to parent (which would cause scroll)
                   e.stopPropagation();
-                  // Allow the iframe to handle the touch
-                  return true;
                 }
+                // Allow 2+ finger touches for map pan/zoom
               }}
               onTouchMove={(e) => {
-                // Only allow 2-finger interactions
+                // Prevent single-finger scrolling on parent container
                 if (e.touches.length === 1) {
-                  // Prevent single-finger scroll on parent
                   e.stopPropagation();
+                  e.preventDefault();
                 }
+              }}
+              style={{ 
+                touchAction: 'pan-x pan-y pinch-zoom',
+                isolation: 'isolate'
               }}
             >
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
                 height="100%"
-                style={{ border: 0, pointerEvents: 'auto', touchAction: 'manipulation' }}
+                style={{ border: 0, pointerEvents: 'auto' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
