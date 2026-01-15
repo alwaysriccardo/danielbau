@@ -29,43 +29,41 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
-      // Animated outline/shine effect for hero text - disabled for better performance
-      // Disabled continuous animations to improve FPS
-      // gsap.to('.hero-text-line', {
-      //   textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
-      //   duration: 4,
-      //   repeat: -1,
-      //   yoyo: true,
-      //   ease: 'sine.inOut',
-      //   delay: 2,
-      //   force3D: true,
-      //   lazy: true
-      // });
+      // Animated outline/shine effect for hero text - optimized for performance
+      gsap.to('.hero-text-line', {
+        textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
+        duration: 4, // Slower for better performance
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 2,
+        force3D: true,
+        lazy: true // Only animate when visible
+      });
 
-      // gsap.to('.hero-fade', {
-      //   textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-      //   duration: 4,
-      //   repeat: -1,
-      //   yoyo: true,
-      //   ease: 'sine.inOut',
-      //   delay: 2.5,
-      //   force3D: true,
-      //   lazy: true
-      // });
+      gsap.to('.hero-fade', {
+        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
+        duration: 4, // Slower for better performance
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 2.5,
+        force3D: true,
+        lazy: true // Only animate when visible
+      });
 
-      // Parallax Image - optimized for performance
+      // Parallax Image - optimized
       if (imageRef.current) {
         gsap.to(imageRef.current, {
-          yPercent: 20, // Reduced parallax amount
+          yPercent: 30,
           ease: 'none',
-          force3D: true,
+          force3D: true, // GPU acceleration
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top top',
             end: 'bottom top',
-            scrub: 2, // Increased scrub for better performance
-            invalidateOnRefresh: false,
-            refreshPriority: -1 // Lower priority
+            scrub: 1.5, // Increased scrub value for smoother, less frequent updates
+            invalidateOnRefresh: false // Disable to reduce recalculations
           }
         });
       }
@@ -86,7 +84,7 @@ const Hero: React.FC = () => {
         style={{ willChange: 'transform' }}
       />
       
-      <div ref={textContainerRef} className="relative z-10 text-center text-white" style={{ willChange: 'transform' }}>
+      <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference" style={{ willChange: 'transform' }}>
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
           <span className="hero-text-line block translate-y-full" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
@@ -102,7 +100,7 @@ const Hero: React.FC = () => {
           }}>{t.hero.line2}</span>
         </h1>
         
-        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0" style={{
+        <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
           textStroke: '0.5px rgba(255,255,255,0.2)',
           willChange: 'opacity, text-shadow'

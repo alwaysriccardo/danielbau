@@ -62,15 +62,14 @@ const Footer: React.FC = () => {
         }
       });
 
-      // Continuous glow animation for quote - optimized
+      // Continuous glow animation for quote
       if (quoteRef.current) {
         gsap.to(quoteRef.current, {
           textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
-          duration: 4, // Slower for better performance
+          duration: 2,
           repeat: -1,
           yoyo: true,
-          ease: 'sine.inOut',
-          lazy: true // Only animate when visible
+          ease: 'sine.inOut'
         });
       }
 
