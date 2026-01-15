@@ -117,10 +117,6 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto"
       id="contact"
-      style={{ 
-        touchAction: 'pan-y',
-        WebkitOverflowScrolling: 'touch'
-      }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 py-8 md:py-12">
         <div 
@@ -134,16 +130,8 @@ const Footer: React.FC = () => {
         <a 
           ref={quoteRef}
           href="mailto:zitat@danielbau.de" 
-          className="font-display text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-50"
-          style={{ 
-            pointerEvents: 'auto',
-            touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent',
-            minHeight: '60px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
+          className="font-display text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-20"
+          style={{ pointerEvents: 'auto' }}
         >
           {t.footer.offer}
         </a>
@@ -204,33 +192,12 @@ const Footer: React.FC = () => {
 
           {/* Small Square Map */}
           <div className="flex-1 max-w-md">
-            <div 
-              className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg relative"
-              onTouchStart={(e) => {
-                // Prevent single-finger scrolling - only allow 2-finger map interaction
-                if (e.touches.length === 1) {
-                  // Stop event from propagating to parent (which would cause scroll)
-                  e.stopPropagation();
-                }
-                // Allow 2+ finger touches for map pan/zoom
-              }}
-              onTouchMove={(e) => {
-                // Prevent single-finger scrolling on parent container
-                if (e.touches.length === 1) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }
-              }}
-              style={{ 
-                touchAction: 'pan-x pan-y pinch-zoom',
-                isolation: 'isolate'
-              }}
-            >
+            <div className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
                 height="100%"
-                style={{ border: 0, pointerEvents: 'auto' }}
+                style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
