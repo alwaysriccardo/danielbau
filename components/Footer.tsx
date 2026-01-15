@@ -13,6 +13,7 @@ const Footer: React.FC = () => {
   const phoneRef = useRef<HTMLAnchorElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const readyRef = useRef<HTMLDivElement>(null);
+  const mapIframeRef = useRef<HTMLIFrameElement>(null);
   const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,6 +113,40 @@ const Footer: React.FC = () => {
     return () => ctx.revert();
   }, [t]);
 
+  // Prevent map iframe from interfering with scroll on mobile
+  useEffect(() => {
+    const mapContainer = footerRef.current?.querySelector('.map-container');
+    if (!mapContainer || !mapIframeRef.current) return;
+
+    let scrollTimeout: NodeJS.Timeout;
+    let isScrolling = false;
+
+    const handleScroll = () => {
+      if (!isScrolling && mapIframeRef.current) {
+        isScrolling = true;
+        mapIframeRef.current.style.pointerEvents = 'none';
+      }
+      
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+        if (mapIframeRef.current) {
+          mapIframeRef.current.style.pointerEvents = 'auto';
+        }
+      }, 150);
+    };
+
+    // Listen for scroll events
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, []);
+
   return (
     <footer 
       ref={footerRef}
@@ -201,6 +236,7 @@ const Footer: React.FC = () => {
               }}
             >
               <iframe
+                ref={mapIframeRef}
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
                 height="100%"
