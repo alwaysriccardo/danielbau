@@ -69,47 +69,39 @@ const ServiceStack: React.FC = () => {
       });
       existingTriggers.forEach(trigger => trigger.kill());
 
-      // Wait for DOM to be fully ready
+      // Wait for DOM to be fully ready - optimized
       const initScrollTriggers = () => {
-      cardsRef.current.forEach((card, i) => {
-        const nextCard = cardsRef.current[i + 1];
-        if (nextCard && card) {
+        cardsRef.current.forEach((card, i) => {
+          const nextCard = cardsRef.current[i + 1];
+          if (nextCard && card) {
             const inner = card.querySelector('.card-inner') as HTMLElement;
-          
+            
             if (inner) {
-            gsap.to(inner, {
-            scale: 0.9,
-            opacity: 0.4,
-            ease: "none",
+              gsap.to(inner, {
+                scale: 0.9,
+                opacity: 0.4,
+                ease: "none",
                 force3D: true, // GPU acceleration
-            scrollTrigger: {
-              trigger: nextCard,
-              start: "top bottom",
-              end: "top 10vh",
-                  scrub: 0.5, // Smoother scrubbing
-                  invalidateOnRefresh: true,
+                scrollTrigger: {
+                  trigger: nextCard,
+                  start: "top bottom",
+                  end: "top 10vh",
+                  scrub: 1, // Increased for better performance
+                  invalidateOnRefresh: false, // Disable to reduce recalculations
                   refreshPriority: -1,
-                  markers: false // Disable markers in production
+                  markers: false
+                }
+              });
             }
-          });
-        }
           }
         });
 
-        // Refresh ScrollTrigger after all animations are set up
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-        });
+        // Single refresh after setup
+        ScrollTrigger.refresh();
       };
 
-      // Multiple attempts to ensure proper initialization
-      requestAnimationFrame(() => {
-        initScrollTriggers();
-        // Double-check after a short delay
-        setTimeout(() => {
-          ScrollTrigger.refresh();
-        }, 200);
-      });
+      // Single initialization
+      initScrollTriggers();
     }, sectionRef);
 
     return () => {
@@ -134,7 +126,7 @@ const ServiceStack: React.FC = () => {
     };
   }, []);
 
-  // Add shine effect to view project buttons
+  // Add shine effect to view project buttons - optimized
   useEffect(() => {
     if (!imagesLoaded) return;
 
@@ -142,10 +134,11 @@ const ServiceStack: React.FC = () => {
     buttons?.forEach((btn) => {
       gsap.to(btn, {
         textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
-        duration: 2,
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
+        lazy: true // Only animate when visible
       });
     });
   }, [imagesLoaded]);
@@ -169,10 +162,6 @@ const ServiceStack: React.FC = () => {
               key={serviceConstant.id}
               ref={el => {
                 cardsRef.current[index] = el;
-                // Refresh ScrollTrigger when refs are set
-                if (el && imagesLoaded) {
-                  requestAnimationFrame(() => ScrollTrigger.refresh());
-                }
               }}
               className="sticky top-[10vh] h-[80vh] md:h-[80vh] min-h-[600px] w-full flex items-center justify-center mb-[5vh]"
               style={{ willChange: 'transform' }}
@@ -218,7 +207,7 @@ const ServiceStack: React.FC = () => {
                         <img 
                           src={serviceConstant.image} 
                           alt={textData.title}
-                          className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover/image1:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/image1:scale-105"
                           loading="lazy"
                           decoding="async"
                         />
@@ -227,7 +216,7 @@ const ServiceStack: React.FC = () => {
                         <img 
                           src={serviceConstant.image2} 
                           alt={`${textData.title} - Bathroom`}
-                          className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover/image2:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/image2:scale-105"
                           loading="lazy"
                           decoding="async"
                         />
@@ -237,7 +226,7 @@ const ServiceStack: React.FC = () => {
                     <img 
                       src={serviceConstant.image} 
                       alt={textData.title}
-                      className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       loading="lazy"
                       decoding="async"
                     />

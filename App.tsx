@@ -46,11 +46,15 @@ const AppContent = () => {
     if (loading) {
       lenis.stop();
     } else {
+      // Start Lenis immediately when loading is false
       lenis.start();
+      // Enable scrolling immediately
+      document.body.style.overflow = '';
+      
       // Debounced ScrollTrigger refresh
       const refreshTimeout = setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 200);
+      }, 100);
       
       return () => {
         clearTimeout(refreshTimeout);
@@ -63,6 +67,19 @@ const AppContent = () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
+  }, [loading]);
+
+  // Ensure body overflow is enabled when loading completes
+  useEffect(() => {
+    if (!loading) {
+      document.body.style.overflow = '';
+      // Force enable scrolling immediately
+      document.documentElement.style.overflow = '';
+      document.body.style.pointerEvents = 'auto';
+    } else {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
   }, [loading]);
 
   return (

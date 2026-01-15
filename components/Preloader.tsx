@@ -8,22 +8,18 @@ interface PreloaderProps {
 const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
   const flagRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (!containerRef.current || !textRef.current || !barRef.current || !flagRef.current) return;
+    if (!containerRef.current || !textRef.current || !flagRef.current) return;
     
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         onComplete: onComplete
       });
 
-      tl.to(barRef.current, {
-        width: '100%',
-        duration: 1.5,
-        ease: 'power2.inOut'
-      })
+      // Show logo and text for 1.5 seconds, then fade out
+      tl.to({}, { duration: 1.5 }) // Wait
       .to(textRef.current, {
         y: -50,
         opacity: 0,
@@ -80,7 +76,6 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           }}
         />
       </div>
-      <div ref={barRef} className="absolute bottom-0 left-0 h-1 bg-white w-0" />
     </div>
   );
 };
