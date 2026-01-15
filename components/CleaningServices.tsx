@@ -86,7 +86,7 @@ const CleaningServices: React.FC = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [t, showQuoteMenu, bubbles]);
+  }, [t, showQuoteMenu]);
 
   return (
     <section 
