@@ -76,29 +76,6 @@
       .lenis.lenis-scrolling iframe {
         pointer-events: none;
       }
-      
-      /* Prevent map iframe from interfering with scroll on mobile */
-      @media (max-width: 768px) {
-        .map-container iframe {
-          touch-action: pan-x pan-y;
-          pointer-events: auto;
-        }
-        
-        /* Disable iframe interaction during scroll */
-        .lenis.lenis-smooth .map-container iframe {
-          pointer-events: none;
-        }
-        
-        /* Re-enable after scroll ends */
-        .map-container {
-          position: relative;
-        }
-        
-        .map-container iframe {
-          position: relative;
-          z-index: 1;
-        }
-      }
 
       /* Noise Overlay */
       .noise-overlay {
