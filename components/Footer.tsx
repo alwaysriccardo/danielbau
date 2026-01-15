@@ -64,39 +64,35 @@ const Footer: React.FC = () => {
       window.addEventListener('resize', checkScrollPosition, { passive: true });
       
       // Also use ScrollTrigger for more reliable detection
-      if (footerRef.current) {
-        ScrollTrigger.create({
-          trigger: document.body,
-          start: 'bottom bottom',
-          end: 'bottom bottom',
-          onEnter: () => {
-            if (footerRef.current) {
-              footerRef.current.style.opacity = '1';
-              footerRef.current.style.pointerEvents = 'auto';
-            }
-          },
-          onLeave: () => {
-            if (footerRef.current) {
-              footerRef.current.style.opacity = '0';
-              footerRef.current.style.pointerEvents = 'none';
-            }
-          },
-          onEnterBack: () => {
-            if (footerRef.current) {
-              footerRef.current.style.opacity = '1';
-              footerRef.current.style.pointerEvents = 'auto';
-            }
-          },
-          onLeaveBack: () => {
-            if (footerRef.current) {
-              footerRef.current.style.opacity = '0';
-              footerRef.current.style.pointerEvents = 'none';
-            }
+      const scrollTriggerInstance = ScrollTrigger.create({
+        trigger: document.body,
+        start: 'bottom bottom',
+        end: 'bottom bottom',
+        onEnter: () => {
+          if (footerRef.current) {
+            footerRef.current.style.opacity = '1';
+            footerRef.current.style.pointerEvents = 'auto';
           }
-        });
-      }
-      
-      // Cleanup will be handled by ctx.revert() below
+        },
+        onLeave: () => {
+          if (footerRef.current) {
+            footerRef.current.style.opacity = '0';
+            footerRef.current.style.pointerEvents = 'none';
+          }
+        },
+        onEnterBack: () => {
+          if (footerRef.current) {
+            footerRef.current.style.opacity = '1';
+            footerRef.current.style.pointerEvents = 'auto';
+          }
+        },
+        onLeaveBack: () => {
+          if (footerRef.current) {
+            footerRef.current.style.opacity = '0';
+            footerRef.current.style.pointerEvents = 'none';
+          }
+        }
+      });
 
       // Animate ready text
       if (readyRef.current) {
@@ -170,6 +166,13 @@ const Footer: React.FC = () => {
           }
         }, { passive: true });
       }
+      
+      // Store cleanup function
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', checkScrollPosition);
+        scrollTriggerInstance.kill();
+      };
     }, footerRef);
 
     return () => ctx.revert();
