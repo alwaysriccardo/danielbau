@@ -46,7 +46,11 @@ const Navigation: React.FC = () => {
               e.preventDefault();
               const footer = document.getElementById('contact');
               if (footer) {
-                footer.scrollIntoView({ behavior: 'smooth' });
+                // Use scrollTo for better compatibility with fixed elements
+                window.scrollTo({
+                  top: document.documentElement.scrollHeight,
+                  behavior: 'smooth'
+                });
               }
             }}
             className="hover:text-blue-400 transition-colors" 
@@ -100,10 +104,12 @@ const Navigation: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             toggleMenu();
-            const footer = document.getElementById('contact');
-            if (footer) {
-              footer.scrollIntoView({ behavior: 'smooth' });
-            }
+            setTimeout(() => {
+              window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth'
+              });
+            }, 300); // Wait for menu to close
           }}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >

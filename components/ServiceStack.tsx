@@ -198,10 +198,10 @@ const ServiceStack: React.FC = () => {
                     href="#contact"
                     onClick={(e) => {
                       e.preventDefault();
-                      const footer = document.getElementById('contact');
-                      if (footer) {
-                        footer.scrollIntoView({ behavior: 'smooth' });
-                      }
+                      window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                      });
                     }}
                     className="view-project-btn text-left uppercase tracking-widest text-xs border-b border-white/30 pb-2 w-max hover:text-white transition-all duration-300 inline-block"
                     aria-label={`${t.services.viewProject}: ${textData.title}`}
