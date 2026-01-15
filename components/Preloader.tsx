@@ -8,7 +8,6 @@ interface PreloaderProps {
 const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
   const flagRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -17,12 +16,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         onComplete: onComplete
       });
 
-      tl.to(barRef.current, {
-        width: '100%',
-        duration: 1.5,
-        ease: 'power2.inOut'
-      })
-      .to(textRef.current, {
+      tl.to(textRef.current, {
         y: -50,
         opacity: 0,
         duration: 0.5
@@ -78,7 +72,6 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           }}
         />
       </div>
-      <div ref={barRef} className="absolute bottom-0 left-0 h-1 bg-white w-0" />
     </div>
   );
 };
