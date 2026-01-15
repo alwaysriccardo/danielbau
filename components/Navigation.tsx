@@ -13,20 +13,22 @@ const Navigation: React.FC = () => {
     if (logoRef.current) {
       gsap.to(logoRef.current, {
         textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 2,
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
+        lazy: true // Only animate when visible
       });
     }
   }, []);
 
   return (
     <>
-      <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white">
+      <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white" style={{ willChange: 'transform' }}>
         <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.3)',
-          textStroke: '0.5px rgba(255,255,255,0.3)'
+          textStroke: '0.5px rgba(255,255,255,0.3)',
+          willChange: 'text-shadow'
         }}>DANIELBAU</div>
         
         {/* Desktop Menu */}
