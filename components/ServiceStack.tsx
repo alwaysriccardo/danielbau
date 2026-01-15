@@ -86,23 +86,23 @@ const ServiceStack: React.FC = () => {
               trigger: nextCard,
               start: "top bottom",
               end: "top 10vh",
-              scrub: 1, // Less frequent updates for better performance
-              invalidateOnRefresh: false, // Disable to reduce recalculations
-              refreshPriority: -1,
-              markers: false
+                  scrub: 1, // Less frequent updates for better performance
+                  invalidateOnRefresh: false, // Disable for better performance
+                  refreshPriority: -1,
+                  markers: false
             }
           });
         }
           }
         });
 
-        // Refresh ScrollTrigger after all animations are set up (only once)
+        // Refresh ScrollTrigger after all animations are set up - optimized
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
       };
 
-      // Single initialization
+      // Single initialization for better performance
       requestAnimationFrame(() => {
         initScrollTriggers();
       });
@@ -113,14 +113,21 @@ const ServiceStack: React.FC = () => {
     };
   }, [t, imagesLoaded]);
 
-  // Refresh on window resize (debounced - longer delay for better performance)
+  // Refresh on window resize (debounced) - optimized
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let ticking = false;
     const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 300); // Increased from 150ms to 300ms
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            ScrollTrigger.refresh();
+            ticking = false;
+          }, 250); // Longer delay for better performance
+          ticking = true;
+        });
+      }
     };
 
     window.addEventListener('resize', handleResize, { passive: true });

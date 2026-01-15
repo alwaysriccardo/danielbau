@@ -34,150 +34,83 @@ const Footer: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Ensure footer visibility is controlled properly
-      // Check scroll position on mount and scroll events
-      const checkScrollPosition = () => {
-        if (!footerRef.current) return;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const windowHeight = window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
-        const isAtBottom = scrollTop + windowHeight >= documentHeight - 10; // 10px threshold
-        
-        if (isAtBottom) {
-          footerRef.current.style.opacity = '1';
-          footerRef.current.style.pointerEvents = 'auto';
-        } else {
-          footerRef.current.style.opacity = '0';
-          footerRef.current.style.pointerEvents = 'none';
-        }
-      };
-      
-      // Initial check
-      checkScrollPosition();
-      
-      // Listen to scroll events
-      const handleScroll = () => {
-        requestAnimationFrame(checkScrollPosition);
-      };
-      
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', checkScrollPosition, { passive: true });
-      
-      // Also use ScrollTrigger for more reliable detection
-      const scrollTriggerInstance = ScrollTrigger.create({
-        trigger: document.body,
-        start: 'bottom bottom',
-        end: 'bottom bottom',
-        onEnter: () => {
-          if (footerRef.current) {
-            footerRef.current.style.opacity = '1';
-            footerRef.current.style.pointerEvents = 'auto';
-          }
-        },
-        onLeave: () => {
-          if (footerRef.current) {
-            footerRef.current.style.opacity = '0';
-            footerRef.current.style.pointerEvents = 'none';
-          }
-        },
-        onEnterBack: () => {
-          if (footerRef.current) {
-            footerRef.current.style.opacity = '1';
-            footerRef.current.style.pointerEvents = 'auto';
-          }
-        },
-        onLeaveBack: () => {
-          if (footerRef.current) {
-            footerRef.current.style.opacity = '0';
-            footerRef.current.style.pointerEvents = 'none';
-          }
+      // Animate ready text
+      gsap.from(readyRef.current, {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
         }
       });
 
-      // Animate ready text
-      if (readyRef.current) {
-        gsap.from(readyRef.current, {
-          y: 30,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        });
-      }
-
       // Animate quote link with scale and glow effect
-      if (quoteRef.current) {
-        gsap.from(quoteRef.current, {
-          y: 50,
-          opacity: 0,
-          scale: 0.9,
-          duration: 1.2,
-          ease: 'power4.out',
-          delay: 0.2,
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        });
-      }
+      gsap.from(quoteRef.current, {
+        y: 50,
+        opacity: 0,
+        scale: 0.9,
+        duration: 1.2,
+        ease: 'power4.out',
+        delay: 0.2,
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
+        }
+      });
 
-      // Continuous glow animation for quote - use CSS animation instead
+      // Continuous glow animation for quote - optimized
       if (quoteRef.current) {
-        quoteRef.current.style.animation = 'quoteGlow 3s ease-in-out infinite';
-        quoteRef.current.style.animationDelay = '0.5s';
+        gsap.to(quoteRef.current, {
+          textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
+          duration: 3, // Slower for better performance
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          lazy: true // Only animate when visible
+        });
       }
 
       // Animate phone and form
-      if (phoneRef.current && formRef.current) {
-        gsap.from([phoneRef.current, formRef.current], {
-          y: 30,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-          stagger: 0.2,
-          delay: 0.4,
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
+      gsap.from([phoneRef.current, formRef.current], {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        stagger: 0.2,
+        delay: 0.4,
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+
+      // Hover animations
+      if (quoteRef.current) {
+        quoteRef.current.addEventListener('mouseenter', () => {
+          gsap.to(quoteRef.current, {
+            scale: 1.05,
+            textShadow: '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3)',
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+        quoteRef.current.addEventListener('mouseleave', () => {
+          gsap.to(quoteRef.current, {
+            scale: 1,
+            textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
+            duration: 0.3,
+            ease: 'power2.out'
+          });
         });
       }
-
-      // Hover animations - use CSS hover instead to avoid blocking clicks
-      if (quoteRef.current) {
-        // Add CSS class for hover effects instead of JS listeners
-        quoteRef.current.style.transition = 'transform 0.3s ease, text-shadow 0.3s ease';
-        quoteRef.current.addEventListener('mouseenter', () => {
-          if (quoteRef.current) {
-            quoteRef.current.style.transform = 'scale(1.05)';
-            quoteRef.current.style.textShadow = '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3)';
-          }
-        }, { passive: true });
-        quoteRef.current.addEventListener('mouseleave', () => {
-          if (quoteRef.current) {
-            quoteRef.current.style.transform = 'scale(1)';
-            quoteRef.current.style.textShadow = '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)';
-          }
-        }, { passive: true });
-      }
-      
-      // Store cleanup function
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', checkScrollPosition);
-        scrollTriggerInstance.kill();
-      };
     }, footerRef);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, [t]);
 
   return (
@@ -185,11 +118,6 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center"
       id="contact"
-      style={{ 
-        opacity: 0,
-        pointerEvents: 'none',
-        transition: 'opacity 0.3s ease'
-      }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-4xl px-6">
         <div 
@@ -202,22 +130,8 @@ const Footer: React.FC = () => {
         {/* QUOTE Button - Most Prominent */}
         <a 
           ref={quoteRef}
-          href="mailto:zitat@danielbau.de"
-          onClick={(e) => {
-            // Ensure click works - prevent any event interference
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = 'mailto:zitat@danielbau.de';
-            return false;
-          }}
+          href="mailto:zitat@danielbau.de" 
           className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8"
-          style={{ 
-            pointerEvents: 'auto', 
-            zIndex: 10,
-            position: 'relative',
-            userSelect: 'none',
-            WebkitUserSelect: 'none'
-          }}
         >
           {t.footer.offer}
         </a>
@@ -312,17 +226,6 @@ const Footer: React.FC = () => {
         className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
         alt="Footer Background"
       />
-      
-      <style>{`
-        @keyframes quoteGlow {
-          0%, 100% {
-            text-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2);
-          }
-          50% {
-            text-shadow: 0 0 25px rgba(255,255,255,0.4), 0 0 50px rgba(255,255,255,0.3);
-          }
-        }
-      `}</style>
     </footer>
   );
 };

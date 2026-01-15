@@ -13,10 +13,11 @@ const Navigation: React.FC = () => {
     if (logoRef.current) {
       gsap.to(logoRef.current, {
         textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 2,
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
+        lazy: true // Only animate when visible
       });
     }
   }, []);
@@ -31,57 +32,27 @@ const Navigation: React.FC = () => {
         
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-10 text-xs uppercase tracking-widest" aria-label="Main navigation">
-          <a 
-            href="#services" 
-            onClick={(e) => {
-              e.preventDefault();
-              const el = document.getElementById('services');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }}
-            className="hover:text-blue-400 transition-colors" 
-            aria-label={t.nav.services}
-          >
+          <a href="#services" className="hover:text-blue-400 transition-colors" aria-label={t.nav.services}>
             {t.nav.services}
           </a>
-          <a 
-            href="#about" 
-            onClick={(e) => {
-              e.preventDefault();
-              const el = document.getElementById('about');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }}
-            className="hover:text-blue-400 transition-colors" 
-            aria-label={t.nav.about}
-          >
+          <a href="#about" className="hover:text-blue-400 transition-colors" aria-label={t.nav.about}>
             {t.nav.about}
           </a>
-          <a 
-            href="#portfolio" 
-            onClick={(e) => {
-              e.preventDefault();
-              const el = document.getElementById('portfolio');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }}
-            className="hover:text-blue-400 transition-colors" 
-            aria-label={t.nav.portfolio}
-          >
+          <a href="#portfolio" className="hover:text-blue-400 transition-colors" aria-label={t.nav.portfolio}>
             {t.nav.portfolio}
           </a>
           <a 
             href="#contact" 
             onClick={(e) => {
               e.preventDefault();
-              // Scroll to bottom to show footer
-              window.scrollTo({
-                top: document.documentElement.scrollHeight,
-                behavior: 'smooth'
-              });
+              const footer = document.getElementById('contact');
+              if (footer) {
+                // Use scrollTo for better compatibility with fixed elements
+                window.scrollTo({
+                  top: document.documentElement.scrollHeight,
+                  behavior: 'smooth'
+                });
+              }
             }}
             className="hover:text-blue-400 transition-colors" 
             aria-label={t.nav.contact}
@@ -110,48 +81,21 @@ const Navigation: React.FC = () => {
       >
         <a 
           href="#services" 
-          onClick={(e) => {
-            e.preventDefault();
-            toggleMenu();
-            setTimeout(() => {
-              const el = document.getElementById('services');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 300);
-          }}
+          onClick={toggleMenu}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
           {t.nav.services}
         </a>
         <a 
           href="#about" 
-          onClick={(e) => {
-            e.preventDefault();
-            toggleMenu();
-            setTimeout(() => {
-              const el = document.getElementById('about');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 300);
-          }}
+          onClick={toggleMenu}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
           {t.nav.about}
         </a>
         <a 
           href="#portfolio" 
-          onClick={(e) => {
-            e.preventDefault();
-            toggleMenu();
-            setTimeout(() => {
-              const el = document.getElementById('portfolio');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 300);
-          }}
+          onClick={toggleMenu}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
           {t.nav.portfolio}
@@ -166,7 +110,7 @@ const Navigation: React.FC = () => {
                 top: document.documentElement.scrollHeight,
                 behavior: 'smooth'
               });
-            }, 300);
+            }, 300); // Wait for menu to close
           }}
           className="font-display text-4xl text-white hover:text-blue-500 transition-colors"
         >
