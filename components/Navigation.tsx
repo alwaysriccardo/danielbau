@@ -9,18 +9,7 @@ const Navigation: React.FC = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  useEffect(() => {
-    if (logoRef.current) {
-      gsap.to(logoRef.current, {
-        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 3, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        lazy: true // Only animate when visible
-      });
-    }
-  }, []);
+  // Shine effect removed for cleaner look
 
   return (
     <>
@@ -28,7 +17,7 @@ const Navigation: React.FC = () => {
         <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.3)',
           textStroke: '0.5px rgba(255,255,255,0.3)',
-          willChange: 'text-shadow'
+          willChange: 'transform'
         }}>DANIELBAU</div>
         
         {/* Desktop Menu */}

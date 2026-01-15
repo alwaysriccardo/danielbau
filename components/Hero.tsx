@@ -29,28 +29,7 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
-      // Animated outline/shine effect for hero text - optimized for performance
-      gsap.to('.hero-text-line', {
-        textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
-        duration: 4, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 2,
-        force3D: true,
-        lazy: true // Only animate when visible
-      });
-
-      gsap.to('.hero-fade', {
-        textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 4, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 2.5,
-        force3D: true,
-        lazy: true // Only animate when visible
-      });
+      // Shine effects removed for cleaner look
 
       // Parallax Image - optimized
       if (imageRef.current) {
@@ -89,21 +68,21 @@ const Hero: React.FC = () => {
           <span className="hero-text-line block translate-y-full" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
             textStroke: '1px rgba(255,255,255,0.3)',
-            willChange: 'transform, text-shadow'
+            willChange: 'transform'
           }}>{t.hero.line1}</span>
         </h1>
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
           <span className="hero-text-line block translate-y-full" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
             textStroke: '1px rgba(255,255,255,0.3)',
-            willChange: 'transform, text-shadow'
+            willChange: 'transform'
           }}>{t.hero.line2}</span>
         </h1>
         
         <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
           textStroke: '0.5px rgba(255,255,255,0.2)',
-          willChange: 'opacity, text-shadow'
+          willChange: 'opacity'
         }}>
           {t.hero.subtitle}
         </p>

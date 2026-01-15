@@ -13,38 +13,47 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   useLayoutEffect(() => {
     if (!containerRef.current || !textRef.current || !flagRef.current) return;
     
+    // Preload logo image for smoother experience
+    const logoImg = new Image();
+    logoImg.src = '/images/logo.png';
+    
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        onComplete: onComplete
-      });
-
-      // Show logo and text for 1.5 seconds, then fade out
-      tl.to({}, { duration: 1.5 }) // Wait
-      .to(textRef.current, {
-        y: -50,
-        opacity: 0,
-        duration: 0.5
-      }, "-=0.3")
-      .to(flagRef.current, {
-        y: -50,
-        opacity: 0,
-        duration: 0.5
-      }, "-=0.5")
-      .to(containerRef.current, {
-        yPercent: -100,
-        duration: 1,
-        ease: 'power4.inOut'
-      });
-
-      // Logo fluttering animation
-      if (flagRef.current) {
-        gsap.to(flagRef.current, {
-          rotation: 2,
-          duration: 0.5,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
+      // Wait for logo to load, then start animation
+      const startAnimation = () => {
+        const tl = gsap.timeline({
+          onComplete: onComplete
         });
+
+        // Fade in text and logo smoothly
+        gsap.set([textRef.current, flagRef.current], { opacity: 0, y: 20 });
+        
+        tl.to([textRef.current, flagRef.current], {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          stagger: 0.1
+        })
+        .to({}, { duration: 1.2 }) // Hold
+        .to([textRef.current, flagRef.current], {
+          y: -30,
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+          stagger: 0.05
+        }, "-=0.2")
+        .to(containerRef.current, {
+          yPercent: -100,
+          duration: 0.8,
+          ease: 'power3.inOut'
+        }, "-=0.1");
+      };
+
+      if (logoImg.complete) {
+        startAnimation();
+      } else {
+        logoImg.onload = startAnimation;
+        logoImg.onerror = startAnimation; // Start anyway if image fails
       }
     }, containerRef);
 
