@@ -29,30 +29,28 @@ const Hero: React.FC = () => {
         delay: 1.2
       });
 
-      // Animated outline/shine effect for hero text - optimized (reduced frequency)
+      // Animated outline/shine effect for hero text - optimized
       gsap.to('.hero-text-line', {
         textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
-        duration: 4, // Slower for better performance
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
         delay: 2,
-        force3D: true,
-        lazy: true // Only animate when visible
+        force3D: true
       });
 
       gsap.to('.hero-fade', {
         textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 4, // Slower for better performance
+        duration: 3, // Slower for better performance
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
         delay: 2.5,
-        force3D: true,
-        lazy: true // Only animate when visible
+        force3D: true
       });
 
-      // Parallax Image - optimized
+      // Parallax Image
       if (imageRef.current) {
       gsap.to(imageRef.current, {
         yPercent: 30,
@@ -62,8 +60,7 @@ const Hero: React.FC = () => {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom top',
-          scrub: 1, // Smoother scrubbing (less frequent updates)
-          refreshPriority: -1 // Lower priority
+          scrub: true
         }
       });
       }

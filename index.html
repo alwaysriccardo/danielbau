@@ -61,35 +61,11 @@
       /* Performance Optimizations */
       .card-inner {
         will-change: transform, opacity;
-        transform: translateZ(0); /* Force GPU acceleration */
       }
       
       .hero-text-line,
       .hero-fade {
         will-change: transform, opacity, text-shadow;
-        transform: translateZ(0); /* Force GPU acceleration */
-      }
-      
-      /* Optimize scrolling performance */
-      * {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-      
-      /* Reduce repaints */
-      img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-      }
-      
-      /* Optimize animations */
-      @media (prefers-reduced-motion: no-preference) {
-        .hero-text-line,
-        .hero-fade,
-        .card-inner {
-          backface-visibility: hidden;
-          perspective: 1000px;
-        }
       }
 
       /* Reduce motion for users who prefer it */

@@ -13,11 +13,10 @@ const Navigation: React.FC = () => {
     if (logoRef.current) {
       gsap.to(logoRef.current, {
         textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.4)',
-        duration: 3, // Slower for better performance
+        duration: 2,
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut',
-        lazy: true // Only animate when visible
+        ease: 'sine.inOut'
       });
     }
   }, []);

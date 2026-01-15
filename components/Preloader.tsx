@@ -8,15 +8,23 @@ interface PreloaderProps {
 const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const flagRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
+    if (!containerRef.current || !textRef.current || !barRef.current || !flagRef.current) return;
+    
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         onComplete: onComplete
       });
 
-      tl.to(textRef.current, {
+      tl.to(barRef.current, {
+        width: '100%',
+        duration: 1.5,
+        ease: 'power2.inOut'
+      })
+      .to(textRef.current, {
         y: -50,
         opacity: 0,
         duration: 0.5
@@ -32,7 +40,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         ease: 'power4.inOut'
       });
 
-      // Flag fluttering animation
+      // Logo fluttering animation
       if (flagRef.current) {
         gsap.to(flagRef.current, {
           rotation: 2,
@@ -72,6 +80,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           }}
         />
       </div>
+      <div ref={barRef} className="absolute bottom-0 left-0 h-1 bg-white w-0" />
     </div>
   );
 };

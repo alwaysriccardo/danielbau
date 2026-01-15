@@ -86,25 +86,29 @@ const ServiceStack: React.FC = () => {
               trigger: nextCard,
               start: "top bottom",
               end: "top 10vh",
-                  scrub: 1, // Less frequent updates for better performance
-                  invalidateOnRefresh: false, // Disable for better performance
+                  scrub: 0.5, // Smoother scrubbing
+                  invalidateOnRefresh: true,
                   refreshPriority: -1,
-                  markers: false
+                  markers: false // Disable markers in production
             }
           });
         }
           }
         });
 
-        // Refresh ScrollTrigger after all animations are set up - optimized
+        // Refresh ScrollTrigger after all animations are set up
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
       };
 
-      // Single initialization for better performance
+      // Multiple attempts to ensure proper initialization
       requestAnimationFrame(() => {
         initScrollTriggers();
+        // Double-check after a short delay
+        setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 200);
       });
     }, sectionRef);
 
@@ -113,24 +117,17 @@ const ServiceStack: React.FC = () => {
     };
   }, [t, imagesLoaded]);
 
-  // Refresh on window resize (debounced) - optimized
+  // Refresh on window resize (debounced)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    let ticking = false;
     const handleResize = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(() => {
-            ScrollTrigger.refresh();
-            ticking = false;
-          }, 250); // Longer delay for better performance
-          ticking = true;
-        });
-      }
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 150);
     };
 
-    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timeoutId);

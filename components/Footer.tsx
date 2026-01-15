@@ -62,15 +62,14 @@ const Footer: React.FC = () => {
         }
       });
 
-      // Continuous glow animation for quote - optimized
+      // Continuous glow animation for quote
       if (quoteRef.current) {
         gsap.to(quoteRef.current, {
           textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
-          duration: 3, // Slower for better performance
+          duration: 2,
           repeat: -1,
           yoyo: true,
-          ease: 'sine.inOut',
-          lazy: true // Only animate when visible
+          ease: 'sine.inOut'
         });
       }
 
@@ -116,13 +115,13 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto"
       id="contact"
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-4xl px-6">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 py-8 md:py-12">
         <div 
           ref={readyRef}
-          className="text-xs uppercase tracking-[0.3em] mb-6 text-gray-400"
+          className="text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 text-gray-400"
         >
           {t.footer.ready}
         </div>
@@ -131,18 +130,19 @@ const Footer: React.FC = () => {
         <a 
           ref={quoteRef}
           href="mailto:zitat@danielbau.de" 
-          className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8"
+          className="font-display text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-20"
+          style={{ pointerEvents: 'auto' }}
         >
           {t.footer.offer}
         </a>
 
         {/* Phone Number */}
-        <div ref={phoneRef} className="mb-8">
+        <div ref={phoneRef} className="mb-6 md:mb-8">
           <a 
             href="tel:+41762313831" 
-            className="text-xl md:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
+            className="text-lg md:text-xl lg:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
           >
-            <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
             <span>+41 76 231 38 31</span>
@@ -150,7 +150,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Contact Form and Map Side by Side */}
-        <div className="flex flex-col md:flex-row gap-8 items-start justify-center max-w-5xl mx-auto mb-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start justify-center max-w-5xl mx-auto mb-6 md:mb-8">
           {/* Contact Form */}
           <form 
             ref={formRef}
@@ -192,7 +192,7 @@ const Footer: React.FC = () => {
 
           {/* Small Square Map */}
           <div className="flex-1 max-w-md">
-            <div className="w-full h-[400px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
+            <div className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
@@ -204,7 +204,7 @@ const Footer: React.FC = () => {
                 title="DANIELBAU Offices Map"
               />
             </div>
-            <div className="mt-4 text-xs text-white/70 space-y-1">
+            <div className="mt-3 text-xs text-white/70 space-y-1">
               <p><strong>Main Office:</strong> 4410 Liestal / Rheistrasse 3</p>
               <p><strong>Second Office:</strong> 3250 Lyss / Fluhrweg 16</p>
             </div>

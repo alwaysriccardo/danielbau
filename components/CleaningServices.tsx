@@ -82,7 +82,7 @@ const CleaningServices: React.FC = () => {
         });
       }
 
-      // Animate bubbles with transform for better performance - optimized
+      // Animate bubbles with transform for better performance
       bubbles.forEach((bubble) => {
         const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
         if (bubbleEl) {
@@ -93,13 +93,12 @@ const CleaningServices: React.FC = () => {
             x: `+=${moveX}`,
             opacity: 0.6 + Math.random() * 0.4,
             scale: 0.8 + Math.random() * 0.4,
-            duration: 4 + Math.random() * 2, // Slower for better performance
+            duration: 3 + Math.random() * 2,
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut',
             delay: bubble.delay,
-            force3D: true, // GPU acceleration
-            lazy: true // Only animate when visible
+            force3D: true // GPU acceleration
           });
         }
       });
@@ -119,7 +118,7 @@ const CleaningServices: React.FC = () => {
           <div
             key={bubble.id}
             id={`bubble-${bubble.id}`}
-            className="absolute rounded-full opacity-60"
+            className="absolute rounded-full opacity-60 blur-sm"
             style={{
               left: `${bubble.x}%`,
               top: `${bubble.y}%`,
