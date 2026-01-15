@@ -19,14 +19,14 @@ const AppContent = () => {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 0.8, // Further reduced for better performance
+      duration: 0.8,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
       smoothTouch: false,
-      wheelMultiplier: 0.7, // Reduce scroll sensitivity
+      wheelMultiplier: 0.7,
       touchMultiplier: 1.5,
-      lerp: 0.1, // Add lerp for smoother performance
+      lerp: 0.1,
     });
 
     let rafId: number;
@@ -41,10 +41,15 @@ const AppContent = () => {
       lenis.stop();
     } else {
       lenis.start();
-      // Debounced ScrollTrigger refresh
+      
+      // Wait for layout to settle before refreshing
       const refreshTimeout = setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 200);
+        // Ensure footer is positioned correctly
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
+      }, 300);
       
       return () => {
         clearTimeout(refreshTimeout);
@@ -68,7 +73,7 @@ const AppContent = () => {
       <EmailButton />
 
       {/* Main Content Wrapper */}
-      <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
+      <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)]" style={{ paddingBottom: '100vh' }}>
         <Hero />
         <Intro />
         <ServiceStack />

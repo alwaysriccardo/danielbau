@@ -35,42 +35,41 @@ const Footer: React.FC = () => {
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       // Animate ready text
-      gsap.from(readyRef.current, {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      if (readyRef.current) {
+        gsap.from(readyRef.current, {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+      }
 
       // Animate quote link with scale and glow effect
-      gsap.from(quoteRef.current, {
-        y: 50,
-        opacity: 0,
-        scale: 0.9,
-        duration: 1.2,
-        ease: 'power4.out',
-        delay: 0.2,
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
-
-      // Continuous glow animation for quote
       if (quoteRef.current) {
-        gsap.to(quoteRef.current, {
-          textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
-          duration: 2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
+        gsap.from(quoteRef.current, {
+          y: 50,
+          opacity: 0,
+          scale: 0.9,
+          duration: 1.2,
+          ease: 'power4.out',
+          delay: 0.2,
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+          }
         });
+      }
+
+      // Continuous glow animation for quote - use CSS animation instead
+      if (quoteRef.current) {
+        quoteRef.current.style.animation = 'quoteGlow 3s ease-in-out infinite';
+        quoteRef.current.style.animationDelay = '0.5s';
       }
 
       // Animate phone and form
@@ -88,24 +87,22 @@ const Footer: React.FC = () => {
         }
       });
 
-      // Hover animations
+      // Hover animations - use CSS hover instead to avoid blocking clicks
       if (quoteRef.current) {
+        // Add CSS class for hover effects instead of JS listeners
+        quoteRef.current.style.transition = 'transform 0.3s ease, text-shadow 0.3s ease';
         quoteRef.current.addEventListener('mouseenter', () => {
-          gsap.to(quoteRef.current, {
-            scale: 1.05,
-            textShadow: '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3)',
-            duration: 0.3,
-            ease: 'power2.out'
-          });
-        });
+          if (quoteRef.current) {
+            quoteRef.current.style.transform = 'scale(1.05)';
+            quoteRef.current.style.textShadow = '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3)';
+          }
+        }, { passive: true });
         quoteRef.current.addEventListener('mouseleave', () => {
-          gsap.to(quoteRef.current, {
-            scale: 1,
-            textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
-            duration: 0.3,
-            ease: 'power2.out'
-          });
-        });
+          if (quoteRef.current) {
+            quoteRef.current.style.transform = 'scale(1)';
+            quoteRef.current.style.textShadow = '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)';
+          }
+        }, { passive: true });
       }
     }, footerRef);
 
@@ -129,8 +126,14 @@ const Footer: React.FC = () => {
         {/* QUOTE Button - Most Prominent */}
         <a 
           ref={quoteRef}
-          href="mailto:zitat@danielbau.de" 
-          className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8"
+          href="mailto:zitat@danielbau.de"
+          onClick={(e) => {
+            // Ensure click works even with GSAP animations
+            e.stopPropagation();
+            window.location.href = 'mailto:zitat@danielbau.de';
+          }}
+          className="font-display text-[8vw] md:text-[6vw] leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-8 pointer-events-auto"
+          style={{ pointerEvents: 'auto', zIndex: 10 }}
         >
           {t.footer.offer}
         </a>
@@ -225,6 +228,17 @@ const Footer: React.FC = () => {
         className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
         alt="Footer Background"
       />
+      
+      <style>{`
+        @keyframes quoteGlow {
+          0%, 100% {
+            text-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2);
+          }
+          50% {
+            text-shadow: 0 0 25px rgba(255,255,255,0.4), 0 0 50px rgba(255,255,255,0.3);
+          }
+        }
+      `}</style>
     </footer>
   );
 };
