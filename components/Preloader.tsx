@@ -61,13 +61,21 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 bg-black z-[10000] flex flex-col justify-center items-center text-white">
-      <div ref={textRef} className="font-display text-[5vw] font-bold mb-6">
+    <div 
+      ref={containerRef} 
+      className="preloader-container fixed inset-0 bg-black z-[10000] flex flex-col justify-center items-center text-white"
+      style={{ 
+        opacity: 1,
+        visibility: 'visible'
+      }}
+    >
+      <div ref={textRef} className="font-display text-[5vw] font-bold mb-6" style={{ opacity: 0 }}>
         DANIELBAU
       </div>
       <div 
         ref={flagRef}
         className="w-32 h-32 md:w-40 md:h-40 relative"
+        style={{ opacity: 0 }}
       >
         {/* Logo */}
         <img 

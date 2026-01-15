@@ -73,12 +73,14 @@ const AppContent = () => {
   useEffect(() => {
     if (!loading) {
       document.body.style.overflow = '';
-      // Force enable scrolling immediately
       document.documentElement.style.overflow = '';
       document.body.style.pointerEvents = 'auto';
+      // Add loaded class to body
+      document.body.classList.add('loaded');
     } else {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+      document.body.classList.remove('loaded');
     }
   }, [loading]);
 

@@ -28,6 +28,16 @@
         margin: 0;
         overflow-x: hidden;
       }
+      
+      /* Prevent flash of content before preloader */
+      body:not(.loaded) {
+        overflow: hidden;
+      }
+      
+      body:not(.loaded) #root > *:not(.preloader-container) {
+        opacity: 0;
+        visibility: hidden;
+      }
       .font-display { font-family: var(--font-display); }
       .font-body { font-family: var(--font-body); }
       
