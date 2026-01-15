@@ -15,94 +15,103 @@ import EmailButton from './components/EmailButton';
 
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
   const { t } = useLanguage();
 
-  // Ensure scroll is at top when loading completes and show content immediately
+  // Handle preloader completion
   useEffect(() => {
     if (!loading) {
-      // Force scroll to top immediately
+      // Remove fixed positioning immediately
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      
+      // Force scroll to top immediately and keep it there
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       
-      // Show content immediately - no delay
-      setContentReady(true);
-    }
-  }, [loading]);
-
-  useEffect(() => {
-    // Only initialize Lenis after content is ready
-    if (!contentReady) return;
-
-    const lenis = new Lenis({
-      duration: 1.0,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      smoothWheel: true,
-      smoothTouch: false,
-      wheelMultiplier: 0.8,
-      touchMultiplier: 1.5,
-    });
-
-    // Ensure scroll position is at top immediately
-    lenis.scrollTo(0, { immediate: true });
-
-    let rafId: number;
-    let lastTime = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      if (time - lastTime >= 16) {
-        lastTime = time;
-        rafId = requestAnimationFrame(raf);
-      } else {
-        rafId = requestAnimationFrame(raf);
-      }
-    }
-
-    rafId = requestAnimationFrame(raf);
-    
-    // Refresh ScrollTrigger quickly to ensure layout is calculated
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-        // Ensure scroll is still at top after refresh
-        lenis.scrollTo(0, { immediate: true });
-      });
-    });
-    
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, [contentReady]);
-
-  // Ensure body overflow is enabled when loading completes
-  useEffect(() => {
-    if (!loading && contentReady) {
+      // Add loaded class
+      document.body.classList.add('loaded');
+      
+      // Enable scrolling
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.style.pointerEvents = 'auto';
-      document.body.classList.add('loaded');
     } else {
+      // During loading, keep body fixed
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       document.body.classList.remove('loaded');
     }
-  }, [loading, contentReady]);
+  }, [loading]);
+
+  useEffect(() => {
+    // Only initialize Lenis after loading completes
+    if (loading) return;
+
+    // Small delay to ensure DOM is ready
+    const initTimeout = setTimeout(() => {
+      const lenis = new Lenis({
+        duration: 1.0,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        direction: 'vertical',
+        smoothWheel: true,
+        smoothTouch: false,
+        wheelMultiplier: 0.8,
+        touchMultiplier: 1.5,
+      });
+
+      // Force scroll to top immediately and prevent any movement
+      lenis.scrollTo(0, { immediate: true });
+      
+      // Lock scroll position
+      let scrollLocked = true;
+      const lockTimeout = setTimeout(() => {
+        scrollLocked = false;
+      }, 500);
+
+      let rafId: number;
+      let lastTime = 0;
+      function raf(time: number) {
+        if (scrollLocked) {
+          lenis.scrollTo(0, { immediate: true });
+        }
+        lenis.raf(time);
+        if (time - lastTime >= 16) {
+          lastTime = time;
+          rafId = requestAnimationFrame(raf);
+        } else {
+          rafId = requestAnimationFrame(raf);
+        }
+      }
+
+      rafId = requestAnimationFrame(raf);
+      
+      // Refresh ScrollTrigger after layout is stable
+      const refreshTimeout = setTimeout(() => {
+        ScrollTrigger.refresh();
+        // Ensure scroll is still at top after refresh
+        lenis.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+      }, 200);
+      
+      return () => {
+        clearTimeout(lockTimeout);
+        clearTimeout(refreshTimeout);
+        cancelAnimationFrame(rafId);
+        lenis.destroy();
+      };
+    }, 50);
+
+    return () => clearTimeout(initTimeout);
+  }, [loading]);
 
   return (
     <>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
-      {/* Render content immediately - visible right away when loading completes */}
-      <div 
-        style={{ 
-          opacity: contentReady ? 1 : 0,
-          visibility: contentReady ? 'visible' : 'hidden',
-          transition: 'none' // No transition - instant display
-        }}
-      >
+      {/* Always render content - it's behind preloader during loading */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
         <Navigation />
         <LanguageSidebar />
         <EmailButton />

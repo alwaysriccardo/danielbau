@@ -51,6 +51,13 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           yPercent: -100,
           duration: 0.5,
           ease: 'power3.inOut',
+          onStart: () => {
+            // Start showing content as preloader slides up
+            // Ensure scroll is at top
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          },
           onComplete: () => {
             // Ensure scroll is at top when preloader completes
             window.scrollTo(0, 0);
