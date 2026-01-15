@@ -81,13 +81,13 @@ const ServiceStack: React.FC = () => {
                 scale: 0.9,
                 opacity: 0.4,
                 ease: "none",
-                force3D: true, // GPU acceleration
+                force3D: true,
                 scrollTrigger: {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 1, // Increased for better performance
-                  invalidateOnRefresh: false, // Disable to reduce recalculations
+                  scrub: 2, // Further increased for better performance
+                  invalidateOnRefresh: false,
                   refreshPriority: -1,
                   markers: false
                 }
@@ -126,22 +126,22 @@ const ServiceStack: React.FC = () => {
     };
   }, []);
 
-  // Add shine effect to view project buttons - optimized
-  useEffect(() => {
-    if (!imagesLoaded) return;
-
-    const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
-    buttons?.forEach((btn) => {
-      gsap.to(btn, {
-        textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
-        duration: 3, // Slower for better performance
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        lazy: true // Only animate when visible
-      });
-    });
-  }, [imagesLoaded]);
+  // Disabled button shine animations for better performance
+  // useEffect(() => {
+  //   if (!imagesLoaded) return;
+  //
+  //   const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
+  //   buttons?.forEach((btn) => {
+  //     gsap.to(btn, {
+  //       textShadow: '0 0 8px rgba(255,255,255,0.5), 0 0 16px rgba(255,255,255,0.3)',
+  //       duration: 3,
+  //       repeat: -1,
+  //       yoyo: true,
+  //       ease: 'sine.inOut',
+  //       lazy: true
+  //     });
+  //   });
+  // }, [imagesLoaded]);
 
   return (
     <section ref={sectionRef} className="py-[10vh] bg-[#121212] text-[#E3E1DC] relative" id="services">
