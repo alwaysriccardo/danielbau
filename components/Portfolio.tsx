@@ -238,15 +238,15 @@ const Portfolio: React.FC = () => {
           </div>
         )}
 
-        {/* Login Form - Hidden, only visible on hover/focus */}
+        {/* Login Form - Subtle, only visible on hover/focus */}
         {!isLoggedIn && (
-          <div className="mb-8 text-center opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 group">
+          <div className="mb-8 text-center opacity-20 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 group">
             <button
               onClick={() => setShowLogin(!showLogin)}
-              className="px-3 py-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 transition-colors"
               title="Admin Login"
             >
-              ⚙
+              ⚙ Admin
             </button>
             {showLogin && (
               <form onSubmit={handleLogin} className="mt-4 max-w-md mx-auto bg-white/50 p-6 rounded-lg border border-gray-300">
