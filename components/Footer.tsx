@@ -175,7 +175,9 @@ const Footer: React.FC = () => {
       };
     }, footerRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
   }, [t]);
 
   return (
