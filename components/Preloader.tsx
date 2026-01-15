@@ -30,26 +30,26 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         tl.to([textRef.current, flagRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.6,
+          duration: 0.4,
           ease: 'power2.out',
-          stagger: 0.1
+          stagger: 0.05
         })
-        .to({}, { duration: 1.2 }) // Hold
+        .to({}, { duration: 0.6 }) // Reduced hold time
         .to([textRef.current, flagRef.current], {
           y: -30,
           opacity: 0,
-          duration: 0.4,
+          duration: 0.3,
           ease: 'power2.in',
-          stagger: 0.05
-        }, "-=0.2")
+          stagger: 0.03
+        }, "-=0.1")
         .to(containerRef.current, {
           backgroundColor: '#E3E1DC', // Fade to site background color
-          duration: 0.3,
+          duration: 0.2,
           ease: 'power2.inOut'
         }, "-=0.1")
         .to(containerRef.current, {
           yPercent: -100,
-          duration: 0.8,
+          duration: 0.5,
           ease: 'power3.inOut',
           onComplete: () => {
             // Ensure scroll is at top when preloader completes
@@ -57,7 +57,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
           }
-        }, "-=0.1");
+        }, "-=0.05");
       };
 
       if (logoImg.complete) {

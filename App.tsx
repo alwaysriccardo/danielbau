@@ -18,7 +18,7 @@ const AppContent = () => {
   const [contentReady, setContentReady] = useState(false);
   const { t } = useLanguage();
 
-  // Ensure scroll is at top when loading completes
+  // Ensure scroll is at top when loading completes and show content immediately
   useEffect(() => {
     if (!loading) {
       // Force scroll to top immediately
@@ -26,12 +26,8 @@ const AppContent = () => {
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       
-      // Wait a frame for content to be ready, then show it
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setContentReady(true);
-        });
-      });
+      // Show content immediately - no delay
+      setContentReady(true);
     }
   }, [loading]);
 
@@ -49,7 +45,7 @@ const AppContent = () => {
       touchMultiplier: 1.5,
     });
 
-    // Ensure scroll position is at top
+    // Ensure scroll position is at top immediately
     lenis.scrollTo(0, { immediate: true });
 
     let rafId: number;
@@ -66,15 +62,16 @@ const AppContent = () => {
 
     rafId = requestAnimationFrame(raf);
     
-    // Refresh ScrollTrigger after a short delay to ensure layout is calculated
-    const refreshTimeout = setTimeout(() => {
-      ScrollTrigger.refresh();
-      // Ensure scroll is still at top after refresh
-      lenis.scrollTo(0, { immediate: true });
-    }, 150);
+    // Refresh ScrollTrigger quickly to ensure layout is calculated
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        // Ensure scroll is still at top after refresh
+        lenis.scrollTo(0, { immediate: true });
+      });
+    });
     
     return () => {
-      clearTimeout(refreshTimeout);
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
@@ -98,12 +95,12 @@ const AppContent = () => {
     <>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
-      {/* Render content immediately but keep it hidden until ready */}
+      {/* Render content immediately - visible right away when loading completes */}
       <div 
-        className={contentReady ? 'opacity-100' : 'opacity-0'} 
         style={{ 
+          opacity: contentReady ? 1 : 0,
           visibility: contentReady ? 'visible' : 'hidden',
-          transition: contentReady ? 'opacity 0.3s ease' : 'none'
+          transition: 'none' // No transition - instant display
         }}
       >
         <Navigation />
