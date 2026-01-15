@@ -68,7 +68,7 @@ const AppContent = () => {
       <EmailButton />
 
       {/* Main Content Wrapper */}
-      <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
+      <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
         <Hero />
         <Intro />
         <ServiceStack />
