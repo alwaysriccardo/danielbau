@@ -96,10 +96,7 @@ const Footer: React.FC = () => {
         });
       }
       
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', checkScrollPosition);
-      };
+      // Cleanup will be handled by ctx.revert() below
 
       // Animate ready text
       if (readyRef.current) {
