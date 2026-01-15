@@ -117,8 +117,12 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto"
       id="contact"
+      style={{ 
+        touchAction: 'pan-y',
+        WebkitOverflowScrolling: 'touch'
+      }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 py-8 md:py-12 pt-20 md:pt-12">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 py-8 md:py-12">
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 text-gray-400"
@@ -130,12 +134,15 @@ const Footer: React.FC = () => {
         <a 
           ref={quoteRef}
           href="mailto:zitat@danielbau.de" 
-          className="font-display text-4xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-30 touch-manipulation"
+          className="font-display text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-50"
           style={{ 
             pointerEvents: 'auto',
-            WebkitTouchCallout: 'none',
-            WebkitUserSelect: 'none',
-            userSelect: 'none'
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
+            minHeight: '60px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           {t.footer.offer}
@@ -199,39 +206,32 @@ const Footer: React.FC = () => {
           <div className="flex-1 max-w-md">
             <div 
               className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg relative"
+              style={{ 
+                touchAction: 'none',
+                userSelect: 'none'
+              }}
               onTouchStart={(e) => {
-                // Only allow touch if it's a 2-finger touch
+                // Allow 2-finger touches (pinch/zoom/pan) but prevent single-finger scrolling
                 if (e.touches.length === 1) {
-                  // Single touch - prevent default to stop page scrolling
-                  e.preventDefault();
+                  // Prevent single-finger scrolling by stopping propagation to parent
                   e.stopPropagation();
+                  // Allow the iframe to handle the touch
+                  return true;
                 }
-                // 2-finger touches are allowed for map interaction
               }}
               onTouchMove={(e) => {
-                // Only allow touch move if it's a 2-finger touch
+                // Only allow 2-finger interactions
                 if (e.touches.length === 1) {
-                  // Single touch move - prevent to stop scrolling
-                  e.preventDefault();
+                  // Prevent single-finger scroll on parent
                   e.stopPropagation();
                 }
-              }}
-              style={{ 
-                touchAction: 'none', // Prevent all default touch actions
-                WebkitTouchCallout: 'none',
-                WebkitUserSelect: 'none',
-                userSelect: 'none'
               }}
             >
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
                 height="100%"
-                style={{ 
-                  border: 0, 
-                  pointerEvents: 'auto',
-                  touchAction: 'manipulation' // Allow map interaction with 2 fingers
-                }}
+                style={{ border: 0, pointerEvents: 'auto', touchAction: 'manipulation' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
