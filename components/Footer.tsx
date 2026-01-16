@@ -119,7 +119,6 @@ const Footer: React.FC = () => {
       id="contact"
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
-        minHeight: '100vh',
         minHeight: '100dvh'
       }}
     >
