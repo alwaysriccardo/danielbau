@@ -115,10 +115,15 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-start md:justify-center items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
+      style={{ 
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        minHeight: '100vh',
+        minHeight: '100dvh'
+      }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 py-8 md:py-12">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 pt-12 pb-8 md:pt-12 md:pb-12">
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 text-gray-400"
@@ -130,8 +135,16 @@ const Footer: React.FC = () => {
         <a 
           ref={quoteRef}
           href="mailto:zitat@danielbau.de" 
-          className="font-display text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-20"
-          style={{ pointerEvents: 'auto' }}
+          className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-50"
+          style={{ 
+            pointerEvents: 'auto',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent'
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = 'mailto:zitat@danielbau.de';
+          }}
         >
           {t.footer.offer}
         </a>
