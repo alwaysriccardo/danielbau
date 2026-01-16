@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-start md:justify-center items-center overflow-y-auto pt-safe pb-safe"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
@@ -123,19 +123,19 @@ const Footer: React.FC = () => {
         minHeight: '100dvh'
       }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-6 pt-12 pb-8 md:pt-12 md:pb-12">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-4 md:px-6 py-6 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
         <div 
           ref={readyRef}
-          className="text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 text-gray-400"
+          className="text-xs uppercase tracking-[0.3em] mb-3 md:mb-6 text-gray-400"
         >
           {t.footer.ready}
         </div>
         
-        {/* QUOTE Button - Most Prominent */}
+        {/* QUOTE Button - Most Prominent, Centered on Mobile */}
         <a 
           ref={quoteRef}
           href="mailto:zitat@danielbau.de" 
-          className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-6 md:mb-8 relative z-50"
+          className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-4 md:mb-8 relative z-50"
           style={{ 
             pointerEvents: 'auto',
             touchAction: 'manipulation',
@@ -150,10 +150,10 @@ const Footer: React.FC = () => {
         </a>
 
         {/* Phone Number */}
-        <div ref={phoneRef} className="mb-6 md:mb-8">
+        <div ref={phoneRef} className="mb-4 md:mb-8">
           <a 
             href="tel:+41762313831" 
-            className="text-lg md:text-xl lg:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
+            className="text-base md:text-xl lg:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
           >
             <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -162,20 +162,20 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        {/* Contact Form and Map Side by Side */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start justify-center max-w-5xl mx-auto mb-6 md:mb-8">
-          {/* Contact Form */}
+        {/* Contact Form and Map Side by Side - Smaller on Mobile */}
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start justify-center max-w-xs md:max-w-5xl mx-auto mb-4 md:mb-8">
+          {/* Contact Form - Smaller on Mobile */}
           <form 
             ref={formRef}
             onSubmit={handleSubmit}
-            className="flex-1 max-w-md space-y-4"
+            className="w-full md:flex-1 md:max-w-md space-y-3 md:space-y-4"
           >
             <input
               type="text"
               placeholder={t.footer.namePlaceholder || "Name"}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors"
+              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-sm md:text-base"
               required
             />
             <input
@@ -183,29 +183,29 @@ const Footer: React.FC = () => {
               placeholder={t.footer.emailPlaceholder || "Email"}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors"
+              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-sm md:text-base"
               required
             />
             <textarea
               placeholder={t.footer.messagePlaceholder || "Message"}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              rows={3}
-              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors resize-none"
+              rows={2}
+              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors resize-none text-sm md:text-base"
               required
             />
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full px-6 py-2 bg-white/20 hover:bg-white/30 border border-white/30 rounded text-white uppercase tracking-widest text-sm transition-all duration-300 disabled:opacity-50"
+              className="w-full px-4 py-1.5 md:px-6 md:py-2 bg-white/20 hover:bg-white/30 border border-white/30 rounded text-white uppercase tracking-widest text-xs md:text-sm transition-all duration-300 disabled:opacity-50"
             >
               {isSubmitting ? (t.footer.sending || 'Sending...') : (t.footer.send || 'Send')}
             </button>
           </form>
 
-          {/* Small Square Map */}
-          <div className="flex-1 max-w-md">
-            <div className="w-full h-[250px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
+          {/* Small Square Map - Smaller on Mobile */}
+          <div className="w-full md:flex-1 md:max-w-md">
+            <div className="w-full h-[180px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
@@ -217,19 +217,19 @@ const Footer: React.FC = () => {
                 title="DANIELBAU Offices Map"
               />
             </div>
-            <div className="mt-3 text-xs text-white/70 space-y-1">
+            <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-white/70 space-y-0.5 md:space-y-1">
               <p><strong>Main Office:</strong> 4410 Liestal / Rheistrasse 3</p>
               <p><strong>Second Office:</strong> 3250 Lyss / Fluhrweg 16</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 text-[10px] text-gray-700">
+        <div className="mt-6 md:mt-12 text-[10px] text-gray-700">
           {t.footer.copyright}
         </div>
 
         {/* Colossians 3:23 - Almost invisible but visible */}
-        <div className="mt-8 text-[8px] text-gray-800/30 font-light italic">
+        <div className="mt-4 md:mt-8 text-[8px] text-gray-800/30 font-light italic">
           Colossians 3:23
         </div>
       </div>
