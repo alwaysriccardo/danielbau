@@ -1,98 +1,112 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface Testimonial {
   name: string;
-  location: string;
   text: string;
-  rating: number;
+  language: 'DE' | 'FR' | 'IT';
 }
 
+const testimonials: Testimonial[] = [
+  {
+    name: 'Michael Schneider',
+    text: 'Ausgezeichnete Arbeit! Das Team von DANIELBAU hat unsere Küche komplett renoviert. Alles wurde pünktlich und in höchster Qualität abgeliefert. Sehr empfehlenswert!',
+    language: 'DE'
+  },
+  {
+    name: 'Sarah Müller',
+    text: 'Wir sind absolut begeistert von der Renovierung unseres Badezimmers. Professionelle Beratung, saubere Ausführung und faire Preise. Vielen Dank für die tolle Arbeit!',
+    language: 'DE'
+  },
+  {
+    name: 'Thomas Weber',
+    text: 'DANIELBAU hat unser gesamtes Haus renoviert. Die Handwerker waren immer pünktlich, sehr freundlich und haben alles perfekt umgesetzt. Wir würden jederzeit wieder mit ihnen arbeiten.',
+    language: 'DE'
+  },
+  {
+    name: 'Anna Fischer',
+    text: 'Die Malerarbeiten wurden mit größter Sorgfalt durchgeführt. Die Farben sind genau wie besprochen und die Oberflächen sind makellos. Wir sind sehr zufrieden!',
+    language: 'DE'
+  },
+  {
+    name: 'Pierre Dubois',
+    text: 'Service exceptionnel! L\'équipe a rénové notre salon avec un soin remarquable. Travail de qualité, respect des délais et prix très compétitifs. Nous recommandons vivement!',
+    language: 'FR'
+  },
+  {
+    name: 'Sophie Martin',
+    text: 'Très professionnel et attentionné. La rénovation de notre appartement s\'est déroulée sans problème. Le résultat est magnifique et correspond exactement à nos attentes.',
+    language: 'FR'
+  },
+  {
+    name: 'Marco Rossi',
+    text: 'Lavoro eccellente! Hanno ristrutturato completamente il nostro appartamento. Professionalità, pulizia e attenzione ai dettagli. Consigliatissimo!',
+    language: 'IT'
+  }
+];
+
 const Testimonials: React.FC = () => {
-  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!sectionRef.current || !cardsRef.current || testimonials.length === 0) return;
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
 
-    // Wait a bit for DOM to be ready
-    const timeout = setTimeout(() => {
-      const cards = cardsRef.current?.querySelectorAll('.testimonial-card');
-      if (!cards || cards.length === 0) return;
-      
-      // Animate cards on scroll
-      gsap.from(cards, {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-          once: true
-        }
-      });
-    }, 100);
+    const ctx = gsap.context(() => {
+      const items = sectionRef.current?.querySelectorAll('.testimonial-item');
+      if (items && items.length > 0) {
+        gsap.set(items, { force3D: true, transform: 'translate3d(0,0,0)' });
+        
+        gsap.from(items, {
+          y: 30,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+          force3D: true,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false
+          }
+        });
+      }
+    }, sectionRef);
 
-    return () => {
-      clearTimeout(timeout);
-      ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.vars && trigger.vars.trigger === sectionRef.current) {
-          trigger.kill();
-        }
-      });
-    };
-  }, [testimonials]);
-
-  // Get testimonials with proper fallback
-  const testimonials = (t.testimonials && Array.isArray(t.testimonials.items)) 
-    ? t.testimonials.items 
-    : [];
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section 
       ref={sectionRef}
-      className="py-12 md:py-16 px-6 md:px-20 bg-[#E3E1DC]"
+      className="py-12 md:py-16 px-6 md:px-20 bg-[#E3E1DC]" 
       id="testimonials"
     >
       <div className="max-w-[1400px] mx-auto">
-        {/* Header */}
+        {/* Compact Header */}
         <div className="text-center mb-8 md:mb-10">
           <h2 className="font-display text-3xl md:text-4xl mb-2 text-gray-800">
-            {t.testimonials?.header || 'TESTIMONIALS'}
+            Kundenbewertungen
           </h2>
-          <p className="text-sm md:text-base text-gray-600">
-            {t.testimonials?.subheader || 'What our clients say'}
-          </p>
+          <div className="h-px w-16 bg-gray-400 mx-auto"></div>
         </div>
 
-        {/* Testimonials Grid - Compact but scrollable on mobile */}
-        {testimonials.length > 0 ? (
-          <div 
-            ref={cardsRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-          >
-            {testimonials.map((testimonial: Testimonial, index: number) => (
+        {/* Compact Grid - 3 columns on desktop, 1 on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="testimonial-card bg-white rounded-lg p-5 md:p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative overflow-hidden group opacity-100"
+              className="testimonial-item bg-white/80 rounded-lg p-4 md:p-5 shadow-md hover:shadow-lg transition-shadow"
             >
-              {/* Decorative accent */}
-              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#121212] to-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              {/* Rating Stars */}
-              <div className="flex gap-1 mb-4">
+              {/* Stars */}
+              <div className="flex gap-1 mb-3">
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className={`w-4 h-4 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                    className="w-4 h-4 text-yellow-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -101,35 +115,23 @@ const Testimonials: React.FC = () => {
                 ))}
               </div>
 
-              {/* Quote icon */}
-              <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg className="w-12 h-12 text-[#121212]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.996 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.984zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                </svg>
-              </div>
-
               {/* Testimonial Text */}
-              <p className="text-sm md:text-base text-gray-700 leading-relaxed mb-5 italic relative z-10">
+              <p className="text-sm md:text-base text-gray-700 leading-relaxed mb-3 italic">
                 "{testimonial.text}"
               </p>
 
               {/* Author */}
-              <div className="pt-4 border-t border-gray-200 relative z-10">
-                <p className="font-semibold text-gray-800 text-sm">
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                <p className="text-xs md:text-sm font-semibold text-gray-800">
                   {testimonial.name}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {testimonial.location}
-                </p>
+                <span className="text-xs text-gray-400">
+                  {testimonial.language}
+                </span>
               </div>
             </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Loading testimonials...</p>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </section>
   );

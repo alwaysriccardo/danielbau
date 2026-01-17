@@ -80,48 +80,6 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Präsentation unserer abgeschlossenen Projekte und Handwerkskunst"
-    },
-    testimonials: {
-      header: "KUNDENSTIMMEN",
-      subheader: "Was unsere Kunden sagen",
-      items: [
-        {
-          name: "Michael Schneider",
-          location: "Zürich",
-          text: "Ausgezeichnete Arbeit! Die Renovierung unseres Badezimmers war perfekt. Pünktlich, sauber und sehr professionell. Kann ich nur weiterempfehlen.",
-          rating: 5
-        },
-        {
-          name: "Sarah Müller",
-          location: "Basel",
-          text: "Danielbau hat unsere gesamte Wohnung renoviert. Die Malerarbeiten sind makellos und die Bodenverlegung ist perfekt. Sehr zufrieden!",
-          rating: 5
-        },
-        {
-          name: "Thomas Weber",
-          location: "Aargau",
-          text: "Professionell, zuverlässig und faire Preise. Die Fliesenarbeiten im Bad sind von höchster Qualität. Würde jederzeit wieder buchen.",
-          rating: 5
-        },
-        {
-          name: "Anna Fischer",
-          location: "Zug",
-          text: "Sehr beeindruckt von der Präzision und dem Detailreichtum. Die Putzarbeiten sind perfekt ausgeführt. Absolut empfehlenswert!",
-          rating: 5
-        },
-        {
-          name: "David Keller",
-          location: "Luzern",
-          text: "Schnelle Reaktionszeit, saubere Ausführung und sehr freundliches Team. Die Renovierung hat unsere Erwartungen übertroffen.",
-          rating: 5
-        },
-        {
-          name: "Lisa Huber",
-          location: "Bern",
-          text: "Top Service von Anfang bis Ende. Die Koordination war perfekt und das Ergebnis ist wunderschön. Vielen Dank!",
-          rating: 5
-        }
-      ]
     }
   },
   en: {
@@ -195,48 +153,6 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Showcasing our completed projects and craftsmanship"
-    },
-    testimonials: {
-      header: "TESTIMONIALS",
-      subheader: "What our clients say",
-      items: [
-        {
-          name: "Michael Schneider",
-          location: "Zurich",
-          text: "Excellent work! The renovation of our bathroom was perfect. Punctual, clean, and very professional. Highly recommended.",
-          rating: 5
-        },
-        {
-          name: "Sarah Müller",
-          location: "Basel",
-          text: "Danielbau renovated our entire apartment. The painting work is flawless and the flooring is perfect. Very satisfied!",
-          rating: 5
-        },
-        {
-          name: "Thomas Weber",
-          location: "Aargau",
-          text: "Professional, reliable, and fair prices. The tiling work in the bathroom is of the highest quality. Would book again anytime.",
-          rating: 5
-        },
-        {
-          name: "Anna Fischer",
-          location: "Zug",
-          text: "Very impressed by the precision and attention to detail. The plastering work is perfectly executed. Absolutely recommendable!",
-          rating: 5
-        },
-        {
-          name: "David Keller",
-          location: "Lucerne",
-          text: "Fast response time, clean execution, and very friendly team. The renovation exceeded our expectations.",
-          rating: 5
-        },
-        {
-          name: "Lisa Huber",
-          location: "Bern",
-          text: "Top service from start to finish. The coordination was perfect and the result is beautiful. Thank you very much!",
-          rating: 5
-        }
-      ]
     }
   },
   fr: {
@@ -310,48 +226,6 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Présentation de nos projets terminés et de notre savoir-faire"
-    },
-    testimonials: {
-      header: "TÉMOIGNAGES",
-      subheader: "Ce que disent nos clients",
-      items: [
-        {
-          name: "Michael Schneider",
-          location: "Zurich",
-          text: "Excellent travail ! La rénovation de notre salle de bain était parfaite. Ponctuel, propre et très professionnel. Je recommande vivement.",
-          rating: 5
-        },
-        {
-          name: "Sarah Müller",
-          location: "Bâle",
-          text: "Danielbau a rénové tout notre appartement. Les travaux de peinture sont impeccables et la pose du sol est parfaite. Très satisfait !",
-          rating: 5
-        },
-        {
-          name: "Thomas Weber",
-          location: "Argovie",
-          text: "Professionnel, fiable et prix équitables. Les travaux de carrelage dans la salle de bain sont de la plus haute qualité. Je réserverais à nouveau sans hésiter.",
-          rating: 5
-        },
-        {
-          name: "Anna Fischer",
-          location: "Zoug",
-          text: "Très impressionné par la précision et le souci du détail. Les travaux de plâtrage sont parfaitement exécutés. Absolument recommandable !",
-          rating: 5
-        },
-        {
-          name: "David Keller",
-          location: "Lucerne",
-          text: "Temps de réaction rapide, exécution propre et équipe très sympathique. La rénovation a dépassé nos attentes.",
-          rating: 5
-        },
-        {
-          name: "Lisa Huber",
-          location: "Berne",
-          text: "Service de qualité du début à la fin. La coordination était parfaite et le résultat est magnifique. Merci beaucoup !",
-          rating: 5
-        }
-      ]
     }
   },
   it: {
@@ -425,48 +299,6 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Mostra dei nostri progetti completati e della nostra maestria"
-    },
-    testimonials: {
-      header: "TESTIMONIANZE",
-      subheader: "Cosa dicono i nostri clienti",
-      items: [
-        {
-          name: "Michael Schneider",
-          location: "Zurigo",
-          text: "Lavoro eccellente! La ristrutturazione del nostro bagno è stata perfetta. Puntuali, puliti e molto professionali. Lo consiglio vivamente.",
-          rating: 5
-        },
-        {
-          name: "Sarah Müller",
-          location: "Basilea",
-          text: "Danielbau ha ristrutturato tutto il nostro appartamento. I lavori di pittura sono impeccabili e la posa del pavimento è perfetta. Molto soddisfatti!",
-          rating: 5
-        },
-        {
-          name: "Thomas Weber",
-          location: "Argovia",
-          text: "Professionali, affidabili e prezzi equi. I lavori di piastrellatura nel bagno sono di altissima qualità. Prenoterei di nuovo in qualsiasi momento.",
-          rating: 5
-        },
-        {
-          name: "Anna Fischer",
-          location: "Zugo",
-          text: "Molto colpita dalla precisione e dall'attenzione ai dettagli. I lavori di intonaco sono eseguiti perfettamente. Assolutamente raccomandabile!",
-          rating: 5
-        },
-        {
-          name: "David Keller",
-          location: "Lucerna",
-          text: "Tempi di risposta rapidi, esecuzione pulita e team molto cordiale. La ristrutturazione ha superato le nostre aspettative.",
-          rating: 5
-        },
-        {
-          name: "Lisa Huber",
-          location: "Berna",
-          text: "Servizio di qualità dall'inizio alla fine. La coordinazione è stata perfetta e il risultato è bellissimo. Grazie mille!",
-          rating: 5
-        }
-      ]
     }
   }
 };
