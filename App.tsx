@@ -49,7 +49,7 @@ const AppContent = () => {
     // Only initialize Lenis after loading completes
     if (loading) return;
 
-    // Small delay to ensure DOM is ready
+    // Longer delay to ensure DOM is fully ready and layout is stable
     const initTimeout = setTimeout(() => {
       const lenis = new Lenis({
         duration: 1.0,
@@ -107,7 +107,7 @@ const AppContent = () => {
         cancelAnimationFrame(rafId);
         lenis.destroy();
       };
-    }, 50);
+    }, 200); // Increased delay to ensure layout is stable after preloader
 
     return () => clearTimeout(initTimeout);
   }, [loading]);

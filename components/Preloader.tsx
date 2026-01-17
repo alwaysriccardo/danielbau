@@ -21,7 +21,16 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       // Wait for logo to load, then start animation
       const startAnimation = () => {
         const tl = gsap.timeline({
-          onComplete: onComplete
+          onComplete: () => {
+            // Small delay before completing to ensure layout is stable
+            setTimeout(() => {
+              onComplete();
+              // Final scroll check
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+            }, 150); // Small delay to let header settle
+          }
         });
 
         // Fade in text and logo smoothly
@@ -37,22 +46,22 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           willChange: 'transform, background-color'
         });
 
-        // Smoother, higher FPS animation with better easing
+        // Smoother animation with better easing and minimum duration to prevent layout shifts
         tl.to([textRef.current, flagRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          ease: 'power1.out', // Smoother easing
+          duration: 0.8, // Slightly longer for smoother appearance
+          ease: 'power1.out',
           stagger: 0.1,
           force3D: true,
-          lazy: false // Disable lazy rendering for smoother animation
+          lazy: false
         })
-        .to({}, { duration: 0.8 }) // Hold time
+        .to({}, { duration: 1.2 }) // Longer hold time to ensure content is ready
         .to([textRef.current, flagRef.current], {
           y: -30,
           opacity: 0,
           duration: 0.5,
-          ease: 'power1.in', // Smoother easing
+          ease: 'power1.in',
           stagger: 0.06,
           force3D: true,
           lazy: false
@@ -60,25 +69,18 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         .to(containerRef.current, {
           backgroundColor: '#E3E1DC', // Fade to site background color
           duration: 0.4,
-          ease: 'power1.inOut', // Smoother easing
+          ease: 'power1.inOut',
           force3D: true,
           lazy: false
         }, "-=0.1")
         .to(containerRef.current, {
           yPercent: -100,
-          duration: 0.7,
-          ease: 'power2.inOut', // Smoother easing
+          duration: 0.8, // Slightly longer slide-up
+          ease: 'power2.inOut',
           force3D: true,
           lazy: false,
           onStart: () => {
-            // Start showing content as preloader slides up
-            // Ensure scroll is at top
-            window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-          },
-          onComplete: () => {
-            // Ensure scroll is at top when preloader completes
+            // Ensure scroll is at top before showing content
             window.scrollTo(0, 0);
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;

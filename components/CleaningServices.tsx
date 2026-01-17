@@ -71,7 +71,8 @@ const CleaningServices: React.FC = () => {
             trigger: sectionRef.current,
             start: 'top 80%',
             toggleActions: 'play none none reverse',
-            invalidateOnRefresh: false // Reduce recalculations
+            invalidateOnRefresh: false, // Reduce recalculations
+            refreshPriority: -1 // Lower priority for smoother scrolling
           }
         });
       }
@@ -97,16 +98,17 @@ const CleaningServices: React.FC = () => {
           const anim = gsap.to(bubbleEl, {
             y: `-=${moveY}`,
             x: `+=${moveX}`,
-            opacity: 0.6 + Math.random() * 0.4,
-            scale: 0.9 + Math.random() * 0.2, // Reduced scale variation
-            duration: 4 + Math.random() * 2, // Slightly longer duration for smoother motion
+            opacity: 0.5 + Math.random() * 0.3, // Reduced opacity variation
+            scale: 1 + Math.random() * 0.1, // Reduced scale variation for better performance
+            duration: 5 + Math.random() * 2, // Longer duration for smoother motion (less frequent updates)
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut',
             delay: bubble.delay,
             force3D: true, // GPU acceleration
             transformOrigin: 'center center', // Optimize transform origin
-            paused: true // Start paused
+            paused: true, // Start paused
+            lazy: false // Disable lazy rendering for smoother animation
           });
           bubbleAnimations.push(anim);
         }
@@ -152,7 +154,7 @@ const CleaningServices: React.FC = () => {
           <div
             key={bubble.id}
             id={`bubble-${bubble.id}`}
-            className="absolute rounded-full opacity-60 blur-sm"
+            className="absolute rounded-full opacity-50"
             style={{
               left: `${bubble.x}%`,
               top: `${bubble.y}%`,
@@ -221,7 +223,7 @@ const CleaningServices: React.FC = () => {
           {t.cleaning.items.map((item, index) => (
             <div
               key={index}
-              className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/50 hover:bg-white/80 transition-all duration-300 shadow-lg"
+              className="text-center p-6 bg-white/70 rounded-lg border border-gray-200/50 hover:bg-white/90 transition-all duration-300 shadow-md"
             >
               <div className="text-sm md:text-base font-light text-gray-700">
                 {item}
