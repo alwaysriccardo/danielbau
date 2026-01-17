@@ -113,7 +113,7 @@ const Navigation: React.FC = () => {
         {/* Mobile Menu Button - More Visible and Bolder */}
         <button 
           onClick={toggleMenu} 
-          className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} ${textColor}`}
+          className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} shadow-lg ${textColor}`}
           style={{
             fontWeight: 900
           }}
