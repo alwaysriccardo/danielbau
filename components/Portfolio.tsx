@@ -349,6 +349,7 @@ const Portfolio: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
+                <span className="ml-2 text-xs text-gray-500">(Changes are saved locally. Refresh other devices to sync.)</span>
               </div>
               <div className="flex gap-4 flex-wrap">
                 <button
