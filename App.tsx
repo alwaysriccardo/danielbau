@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Lenis from '@studio-freight/lenis';
+import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import Preloader from './components/Preloader';
