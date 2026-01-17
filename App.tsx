@@ -71,29 +71,43 @@ const AppContent = () => {
         scrollLocked = false;
       }, 500);
 
+      // Optimized RAF loop for consistent 60 FPS
       let rafId: number;
       let lastTime = 0;
+      const targetFPS = 60;
+      const interval = 1000 / targetFPS; // ~16.67ms per frame
+      
       function raf(time: number) {
         if (scrollLocked) {
           lenis.scrollTo(0, { immediate: true });
         }
-        lenis.raf(time);
-        if (time - lastTime >= 16) {
-          lastTime = time;
-          rafId = requestAnimationFrame(raf);
-        } else {
-          rafId = requestAnimationFrame(raf);
+        
+        // Ensure consistent frame timing for smooth 60 FPS
+        const delta = time - lastTime;
+        if (delta >= interval || lastTime === 0) {
+          lenis.raf(time);
+          lastTime = time - (delta % interval); // Account for frame drift
         }
+        
+        rafId = requestAnimationFrame(raf);
       }
 
       rafId = requestAnimationFrame(raf);
       
-      // Refresh ScrollTrigger after layout is stable
+      // Optimize ScrollTrigger globally for 60 FPS
+      ScrollTrigger.config({
+        autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
+        ignoreMobileResize: true // Ignore mobile resize for better performance
+      });
+      
+      // Refresh ScrollTrigger after layout is stable (batched with RAF)
       const refreshTimeout = setTimeout(() => {
-        ScrollTrigger.refresh();
-        // Ensure scroll is still at top after refresh
-        lenis.scrollTo(0, { immediate: true });
-        window.scrollTo(0, 0);
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          // Ensure scroll is still at top after refresh
+          lenis.scrollTo(0, { immediate: true });
+          window.scrollTo(0, 0);
+        });
       }, 200);
       
       return () => {

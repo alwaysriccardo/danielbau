@@ -85,59 +85,75 @@ const Footer: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Animate ready text
-      gsap.from(readyRef.current, {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      // Animate ready text - optimized for 60 FPS
+      if (readyRef.current) {
+        gsap.set(readyRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
+        gsap.from(readyRef.current, {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          force3D: true, // GPU acceleration
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
+          }
+        });
+      }
 
-      // Animate quote link with scale and glow effect
-      gsap.from(quoteRef.current, {
-        y: 50,
-        opacity: 0,
-        scale: 0.9,
-        duration: 1.2,
-        ease: 'power4.out',
-        delay: 0.2,
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      // Animate quote link with scale and glow effect - optimized for 60 FPS
+      if (quoteRef.current) {
+        gsap.set(quoteRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
+        gsap.from(quoteRef.current, {
+          y: 50,
+          opacity: 0,
+          scale: 0.9,
+          duration: 1.2,
+          ease: 'power4.out',
+          delay: 0.2,
+          force3D: true, // GPU acceleration
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
+          }
+        });
+      }
 
-      // Continuous glow animation for quote
+      // Continuous glow animation for quote - optimized
       if (quoteRef.current) {
         gsap.to(quoteRef.current, {
           textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
           duration: 2,
           repeat: -1,
           yoyo: true,
-          ease: 'sine.inOut'
+          ease: 'sine.inOut',
+          force3D: true // GPU acceleration
         });
       }
 
-      // Animate phone and form
-      gsap.from([phoneRef.current, formRef.current], {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.2,
-        delay: 0.4,
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        }
-      });
+      // Animate phone and form - optimized for 60 FPS
+      if (phoneRef.current && formRef.current) {
+        gsap.set([phoneRef.current, formRef.current], { force3D: true, transform: 'translate3d(0,0,0)' });
+        gsap.from([phoneRef.current, formRef.current], {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          stagger: 0.2,
+          delay: 0.4,
+          force3D: true, // GPU acceleration
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
+          }
+        });
+      }
 
       // Hover animations
       if (quoteRef.current) {

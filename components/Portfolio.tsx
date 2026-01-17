@@ -418,16 +418,21 @@ const Portfolio: React.FC = () => {
     const ctx = gsap.context(() => {
       const items = sectionRef.current?.querySelectorAll('.portfolio-project');
       if (items && items.length > 0) {
+        // Set GPU acceleration for all items
+        gsap.set(items, { force3D: true, transform: 'translate3d(0,0,0)' });
+        
         gsap.from(items, {
           y: 50,
           opacity: 0,
           duration: 0.8,
           stagger: 0.1,
           ease: 'power3.out',
+          force3D: true, // GPU acceleration
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
-            toggleActions: 'play none none reverse'
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
           }
         });
       }

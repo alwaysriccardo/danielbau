@@ -59,19 +59,22 @@ const CleaningServices: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(contentRef.current, {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        force3D: true, // GPU acceleration
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-          invalidateOnRefresh: false // Reduce recalculations
-        }
-      });
+      if (contentRef.current) {
+        gsap.set(contentRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
+        gsap.from(contentRef.current, {
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          force3D: true, // GPU acceleration
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
+          }
+        });
+      }
 
       // Animate quote menu
       if (menuRef.current) {

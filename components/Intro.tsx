@@ -59,51 +59,60 @@ const Intro: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Animated underline
+      // Animated underline - optimized for 60 FPS
       if (underlineRef.current) {
+        gsap.set(underlineRef.current, { force3D: true });
         gsap.fromTo(underlineRef.current, 
           { width: 0 },
           {
             width: '100%',
             duration: 1.5,
             ease: 'power3.out',
+            force3D: true, // GPU acceleration
             scrollTrigger: {
               trigger: titleRef.current,
               start: 'top 80%',
-              toggleActions: 'play none none reverse'
+              toggleActions: 'play none none reverse',
+              invalidateOnRefresh: false // Reduce recalculations
             }
           }
         );
       }
 
-      // Counter animation
+      // Counter animation - optimized for 60 FPS
       if (counterRef.current) {
+        gsap.set(counterRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
         gsap.from(counterRef.current, {
           y: 30,
           opacity: 0,
           duration: 1,
           ease: 'power3.out',
           delay: 0.5,
+          force3D: true, // GPU acceleration
           scrollTrigger: {
             trigger: counterRef.current,
             start: 'top 85%',
-            toggleActions: 'play none none reverse'
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
           }
         });
       }
 
-      // Next client text animation
+      // Next client text animation - optimized for 60 FPS
       if (nextClientRef.current) {
+        gsap.set(nextClientRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
         gsap.from(nextClientRef.current, {
           y: 20,
           opacity: 0,
           duration: 0.8,
           ease: 'power3.out',
           delay: 0.3,
+          force3D: true, // GPU acceleration
           scrollTrigger: {
             trigger: nextClientRef.current,
             start: 'top 85%',
-            toggleActions: 'play none none reverse'
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false // Reduce recalculations
           }
         });
       }

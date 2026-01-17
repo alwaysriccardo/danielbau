@@ -31,9 +31,12 @@ const Hero: React.FC = () => {
 
       // Shine effects removed for cleaner look
 
-      // Parallax Image - optimized (different settings for mobile vs desktop)
+      // Parallax Image - optimized for 60 FPS (different settings for mobile vs desktop)
       if (imageRef.current) {
         const isMobile = window.innerWidth < 768;
+        
+        // Use transform: translate3d for better GPU acceleration
+        gsap.set(imageRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
         
         gsap.to(imageRef.current, {
           yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
@@ -43,8 +46,9 @@ const Hero: React.FC = () => {
             trigger: containerRef.current,
             start: 'top top',
             end: 'bottom top',
-            scrub: isMobile ? 2.5 : 1.5, // Smoother, less frequent updates on mobile
-            invalidateOnRefresh: false // Disable to reduce recalculations
+            scrub: isMobile ? 2 : 1, // Optimized scrub for 60 FPS (lower = smoother)
+            invalidateOnRefresh: false, // Disable to reduce recalculations
+            refreshPriority: -1 // Lower priority to reduce impact
           }
         });
       }

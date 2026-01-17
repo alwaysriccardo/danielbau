@@ -77,6 +77,9 @@ const ServiceStack: React.FC = () => {
             const inner = card.querySelector('.card-inner') as HTMLElement;
             
             if (inner) {
+              // Ensure GPU acceleration
+              gsap.set(inner, { force3D: true, transform: 'translate3d(0,0,0)' });
+              
               gsap.to(inner, {
                 scale: 0.9,
                 opacity: 0.4,
@@ -86,9 +89,9 @@ const ServiceStack: React.FC = () => {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 1, // Increased for better performance
+                  scrub: 0.5, // Optimized scrub for 60 FPS (lower = smoother)
                   invalidateOnRefresh: false, // Disable to reduce recalculations
-                  refreshPriority: -1,
+                  refreshPriority: -1, // Lower priority
                   markers: false
                 }
               });
@@ -96,8 +99,10 @@ const ServiceStack: React.FC = () => {
           }
         });
 
-        // Single refresh after setup
+        // Batch ScrollTrigger refresh for better performance
+      requestAnimationFrame(() => {
         ScrollTrigger.refresh();
+      });
       };
 
       // Single initialization
@@ -109,20 +114,26 @@ const ServiceStack: React.FC = () => {
     };
   }, [t, imagesLoaded]);
 
-  // Refresh on window resize (debounced)
+  // Refresh on window resize (debounced and optimized)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let rafId: number;
     const handleResize = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        ScrollTrigger.refresh();
+        // Use RAF to batch refresh for better performance
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       }, 150);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timeoutId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
