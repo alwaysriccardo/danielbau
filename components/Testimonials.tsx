@@ -110,11 +110,11 @@ const Testimonials: React.FC = () => {
     >
       <div className="max-w-4xl mx-auto">
         {/* Compact Header */}
-        <div className="text-center mb-8 md:mb-10">
-          <h2 className="font-display text-3xl md:text-4xl mb-2 text-gray-800">
-            Kundenbewertungen
+        <div className="text-center mb-6 md:mb-8">
+          <h2 className="font-display text-xl md:text-2xl mb-1 text-gray-700">
+            Referenzen
           </h2>
-          <div className="h-px w-16 bg-gray-400 mx-auto"></div>
+          <div className="h-px w-12 bg-gray-300 mx-auto"></div>
         </div>
 
         {/* Carousel Container */}
