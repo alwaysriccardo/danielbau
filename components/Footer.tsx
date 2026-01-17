@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { IMAGES } from '../constants';
@@ -31,58 +31,6 @@ const Footer: React.FC = () => {
       setFormData({ name: '', email: '', message: '' });
     }, 1000);
   };
-
-  // Fix scroll-up issue on mobile: allow page scroll when footer is at top
-  useEffect(() => {
-    if (!footerRef.current) return;
-    
-    const footer = footerRef.current;
-    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (!isMobile) {
-      // Desktop: only handle wheel events
-      const handleWheel = (e: WheelEvent) => {
-        if (footer.scrollTop <= 5 && e.deltaY < 0) {
-          e.stopPropagation();
-          window.scrollBy({ top: e.deltaY, behavior: 'auto' });
-        }
-      };
-      footer.addEventListener('wheel', handleWheel, { passive: false, capture: true });
-      return () => footer.removeEventListener('wheel', handleWheel, true);
-    }
-    
-    // Mobile: minimal interference - let native scrolling work
-    // Only prevent default if we're definitely at the top AND scrolling up
-    let touchStartY = 0;
-    let touchStartScrollTop = 0;
-    
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      touchStartScrollTop = footer.scrollTop;
-    };
-    
-    const handleTouchMove = (e: TouchEvent) => {
-      // Only interfere if we're at the very top (0 scroll) and user is swiping up
-      if (touchStartScrollTop === 0 && touchStartY > 0) {
-        const touchY = e.touches[0].clientY;
-        const deltaY = touchStartY - touchY;
-        
-        // User swiping up from top - allow page scroll naturally
-        if (deltaY > 5) {
-          // Don't prevent default - let the browser handle it naturally
-          // The footer's overscroll-behavior: auto will allow page scroll
-        }
-      }
-    };
-    
-    footer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    footer.addEventListener('touchmove', handleTouchMove, { passive: true });
-    
-    return () => {
-      footer.removeEventListener('touchstart', handleTouchStart);
-      footer.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -167,25 +115,18 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto pt-safe pb-safe"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto overscroll-contain pt-safe pb-safe"
       id="contact"
+      data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehaviorY: 'auto', // Allow scroll chaining so users can scroll back up
-        overscrollBehavior: 'auto',
-        scrollBehavior: 'auto',
-        touchAction: 'pan-y pinch-zoom' // Allow vertical scrolling and pinch zoom
+        overscrollBehavior: 'contain',
+        scrollBehavior: 'auto'
       }}
     >
-      <div 
-        ref={contentRef} 
-        className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0"
-        style={{ 
-          minHeight: 'calc(100vh - 2rem)' // Ensure footer content fills viewport but allows scroll
-        }}
-      >
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-3 md:mb-6 text-gray-400"

@@ -77,29 +77,6 @@
         pointer-events: none;
       }
 
-      /* Mobile scrolling optimizations - native scrolling */
-      @media (max-width: 767px) {
-        html, body {
-          -webkit-overflow-scrolling: touch;
-          overflow-scrolling: touch;
-          overscroll-behavior-y: auto;
-          scroll-behavior: smooth;
-        }
-        
-        /* Prevent scroll chaining issues */
-        body {
-          position: relative;
-          overflow-x: hidden;
-          overflow-y: auto;
-        }
-        
-        /* Fix for iOS momentum scrolling */
-        * {
-          -webkit-transform: translateZ(0);
-          transform: translateZ(0);
-        }
-      }
-
       /* Noise Overlay */
       .noise-overlay {
         position: fixed;
