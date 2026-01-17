@@ -97,16 +97,23 @@
         will-change: transform, opacity, text-shadow;
       }
 
-      /* Cross-browser compatibility */
+      /* Cross-browser compatibility and optimizations */
       * {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        box-sizing: border-box;
+      }
+      
+      *::before,
+      *::after {
+        box-sizing: border-box;
       }
 
       /* Fix for Safari/WebKit */
       @supports (-webkit-appearance: none) {
         body {
           -webkit-font-smoothing: antialiased;
+          -webkit-tap-highlight-color: transparent;
         }
       }
 
@@ -117,10 +124,36 @@
         }
       }
 
-      /* Fix for Edge/IE */
+      /* Fix for Edge/Chrome */
       @supports (-ms-ime-align: auto) {
         body {
           -ms-font-feature-settings: "liga" 1;
+        }
+      }
+      
+      /* GPU acceleration for better performance */
+      .preloader-container,
+      .hero-text-line,
+      .hero-fade,
+      .card-inner {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        -webkit-perspective: 1000px;
+      }
+      
+      /* Fix for iframe pointer events in various browsers */
+      iframe {
+        pointer-events: auto !important;
+      }
+      
+      /* Better touch handling for mobile */
+      @media (hover: none) and (pointer: coarse) {
+        button, a {
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
       }
 

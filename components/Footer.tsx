@@ -130,43 +130,46 @@ const Footer: React.FC = () => {
           {t.footer.ready}
         </div>
         
-        {/* QUOTE Button - Most Prominent, Centered on Mobile */}
-        <a 
-          ref={quoteRef}
-          href="mailto:zitat@danielbau.de" 
-          className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer mb-4 md:mb-8 relative z-50"
-          style={{ 
-            pointerEvents: 'auto',
-            touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent'
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            window.location.href = 'mailto:zitat@danielbau.de';
-          }}
-        >
-          {t.footer.offer}
-        </a>
-
-        {/* Phone Number */}
-        <div ref={phoneRef} className="mb-4 md:mb-8">
+        {/* Desktop: ANGEBOT centered above map/form row */}
+        {/* Mobile: ANGEBOT centered above map/form */}
+        <div className="mb-4 md:mb-8">
           <a 
-            href="tel:+41762313831" 
-            className="text-base md:text-xl lg:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
+            ref={quoteRef}
+            href="mailto:zitat@danielbau.de" 
+            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer relative z-50"
+            style={{ 
+              pointerEvents: 'auto',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = 'mailto:zitat@danielbau.de';
+            }}
           >
-            <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            <span>+41 76 231 38 31</span>
+            {t.footer.offer}
           </a>
+
+          {/* Phone Number */}
+          <div ref={phoneRef} className="mt-4 md:mt-6">
+            <a 
+              href="tel:+41762313831" 
+              className="text-base md:text-xl lg:text-2xl font-light tracking-wide text-white hover:text-blue-400 transition-all duration-300 flex items-center justify-center gap-3 group"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>+41 76 231 38 31</span>
+            </a>
+          </div>
         </div>
 
         {/* Desktop Layout: Map Left, Form Right (below centered ANGEBOT) */}
         {/* Mobile Layout: Map Left, Form Right */}
-        <div className="flex flex-row gap-4 md:gap-8 items-start justify-center max-w-xs md:max-w-6xl mx-auto mb-4 md:mb-8">
+        <div className="flex flex-row gap-3 md:gap-8 items-start justify-center max-w-xs md:max-w-6xl mx-auto mb-4 md:mb-8 w-full">
           {/* Map - Left Side (Mobile and Desktop) */}
           <div className="w-[45%] md:w-[300px] flex-shrink-0">
-            <div className="w-full h-[180px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
+            <div className="w-full h-[200px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg pointer-events-auto">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"

@@ -90,13 +90,33 @@ const Portfolio: React.FC = () => {
     }
   }, [projects]);
 
-  // Poll for changes (fallback for same-tab updates)
+  // Enhanced polling for cross-device sync (more frequent checks)
   useEffect(() => {
+    // Check immediately
+    loadProjects();
+    
+    // Poll every 500ms for faster updates
     const interval = setInterval(() => {
       loadProjects();
-    }, 1000);
-    return () => clearInterval(interval);
+    }, 500);
+    
+    // Also listen to focus events (when user switches back to tab)
+    const handleFocus = () => {
+      loadProjects();
+    };
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
+  
+  // Manual refresh function for admin
+  const handleRefresh = () => {
+    loadProjects();
+    alert('Portfolio refreshed');
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -330,7 +350,14 @@ const Portfolio: React.FC = () => {
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
+                <button
+                  onClick={handleRefresh}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm uppercase tracking-widest hover:bg-blue-700 transition-colors"
+                  title="Refresh portfolio (syncs across devices)"
+                >
+                  Refresh
+                </button>
                 <button
                   onClick={() => setShowUpload(!showUpload)}
                   className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
@@ -531,26 +558,27 @@ const Portfolio: React.FC = () => {
                     )}
                   </div>
                   {isAdmin && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
+                      <span className="text-xs text-gray-500 mr-2">Order:</span>
                       <button
                         onClick={() => moveProject(project.id, 'up')}
                         disabled={projectIndex === 0}
-                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50"
+                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
                         title="Move up"
                       >
-                        ↑
+                        ↑ Up
                       </button>
                       <button
                         onClick={() => moveProject(project.id, 'down')}
                         disabled={projectIndex === projects.length - 1}
-                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50"
+                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
                         title="Move down"
                       >
-                        ↓
+                        ↓ Down
                       </button>
                       <button
                         onClick={() => handleDeleteProject(project.id)}
-                        className="px-3 py-1 bg-red-500 text-white text-sm hover:bg-red-600 transition-colors"
+                        className="px-3 py-1 bg-red-500 text-white text-sm hover:bg-red-600 transition-colors rounded"
                         title="Delete project"
                       >
                         Delete

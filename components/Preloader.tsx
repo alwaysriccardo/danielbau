@@ -37,34 +37,39 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           willChange: 'transform, background-color'
         });
 
+        // Smoother, higher FPS animation with better easing
         tl.to([textRef.current, flagRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.5,
-          ease: 'power2.out',
-          stagger: 0.08,
-          force3D: true
+          duration: 0.6,
+          ease: 'power1.out', // Smoother easing
+          stagger: 0.1,
+          force3D: true,
+          lazy: false // Disable lazy rendering for smoother animation
         })
-        .to({}, { duration: 0.7 }) // Hold time
+        .to({}, { duration: 0.8 }) // Hold time
         .to([textRef.current, flagRef.current], {
           y: -30,
           opacity: 0,
-          duration: 0.4,
-          ease: 'power2.in',
-          stagger: 0.05,
-          force3D: true
+          duration: 0.5,
+          ease: 'power1.in', // Smoother easing
+          stagger: 0.06,
+          force3D: true,
+          lazy: false
         }, "-=0.1")
         .to(containerRef.current, {
           backgroundColor: '#E3E1DC', // Fade to site background color
-          duration: 0.3,
-          ease: 'power2.inOut',
-          force3D: true
+          duration: 0.4,
+          ease: 'power1.inOut', // Smoother easing
+          force3D: true,
+          lazy: false
         }, "-=0.1")
         .to(containerRef.current, {
           yPercent: -100,
-          duration: 0.6,
-          ease: 'power3.inOut',
+          duration: 0.7,
+          ease: 'power2.inOut', // Smoother easing
           force3D: true,
+          lazy: false,
           onStart: () => {
             // Start showing content as preloader slides up
             // Ensure scroll is at top
