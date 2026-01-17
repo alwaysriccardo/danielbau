@@ -124,7 +124,7 @@ const AppContent = () => {
         <Testimonials />
         
         {/* Final Text Section */}
-        <section className="py-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
+        <section className="pt-12 md:pt-16 pb-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
           <h2 className="font-display text-3xl md:text-5xl mb-8">
             {t.final.title}
           </h2>

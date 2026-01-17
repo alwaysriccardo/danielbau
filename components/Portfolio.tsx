@@ -666,7 +666,7 @@ const Portfolio: React.FC = () => {
     >
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-4">
           <h2 className="font-display text-5xl md:text-7xl mb-4 text-gray-800">
             {t.portfolio.header}
           </h2>

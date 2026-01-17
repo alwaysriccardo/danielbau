@@ -80,6 +80,9 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Präsentation unserer abgeschlossenen Projekte und Handwerkskunst"
+    },
+    testimonials: {
+      header: "Referenzen"
     }
   },
   en: {
@@ -153,6 +156,9 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Showcasing our completed projects and craftsmanship"
+    },
+    testimonials: {
+      header: "References"
     }
   },
   fr: {
@@ -226,6 +232,9 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Présentation de nos projets terminés et de notre savoir-faire"
+    },
+    testimonials: {
+      header: "Références"
     }
   },
   it: {
@@ -299,6 +308,9 @@ export const TRANSLATIONS = {
     portfolio: {
       header: "PORTFOLIO",
       subheader: "Mostra dei nostri progetti completati e della nostra maestria"
+    },
+    testimonials: {
+      header: "Referenze"
     }
   }
 };

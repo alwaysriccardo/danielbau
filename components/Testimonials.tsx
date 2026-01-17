@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -51,6 +52,7 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 const Testimonials: React.FC = () => {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const [testimonials] = useState<Testimonial[]>(() => shuffleArray(originalTestimonials));
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -105,14 +107,14 @@ const Testimonials: React.FC = () => {
   return (
     <section 
       ref={sectionRef}
-      className="py-12 md:py-16 px-6 md:px-20 bg-[#E3E1DC]" 
+      className="pt-12 md:pt-16 pb-4 md:pb-6 px-6 md:px-20 bg-[#E3E1DC]" 
       id="testimonials"
     >
       <div className="max-w-4xl mx-auto">
         {/* Compact Header */}
         <div className="text-center mb-6 md:mb-8">
           <h2 className="font-display text-xl md:text-2xl mb-1 text-gray-700">
-            Referenzen
+            {t.testimonials.header}
           </h2>
           <div className="h-px w-12 bg-gray-300 mx-auto"></div>
         </div>
