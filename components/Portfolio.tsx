@@ -37,16 +37,30 @@ const Portfolio: React.FC = () => {
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
+  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const projectsRef = useRef<PortfolioProject[]>([]);
 
   // Load projects from Supabase API (with localStorage fallback)
+  // Only updates state if data actually changed to prevent flicker
   const loadProjects = async () => {
     if (typeof window === 'undefined') return;
     
     try {
       const loadedProjects = await portfolioAPI.getProjects();
-      setProjects(loadedProjects);
+      
+      // Compare with current projects using ref to avoid unnecessary re-renders
+      const currentProjects = projectsRef.current;
+      const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+      const loadedProjectsStr = JSON.stringify(loadedProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+      
+      // Only update if data actually changed
+      if (currentProjectsStr !== loadedProjectsStr) {
+        projectsRef.current = loadedProjects;
+        setProjects(loadedProjects);
+      }
     } catch (error) {
       console.error('Error loading projects:', error);
       // Fallback to localStorage
@@ -55,7 +69,16 @@ const Portfolio: React.FC = () => {
         try {
           const parsed = JSON.parse(storedProjects);
           const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => a.order - b.order);
-          setProjects(sorted);
+          
+          // Compare before updating
+          const currentProjects = projectsRef.current;
+          const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+          const sortedProjectsStr = JSON.stringify(sorted.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+          
+          if (currentProjectsStr !== sortedProjectsStr) {
+            projectsRef.current = sorted;
+            setProjects(sorted);
+          }
         } catch (e) {
           console.error('Error loading from localStorage:', e);
         }
@@ -73,16 +96,30 @@ const Portfolio: React.FC = () => {
       setIsLoggedIn(true);
     }
   }, []);
-
-  // Poll for updates (every 3 seconds for Supabase, or 500ms for localStorage fallback)
+  
+  // Update ref whenever projects change
   useEffect(() => {
-    const interval = setInterval(() => {
-      loadProjects();
-    }, 3000); // Check every 3 seconds for Supabase sync
+    projectsRef.current = projects;
+  }, [projects]);
+
+  // Poll for updates silently (only when admin is logged in, or much less frequently for public)
+  useEffect(() => {
+    // Only poll if admin is logged in, or poll much less frequently for public users
+    // Public users: 60 seconds (1 minute) - very infrequent to avoid any flicker
+    // Admin: 15 seconds - more frequent for admin to see changes
+    const pollInterval = isAdmin ? 15000 : 60000;
     
-    // Also listen to focus events (when user switches back to tab)
-    const handleFocus = () => {
+    const interval = setInterval(() => {
+      // Silent refresh - only updates if data changed (no flicker)
       loadProjects();
+    }, pollInterval);
+    
+    // Also listen to focus events (when user switches back to tab) - but silently
+    const handleFocus = () => {
+      // Small delay to avoid flicker when tab becomes active
+      setTimeout(() => {
+        loadProjects();
+      }, 500);
     };
     window.addEventListener('focus', handleFocus);
     
@@ -90,7 +127,14 @@ const Portfolio: React.FC = () => {
       clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [isAdmin]); // Removed projects from deps to avoid re-creating interval
+  
+  // Update selected project index when projects change
+  useEffect(() => {
+    if (projects.length > 0 && selectedProjectIndex >= projects.length) {
+      setSelectedProjectIndex(0);
+    }
+  }, [projects.length, selectedProjectIndex]);
   
   // Manual refresh function for admin
   const handleRefresh = async () => {
@@ -308,27 +352,8 @@ const Portfolio: React.FC = () => {
     }
   };
 
-  // Auto-advance carousel for each project
-  useEffect(() => {
-    if (projects.length === 0) return;
-    
-    const intervals: NodeJS.Timeout[] = [];
-    
-    projects.forEach(project => {
-      if (project.media.length <= 1) return;
-      
-      const interval = setInterval(() => {
-        setCurrentMediaIndices(prev => ({
-          ...prev,
-          [project.id]: ((prev[project.id] || 0) + 1) % project.media.length
-        }));
-      }, 5000);
-      
-      intervals.push(interval);
-    });
-
-    return () => intervals.forEach(interval => clearInterval(interval));
-  }, [projects]);
+  // Auto-advance carousel disabled - users can navigate manually
+  // This prevents the visual refresh bug
 
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
@@ -577,9 +602,35 @@ const Portfolio: React.FC = () => {
 
         {/* Portfolio Projects Display */}
         {projects.length > 0 ? (
-          <div className="space-y-16">
-            {projects.map((project, projectIndex) => (
-              <div key={project.id} className="portfolio-project">
+          <div>
+            {/* Project Navigation Tabs (for switching between projects) */}
+            {!isAdmin && projects.length > 1 && (
+              <div className="mb-8 flex flex-wrap gap-3 justify-center">
+                {projects.map((project, index) => (
+                  <button
+                    key={project.id}
+                    onClick={() => {
+                      setSelectedProjectIndex(index);
+                      setExpandedProjectId(null); // Close expanded view when switching
+                    }}
+                    className={`px-6 py-3 font-display text-sm md:text-base uppercase tracking-widest transition-all duration-300 ${
+                      selectedProjectIndex === index
+                        ? 'bg-[#121212] text-white shadow-lg'
+                        : 'bg-white text-gray-800 border-2 border-gray-300 hover:border-[#121212]'
+                    }`}
+                  >
+                    {project.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Display selected project (for non-admin) or all projects (for admin) */}
+            {isAdmin ? (
+              // Admin view: Show all projects stacked
+              <div className="space-y-16">
+                {projects.map((project, projectIndex) => (
+                  <div key={project.id} className="portfolio-project">
                 {/* Project Header */}
                 <div className="mb-8 flex items-center justify-between">
                   <div>
@@ -620,7 +671,7 @@ const Portfolio: React.FC = () => {
                   )}
                 </div>
 
-                {/* Project Media Carousel */}
+                {/* Project Media Carousel - Admin view only */}
                 {project.media.length > 0 ? (
                   <div className="relative">
                     <div className="overflow-hidden">
@@ -723,7 +774,74 @@ const Portfolio: React.FC = () => {
                   </div>
                 )}
               </div>
-            ))}
+                ))}
+              </div>
+            ) : (
+              // Public view: Show selected project with gallery
+              <div className="portfolio-project">
+                {projects[selectedProjectIndex] && (
+                  <>
+                    {/* Project Header */}
+                    <div className="mb-8 text-center">
+                      <h3 className="font-display text-3xl md:text-5xl text-gray-800 mb-4">
+                        {projects[selectedProjectIndex].name}
+                      </h3>
+                      {projects[selectedProjectIndex].description && (
+                        <p className="text-gray-600 max-w-2xl mx-auto">
+                          {projects[selectedProjectIndex].description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Project Gallery - All images in grid when expanded, or preview when not */}
+                    {projects[selectedProjectIndex].media.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {projects[selectedProjectIndex].media.map((media, index) => (
+                          <div
+                            key={media.id}
+                            className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                            onClick={() => setCurrentMediaIndices(prev => ({ ...prev, [projects[selectedProjectIndex].id]: index }))}
+                          >
+                            <div className="aspect-square relative overflow-hidden">
+                              {media.type === 'video' ? (
+                                <video
+                                  src={media.url}
+                                  controls
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img
+                                  src={media.url}
+                                  alt={media.title || 'Portfolio media'}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              )}
+                            </div>
+                            {(media.title || media.description) && (
+                              <div className="p-4">
+                                {media.title && (
+                                  <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
+                                )}
+                                {media.description && (
+                                  <p className="text-sm text-gray-600">{media.description}</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="min-h-[200px] flex items-center justify-center text-gray-400">
+                        No media in this project yet
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="min-h-[400px] flex items-center justify-center">
