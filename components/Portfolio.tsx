@@ -1208,35 +1208,112 @@ const Portfolio: React.FC = () => {
                     {project.media.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {project.media.map((media) => (
-                          <div key={media.id} className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                            {media.type === 'video' ? (
-                              <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
-                            ) : (
-                              <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="lazy" />
-                            )}
-                            
-                            {/* Overlay with actions */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <button
-                                onClick={() => handleDeleteMedia(project.id, media.id)}
-                                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                title="Delete"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                              </button>
-                            </div>
-                            
-                            {/* Media type indicator */}
-                            {media.type === 'video' && (
-                              <div className="absolute top-2 left-2 p-1 bg-black/50 rounded">
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                          <div key={media.id} className="group relative bg-gray-100 rounded-lg overflow-hidden">
+                            {/* Media editing mode */}
+                            {editingMedia?.projectId === project.id && editingMedia?.mediaId === media.id ? (
+                              <div className="p-3 bg-white border border-gray-200 rounded-lg space-y-2">
+                                <div className="aspect-video bg-gray-100 rounded overflow-hidden mb-2">
+                                  {media.type === 'video' ? (
+                                    <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
+                                  ) : (
+                                    <img src={media.url} alt="" className="w-full h-full object-cover" />
+                                  )}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={editingMedia.field === 'title' ? inlineMediaValue : (media.title || '')}
+                                  onChange={(e) => {
+                                    if (editingMedia.field !== 'title') {
+                                      setEditingMedia({ ...editingMedia, field: 'title' });
+                                      setInlineMediaValue(e.target.value);
+                                    } else {
+                                      setInlineMediaValue(e.target.value);
+                                    }
+                                  }}
+                                  onFocus={() => {
+                                    if (editingMedia.field !== 'title') {
+                                      setEditingMedia({ ...editingMedia, field: 'title' });
+                                      setInlineMediaValue(media.title || '');
+                                    }
+                                  }}
+                                  placeholder="Title"
+                                  className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:border-[#121212]"
+                                />
+                                <textarea
+                                  value={editingMedia.field === 'description' ? inlineMediaValue : (media.description || '')}
+                                  onChange={(e) => {
+                                    if (editingMedia.field !== 'description') {
+                                      setEditingMedia({ ...editingMedia, field: 'description' });
+                                      setInlineMediaValue(e.target.value);
+                                    } else {
+                                      setInlineMediaValue(e.target.value);
+                                    }
+                                  }}
+                                  onFocus={() => {
+                                    if (editingMedia.field !== 'description') {
+                                      setEditingMedia({ ...editingMedia, field: 'description' });
+                                      setInlineMediaValue(media.description || '');
+                                    }
+                                  }}
+                                  placeholder="Description"
+                                  rows={2}
+                                  className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={handleSaveInlineMedia}
+                                    className="flex-1 py-1.5 bg-[#121212] text-white text-xs font-medium rounded hover:bg-gray-800 transition-colors"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={handleCancelInlineMedia}
+                                    className="flex-1 py-1.5 bg-gray-200 text-gray-700 text-xs font-medium rounded hover:bg-gray-300 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
-                            )}
-                            
-                            {/* Title/Description indicator */}
-                            {(media.title || media.description) && (
-                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                                {media.title && <p className="text-white text-xs font-medium truncate">{media.title}</p>}
+                            ) : (
+                              /* Normal media display */
+                              <div className="aspect-square relative">
+                                {media.type === 'video' ? (
+                                  <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
+                                ) : (
+                                  <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="lazy" />
+                                )}
+                                
+                                {/* Overlay with actions */}
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                  <button
+                                    onClick={() => handleStartEditMedia(project.id, media.id, 'title', media.title || '')}
+                                    className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
+                                    title="Edit title & description"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteMedia(project.id, media.id)}
+                                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                    title="Delete"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                  </button>
+                                </div>
+                                
+                                {/* Media type indicator */}
+                                {media.type === 'video' && (
+                                  <div className="absolute top-2 left-2 p-1 bg-black/50 rounded">
+                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                  </div>
+                                )}
+                                
+                                {/* Title/Description indicator */}
+                                {(media.title || media.description) && (
+                                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                                    {media.title && <p className="text-white text-xs font-medium truncate">{media.title}</p>}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
