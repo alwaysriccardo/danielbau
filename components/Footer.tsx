@@ -113,11 +113,24 @@ const Footer: React.FC = () => {
           <a 
             ref={quoteRef}
             href="mailto:danielbau@mail.ch" 
-            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer relative z-50"
+            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none block cursor-pointer relative z-50 inline-block group"
             style={{ 
               pointerEvents: 'auto',
               touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent'
+              WebkitTapHighlightColor: 'transparent',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget;
+              el.style.transform = 'scale(1.05)';
+              el.style.letterSpacing = '0.1em';
+              el.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget;
+              el.style.transform = 'scale(1)';
+              el.style.letterSpacing = '0';
+              el.style.textShadow = 'none';
             }}
             onClick={(e) => {
               e.preventDefault();

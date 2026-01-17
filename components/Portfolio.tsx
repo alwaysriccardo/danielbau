@@ -1362,7 +1362,7 @@ const Portfolio: React.FC = () => {
             ) : (
               // Public view: Show selected project with gallery (mobile: swipe + tap to expand)
               <div 
-                className="portfolio-project"
+                className="portfolio-project relative"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -1371,14 +1371,15 @@ const Portfolio: React.FC = () => {
                   <>
                     {/* Project Navigation Arrows - Desktop & Mobile */}
                     {projects.length > 1 && (
-                      <div className="flex items-center justify-center gap-4 md:gap-8 mb-6 md:mb-8 relative z-50">
+                      <div className="flex items-center justify-center gap-4 md:gap-8 mb-6 md:mb-8 relative" style={{ zIndex: 9999 }}>
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             setSelectedProjectIndex((prev) => (prev > 0 ? prev - 1 : projects.length - 1));
                           }}
-                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform z-50 pointer-events-auto"
+                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform relative"
+                          style={{ zIndex: 10000, pointerEvents: 'auto' }}
                           aria-label="Previous project"
                           type="button"
                         >
@@ -1387,7 +1388,7 @@ const Portfolio: React.FC = () => {
                           </svg>
                         </button>
                         
-                        <div className="text-center">
+                        <div className="text-center relative" style={{ zIndex: 9999 }}>
                           <span className="text-xs md:text-sm text-gray-500">
                             {selectedProjectIndex + 1} / {projects.length}
                           </span>
@@ -1399,7 +1400,8 @@ const Portfolio: React.FC = () => {
                             e.stopPropagation();
                             setSelectedProjectIndex((prev) => (prev < projects.length - 1 ? prev + 1 : 0));
                           }}
-                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform z-50 pointer-events-auto"
+                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform relative"
+                          style={{ zIndex: 10000, pointerEvents: 'auto' }}
                           aria-label="Next project"
                           type="button"
                         >
