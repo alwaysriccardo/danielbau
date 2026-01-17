@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DANIELBAU | Innenausbau & Renovierung</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -51,11 +51,6 @@
       /* Ensure scroll position stays at top */
       html, body {
         scroll-behavior: auto;
-        zoom: 1;
-        -webkit-text-size-adjust: 100%;
-        -moz-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-        text-size-adjust: 100%;
       }
       
       /* Prevent scroll jumps */
@@ -195,18 +190,5 @@
   <body>
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
-  <script>
-    // Ensure page loads at 100% zoom
-    (function() {
-      // Reset zoom on page load
-      document.documentElement.style.zoom = '1';
-      
-      // Ensure viewport is correct
-      const viewport = document.querySelector('meta[name="viewport"]');
-      if (viewport) {
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5');
-      }
-    })();
-  </script>
 </body>
 </html>
