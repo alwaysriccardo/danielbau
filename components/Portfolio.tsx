@@ -455,9 +455,20 @@ const Portfolio: React.FC = () => {
     });
 
     if (success) {
-      await loadProjects();
+      // Update local state immediately
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p => 
+          p.id === projectId 
+            ? { ...p, description: inlineDescriptionValue.trim() || undefined }
+            : p
+        );
+        projectsRef.current = updated;
+        return updated;
+      });
       setEditingDescriptionInline(null);
       setInlineDescriptionValue('');
+      // Then sync with server
+      await loadProjects();
     } else {
       alert('Failed to update description. Please try again.');
     }
@@ -488,9 +499,20 @@ const Portfolio: React.FC = () => {
     });
 
     if (success) {
-      await loadProjects();
+      // Update local state immediately
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p => 
+          p.id === projectId 
+            ? { ...p, name: inlineProjectNameValue.trim() }
+            : p
+        );
+        projectsRef.current = updated;
+        return updated;
+      });
       setEditingProjectNameInline(null);
       setInlineProjectNameValue('');
+      // Then sync with server
+      await loadProjects();
     } else {
       alert('Failed to update folder name. Please try again.');
     }
@@ -541,9 +563,32 @@ const Portfolio: React.FC = () => {
     });
 
     if (success) {
-      await loadProjects();
+      // Update local state immediately
+      const field = editingMedia.field;
+      const value = inlineMediaValue.trim() || undefined;
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p => 
+          p.id === editingMedia.projectId 
+            ? { 
+                ...p, 
+                media: p.media.map(m => 
+                  m.id === editingMedia.mediaId
+                    ? {
+                        ...m,
+                        [field]: value
+                      }
+                    : m
+                )
+              }
+            : p
+        );
+        projectsRef.current = updated;
+        return updated;
+      });
       setEditingMedia(null);
       setInlineMediaValue('');
+      // Then sync with server
+      await loadProjects();
     } else {
       alert('Failed to update media. Please try again.');
     }
@@ -1626,62 +1671,69 @@ const Portfolio: React.FC = () => {
                                     />
                                   )}
                                 </div>
-                                {!isMobile && (media.title || media.description || isAdmin) && (
+                                {/* Desktop: Show title and description, Mobile: Show description only */}
+                                {(!isMobile && (media.title || media.description || isAdmin)) || (isMobile && (media.description || isAdmin)) ? (
                                   <div className="p-4">
-                                    {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'title' ? (
-                                      <div className="flex items-start gap-2 mb-2">
-                                        <input
-                                          type="text"
-                                          value={inlineMediaValue}
-                                          onChange={(e) => setInlineMediaValue(e.target.value)}
-                                          className="flex-1 px-2 py-1 text-sm font-bold border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                                          placeholder="Media title"
-                                          autoFocus
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                              handleSaveInlineMedia();
-                                            } else if (e.key === 'Escape') {
-                                              handleCancelInlineMedia();
-                                            }
-                                          }}
-                                        />
-                                        <div className="flex flex-col gap-1">
-                                          <button
-                                            onClick={handleSaveInlineMedia}
-                                            className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                            title="Save"
-                                          >
-                                            ✓
-                                          </button>
-                                          <button
-                                            onClick={handleCancelInlineMedia}
-                                            className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                            title="Cancel"
-                                          >
-                                            ×
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-center gap-2 mb-1">
-                                        {media.title ? (
-                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                    {/* Title - Desktop only */}
+                                    {!isMobile && (
+                                      <>
+                                        {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'title' ? (
+                                          <div className="flex items-start gap-2 mb-2">
+                                            <input
+                                              type="text"
+                                              value={inlineMediaValue}
+                                              onChange={(e) => setInlineMediaValue(e.target.value)}
+                                              className="flex-1 px-2 py-1 text-sm font-bold border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                                              placeholder="Media title"
+                                              autoFocus
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                  handleSaveInlineMedia();
+                                                } else if (e.key === 'Escape') {
+                                                  handleCancelInlineMedia();
+                                                }
+                                              }}
+                                            />
+                                            <div className="flex flex-col gap-1">
+                                              <button
+                                                onClick={handleSaveInlineMedia}
+                                                className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                                                title="Save"
+                                              >
+                                                ✓
+                                              </button>
+                                              <button
+                                                onClick={handleCancelInlineMedia}
+                                                className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                                                title="Cancel"
+                                              >
+                                                ×
+                                              </button>
+                                            </div>
+                                          </div>
                                         ) : (
-                                          isAdmin && <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
+                                          <div className="flex items-center gap-2 mb-1">
+                                            {media.title ? (
+                                              <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                            ) : (
+                                              isAdmin && <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
+                                            )}
+                                            {isAdmin && (
+                                              <button
+                                                onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'title', media.title || '')}
+                                                className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                                                title="Edit title"
+                                              >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                              </button>
+                                            )}
+                                          </div>
                                         )}
-                                        {isAdmin && (
-                                          <button
-                                            onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'title', media.title || '')}
-                                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                                            title="Edit title"
-                                          >
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                          </button>
-                                        )}
-                                      </div>
+                                      </>
                                     )}
+                                    {/* Description - Desktop and Mobile */}
                                     {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'description' ? (
                                       <div className="flex items-start gap-2">
                                         <textarea
@@ -1735,7 +1787,7 @@ const Portfolio: React.FC = () => {
                                       </div>
                                     )}
                                   </div>
-                                )}
+                                ) : null}
                               </div>
                             ))}
                               </div>
