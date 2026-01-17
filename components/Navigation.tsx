@@ -11,28 +11,57 @@ const Navigation: React.FC = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Detect when navigation is over dark background (hero section)
+  // Detect when navigation is over dark background (hero, services, footer)
   useEffect(() => {
     const checkBackground = () => {
       if (!navRef.current) return;
       
-      // Check if we're in the hero section (first section, typically dark)
+      const navY = navRef.current.getBoundingClientRect().top + 40; // Nav center point
+      let isOverDark = false;
+      
+      // Check hero section (first section, typically dark)
       const heroSection = document.querySelector('section:first-of-type');
-      if (!heroSection) return;
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        if (navY >= heroRect.top && navY <= heroRect.bottom) {
+          isOverDark = true;
+        }
+      }
       
-      const heroRect = heroSection.getBoundingClientRect();
-      const isInHero = heroRect.top < window.innerHeight && heroRect.bottom > 0;
+      // Check services section (dark background #121212)
+      const servicesSection = document.getElementById('services');
+      if (servicesSection) {
+        const servicesRect = servicesSection.getBoundingClientRect();
+        if (navY >= servicesRect.top && navY <= servicesRect.bottom) {
+          isOverDark = true;
+        }
+      }
       
-      setIsOverDarkBg(isInHero);
+      // Check footer (dark background #111)
+      const footer = document.getElementById('contact');
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect();
+        if (navY >= footerRect.top && navY <= footerRect.bottom) {
+          isOverDark = true;
+        }
+      }
+      
+      setIsOverDarkBg(isOverDark);
     };
 
     // Check on mount and scroll
     checkBackground();
-    window.addEventListener('scroll', checkBackground, { passive: true });
+    
+    // Use requestAnimationFrame for smooth updates
+    const handleScroll = () => {
+      requestAnimationFrame(checkBackground);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', checkBackground, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', checkBackground);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', checkBackground);
     };
   }, []);
@@ -40,9 +69,6 @@ const Navigation: React.FC = () => {
   // Shine effect removed for cleaner look
 
   const textColor = isOverDarkBg ? 'text-white' : 'text-[#121212]';
-  const textShadow = isOverDarkBg 
-    ? '0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' 
-    : '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5)';
   const borderColor = isOverDarkBg ? 'border-white/30' : 'border-[#121212]/30';
   const hoverColor = isOverDarkBg ? 'hover:text-blue-400' : 'hover:text-blue-600';
 
@@ -50,12 +76,11 @@ const Navigation: React.FC = () => {
     <>
       <nav ref={navRef} className="fixed top-0 w-full p-8 flex justify-between items-center z-50" style={{ willChange: 'transform' }}>
         <div ref={logoRef} className={`font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo ${textColor}`} style={{
-          textShadow: textShadow,
           willChange: 'transform'
         }}>DANIELBAU</div>
         
         {/* Desktop Menu */}
-        <nav className={`hidden md:flex gap-10 text-xs uppercase tracking-widest ${textColor}`} aria-label="Main navigation" style={{ textShadow: textShadow }}>
+        <nav className={`hidden md:flex gap-10 text-xs uppercase tracking-widest ${textColor}`} aria-label="Main navigation">
           <a href="#services" className={`${hoverColor} transition-colors`} aria-label={t.nav.services}>
             {t.nav.services}
           </a>
@@ -90,8 +115,7 @@ const Navigation: React.FC = () => {
           onClick={toggleMenu} 
           className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} shadow-lg ${textColor}`}
           style={{
-            fontWeight: 900,
-            textShadow: textShadow
+            fontWeight: 900
           }}
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
@@ -107,6 +131,27 @@ const Navigation: React.FC = () => {
         }`}
         aria-hidden={!isMenuOpen}
       >
+        {/* Close Button (X) */}
+        <button
+          onClick={toggleMenu}
+          className="absolute top-8 right-8 text-white hover:text-blue-400 transition-colors z-60"
+          aria-label="Close menu"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="32" 
+            height="32" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
         <a 
           href="#services" 
           onClick={toggleMenu}
