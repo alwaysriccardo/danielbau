@@ -444,12 +444,12 @@ const Portfolio: React.FC = () => {
   return (
     <section 
       ref={sectionRef}
-      className="py-24 px-6 md:px-20 bg-[#E3E1DC] min-h-screen" 
+      className="py-16 md:py-20 px-6 md:px-20 bg-[#E3E1DC] min-h-screen" 
       id="portfolio"
     >
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="font-display text-5xl md:text-7xl mb-4 text-gray-800">
             PORTFOLIO
           </h2>
@@ -460,7 +460,7 @@ const Portfolio: React.FC = () => {
 
         {/* Admin Controls */}
         {isAdmin && (
-          <div className="mb-8 p-4 bg-white/50 rounded-lg border border-gray-300 space-y-4">
+          <div className="mb-6 p-4 bg-white/50 rounded-lg border border-gray-300 space-y-4">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
@@ -856,19 +856,19 @@ const Portfolio: React.FC = () => {
                                 key={media.id}
                                 className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                               >
-                                <div className="aspect-square relative overflow-hidden">
+                                <div className="relative overflow-hidden">
                                   {media.type === 'video' ? (
                                     <video
                                       src={media.url}
                                       controls
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-auto object-contain"
                                       preload="metadata"
                                     />
                                   ) : (
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
-                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                       decoding="async"
                                     />
@@ -907,12 +907,12 @@ const Portfolio: React.FC = () => {
                                   'w-full'
                                 }`}
                               >
-                                <div className="aspect-square relative overflow-hidden">
+                                <div className="relative overflow-hidden">
                                   {media.type === 'video' ? (
                                     <video
                                       src={media.url}
                                       controls={!isMobile}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-auto object-contain"
                                       preload="metadata"
                                       onClick={(e) => isMobile && e.preventDefault()}
                                     />
@@ -920,7 +920,7 @@ const Portfolio: React.FC = () => {
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
-                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                       decoding="async"
                                     />

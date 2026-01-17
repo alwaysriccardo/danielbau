@@ -20,6 +20,9 @@ const AppContent = () => {
   // Handle preloader completion
   useEffect(() => {
     if (!loading) {
+      // Set background color immediately to prevent white flash
+      document.body.style.backgroundColor = '#E3E1DC';
+      
       // Remove fixed positioning immediately
       document.body.style.position = '';
       document.body.style.width = '';
@@ -33,7 +36,7 @@ const AppContent = () => {
       // Add loaded class
       document.body.classList.add('loaded');
       
-      // Enable scrolling
+      // Enable scrolling immediately
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.style.pointerEvents = 'auto';
@@ -42,6 +45,7 @@ const AppContent = () => {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       document.body.classList.remove('loaded');
+      document.body.style.backgroundColor = '#000';
     }
   }, [loading]);
 
@@ -49,68 +53,54 @@ const AppContent = () => {
     // Only initialize Lenis after loading completes
     if (loading) return;
 
-    // Longer delay to ensure DOM is fully ready and layout is stable
-    const initTimeout = setTimeout(() => {
-      const lenis = new Lenis({
-        duration: 1.0,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        direction: 'vertical',
-        smoothWheel: true,
-        smoothTouch: false, // Disable smooth touch for better mobile performance
-        wheelMultiplier: 0.8,
-        touchMultiplier: 2.0, // Increased for better mobile responsiveness
-        gestureDirection: 'vertical',
-      });
+    // Initialize immediately - no delay to prevent white flash and shaking
+    const lenis = new Lenis({
+      duration: 1.0,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      smoothWheel: true,
+      smoothTouch: false, // Disable smooth touch for better mobile performance
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2.0, // Increased for better mobile responsiveness
+      gestureDirection: 'vertical',
+    });
 
-      // Force scroll to top immediately and prevent any movement
-      lenis.scrollTo(0, { immediate: true });
-      
-      // Lock scroll position
-      let scrollLocked = true;
-      const lockTimeout = setTimeout(() => {
-        scrollLocked = false;
-      }, 500);
-
-      // Smooth RAF loop for lag-free scrolling
-      let rafId: number;
-      function raf(time: number) {
-        if (scrollLocked) {
-          lenis.scrollTo(0, { immediate: true });
-        }
-        lenis.raf(time);
-        rafId = requestAnimationFrame(raf);
-      }
-
+    // Force scroll to top immediately
+    lenis.scrollTo(0, { immediate: true });
+    
+    // Smooth RAF loop for lag-free scrolling
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
       rafId = requestAnimationFrame(raf);
-      
-      // Optimize ScrollTrigger globally for smooth performance
-      ScrollTrigger.config({
-        autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
-        ignoreMobileResize: true, // Ignore mobile resize for better performance
-        refreshPriority: -1, // Lower refresh priority
-        limitCallbacks: true // Limit callback frequency
-      });
-      
-      // Refresh ScrollTrigger after layout is stable (batched with RAF)
-      // Longer delay to ensure Hero parallax is initialized first
-      const refreshTimeout = setTimeout(() => {
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-          // Ensure scroll is still at top after refresh
-          lenis.scrollTo(0, { immediate: true });
-          window.scrollTo(0, 0);
-        });
-      }, 400); // Increased delay to allow Hero parallax to initialize first
-      
-      return () => {
-        clearTimeout(lockTimeout);
-        clearTimeout(refreshTimeout);
-        cancelAnimationFrame(rafId);
-        lenis.destroy();
-      };
-    }, 200); // Increased delay to ensure layout is stable after preloader
+    }
 
-    return () => clearTimeout(initTimeout);
+    rafId = requestAnimationFrame(raf);
+    
+    // Optimize ScrollTrigger globally for smooth performance
+    ScrollTrigger.config({
+      autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
+      ignoreMobileResize: true, // Ignore mobile resize for better performance
+      refreshPriority: -1, // Lower refresh priority
+      limitCallbacks: true // Limit callback frequency
+    });
+    
+    // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
+    // But don't block scrolling
+    const refreshTimeout = setTimeout(() => {
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        // Ensure scroll is still at top after refresh
+        lenis.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+      });
+    }, 300); // Brief delay for Hero parallax, but don't block user scrolling
+      
+    return () => {
+      clearTimeout(refreshTimeout);
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
   }, [loading]);
 
   return (
