@@ -41,6 +41,8 @@ const Portfolio: React.FC = () => {
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
   const [editingDescriptionInline, setEditingDescriptionInline] = useState<string | null>(null);
   const [inlineDescriptionValue, setInlineDescriptionValue] = useState('');
+  const [editingFolderNameInline, setEditingFolderNameInline] = useState<string | null>(null);
+  const [inlineFolderNameValue, setInlineFolderNameValue] = useState('');
   const [editingMediaId, setEditingMediaId] = useState<string | null>(null);
   const [editingMediaTitle, setEditingMediaTitle] = useState('');
   const [editingMediaDescription, setEditingMediaDescription] = useState('');
@@ -513,6 +515,39 @@ const Portfolio: React.FC = () => {
     setEditingMediaDescription('');
   };
 
+  const handleStartEditFolderName = (projectId: string, currentName: string) => {
+    setEditingFolderNameInline(projectId);
+    setInlineFolderNameValue(currentName);
+  };
+
+  const handleSaveFolderName = async (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    if (!inlineFolderNameValue.trim()) {
+      alert('Please enter a folder name');
+      return;
+    }
+
+    const success = await portfolioAPI.updateProject(projectId, {
+      ...project,
+      name: inlineFolderNameValue.trim()
+    });
+
+    if (success) {
+      await loadProjects();
+      setEditingFolderNameInline(null);
+      setInlineFolderNameValue('');
+    } else {
+      alert('Failed to update folder name. Please try again.');
+    }
+  };
+
+  const handleCancelFolderName = () => {
+    setEditingFolderNameInline(null);
+    setInlineFolderNameValue('');
+  };
+
   const moveProject = async (id: string, direction: 'up' | 'down') => {
     const index = projects.findIndex(p => p.id === id);
     if (index === -1) return;
@@ -894,9 +929,50 @@ const Portfolio: React.FC = () => {
                 {/* Project Header */}
                 <div className="mb-8 flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-display text-3xl md:text-4xl text-gray-800 mb-2">
-                      {project.name}
-                    </h3>
+                    {editingFolderNameInline === project.id ? (
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={inlineFolderNameValue}
+                          onChange={(e) => setInlineFolderNameValue(e.target.value)}
+                          className="flex-1 px-3 py-2 text-2xl md:text-3xl font-display text-gray-800 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                          placeholder="Folder name"
+                        />
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => handleSaveFolderName(project.id)}
+                            className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                            title="Save"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={handleCancelFolderName}
+                            className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                            title="Cancel"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-display text-3xl md:text-4xl text-gray-800 flex-1">
+                          {project.name}
+                        </h3>
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleStartEditFolderName(project.id, project.name)}
+                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                            title="Edit folder name"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {editingDescriptionInline === project.id ? (
                       <div className="flex items-start gap-2 mt-2">
                         <textarea
@@ -1023,16 +1099,103 @@ const Portfolio: React.FC = () => {
                                 </button>
                               )}
                             </div>
-                            {(media.title || media.description) && (
-                              <div className="p-4">
-                                {media.title && (
-                                  <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
-                                )}
-                                {media.description && (
-                                  <p className="text-sm text-gray-600">{media.description}</p>
-                                )}
-                              </div>
-                            )}
+                            <div className="p-4">
+                              {editingMediaId === media.id ? (
+                                <div className="space-y-2">
+                                  <input
+                                    type="text"
+                                    value={editingMediaTitle}
+                                    onChange={(e) => setEditingMediaTitle(e.target.value)}
+                                    placeholder="Media title"
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                                  />
+                                  <textarea
+                                    value={editingMediaDescription}
+                                    onChange={(e) => setEditingMediaDescription(e.target.value)}
+                                    placeholder="Media description"
+                                    rows={2}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleSaveMediaEdit(project.id, media.id)}
+                                      className="flex-1 px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={handleCancelMediaEdit}
+                                      className="flex-1 px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  {media.title ? (
+                                    <div className="flex items-start gap-2 mb-1">
+                                      <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                      {isAdmin && (
+                                        <button
+                                          onClick={() => handleStartEditMedia(media.id, media.title || '', media.description || '')}
+                                          className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
+                                          title="Edit title and description"
+                                        >
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                          </svg>
+                                        </button>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    isAdmin && (
+                                      <div className="mb-1">
+                                        <button
+                                          onClick={() => handleStartEditMedia(media.id, '', media.description || '')}
+                                          className="text-xs text-gray-400 hover:text-[#121212] transition-colors flex items-center gap-1"
+                                          title="Add title"
+                                        >
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                          </svg>
+                                          Add title
+                                        </button>
+                                      </div>
+                                    )
+                                  )}
+                                  {media.description ? (
+                                    <div className="flex items-start gap-2">
+                                      <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      {isAdmin && !media.title && (
+                                        <button
+                                          onClick={() => handleStartEditMedia(media.id, media.title || '', media.description || '')}
+                                          className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
+                                          title="Edit description"
+                                        >
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                          </svg>
+                                        </button>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    isAdmin && !media.title && (
+                                      <button
+                                        onClick={() => handleStartEditMedia(media.id, '', '')}
+                                        className="text-xs text-gray-400 hover:text-[#121212] transition-colors flex items-center gap-1"
+                                        title="Add description"
+                                      >
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Add description
+                                      </button>
+                                    )
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1127,9 +1290,50 @@ const Portfolio: React.FC = () => {
 
                     {/* Project Header */}
                     <div className="mb-6 md:mb-8 text-center">
-                      <h3 className="font-display text-2xl md:text-5xl text-gray-800 mb-4">
-                        {projects[selectedProjectIndex].name}
-                      </h3>
+                      {editingFolderNameInline === projects[selectedProjectIndex].id ? (
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                          <input
+                            type="text"
+                            value={inlineFolderNameValue}
+                            onChange={(e) => setInlineFolderNameValue(e.target.value)}
+                            className="px-3 py-2 text-xl md:text-4xl font-display text-gray-800 border border-gray-300 rounded focus:outline-none focus:border-[#121212] text-center"
+                            placeholder="Folder name"
+                          />
+                          <div className="flex flex-col gap-1">
+                            <button
+                              onClick={() => handleSaveFolderName(projects[selectedProjectIndex].id)}
+                              className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                              title="Save"
+                            >
+                              ✓
+                            </button>
+                            <button
+                              onClick={handleCancelFolderName}
+                              className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                              title="Cancel"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                          <h3 className="font-display text-2xl md:text-5xl text-gray-800">
+                            {projects[selectedProjectIndex].name}
+                          </h3>
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleStartEditFolderName(projects[selectedProjectIndex].id, projects[selectedProjectIndex].name)}
+                              className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                              title="Edit folder name"
+                            >
+                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      )}
                       {/* Desktop: Show description in header */}
                       {!isMobile && (
                         <div className="flex items-center justify-center gap-2 max-w-2xl mx-auto px-4">
