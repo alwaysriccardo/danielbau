@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { IMAGES } from '../constants';
@@ -31,6 +31,65 @@ const Footer: React.FC = () => {
       setFormData({ name: '', email: '', message: '' });
     }, 1000);
   };
+
+  // Fix scroll-up issue on mobile: allow page scroll when footer is at top
+  useEffect(() => {
+    if (!footerRef.current) return;
+    
+    const footer = footerRef.current;
+    let isScrollingUp = false;
+    
+    const handleWheel = (e: WheelEvent) => {
+      // If footer is at top and scrolling up, allow page scroll
+      if (footer.scrollTop <= 5 && e.deltaY < 0) {
+        // Scroll the page up instead of the footer
+        e.stopPropagation();
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+    };
+    
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      if (footer.scrollTop <= 5) {
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+      }
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      // Only handle if at top of footer
+      if (footer.scrollTop <= 5 && touchStartY > 0) {
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchY;
+        
+        // If scrolling up (touch moving up = positive deltaY), allow page scroll
+        if (deltaY > 10) {
+          // User is swiping up at top of footer - scroll the page up
+          const scrollAmount = deltaY * 0.8;
+          window.scrollBy({ top: -scrollAmount, behavior: 'auto' });
+        }
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      touchStartY = 0;
+      touchStartTime = 0;
+    };
+    
+    footer.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    footer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    footer.addEventListener('touchmove', handleTouchMove, { passive: true });
+    footer.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      footer.removeEventListener('wheel', handleWheel, true);
+      footer.removeEventListener('touchstart', handleTouchStart);
+      footer.removeEventListener('touchmove', handleTouchMove);
+      footer.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -115,18 +174,23 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto overscroll-contain pt-safe pb-safe"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
-      data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain',
+        overscrollBehaviorY: 'contain', // Contain scroll within footer when scrolling down
         scrollBehavior: 'auto'
       }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
+      <div 
+        ref={contentRef} 
+        className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0"
+        style={{ 
+          minHeight: 'calc(100vh - 2rem)' // Ensure footer content fills viewport but allows scroll
+        }}
+      >
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-3 md:mb-6 text-gray-400"
