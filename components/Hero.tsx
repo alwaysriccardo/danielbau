@@ -31,26 +31,41 @@ const Hero: React.FC = () => {
 
       // Shine effects removed for cleaner look
 
-      // Parallax Image - smooth scrolling without lag (different settings for mobile vs desktop)
+      // Parallax Image - delay initialization to prevent shaking
       if (imageRef.current) {
         const isMobile = window.innerWidth < 768;
         
-        // Use transform: translate3d for better GPU acceleration
-        gsap.set(imageRef.current, { force3D: true, transform: 'translate3d(0,0,0)' });
-        
-        gsap.to(imageRef.current, {
-          yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
-          ease: 'none',
-          force3D: true, // GPU acceleration
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling (higher = less frequent updates, better performance)
-            invalidateOnRefresh: false, // Disable to reduce recalculations
-            refreshPriority: -1 // Lower priority to reduce impact
-          }
-        });
+        // Wait for layout to be stable before initializing parallax
+        const initParallax = () => {
+          if (!imageRef.current) return;
+          
+          // Use transform: translate3d for better GPU acceleration
+          gsap.set(imageRef.current, { 
+            force3D: true, 
+            transform: 'translate3d(0,0,0)',
+            yPercent: 0 // Ensure starting position
+          });
+          
+          gsap.to(imageRef.current, {
+            yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
+            ease: 'none',
+            force3D: true, // GPU acceleration
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling
+              invalidateOnRefresh: false, // Disable to reduce recalculations
+              refreshPriority: -1, // Lower priority to reduce impact
+              pin: false // Ensure no pinning that could cause shifts
+            }
+          });
+        };
+
+        // Delay parallax initialization to prevent conflicts with Lenis
+        setTimeout(() => {
+          initParallax();
+        }, 300); // Wait for Lenis to be ready
       }
     }, containerRef);
 

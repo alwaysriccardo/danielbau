@@ -32,25 +32,30 @@ const Footer: React.FC = () => {
     };
     
     const handleTouchMove = (e: TouchEvent) => {
-      // If footer is at top and user is swiping up, allow page scroll
-      if (footer.scrollTop <= 5 && touchStartScrollTop <= 5) {
+      // Only prevent scroll up when at the very top of footer (0-1 scroll)
+      // Don't interfere with scroll down at all
+      if (footer.scrollTop <= 1 && touchStartScrollTop <= 1) {
         const touchY = e.touches[0].clientY;
         const deltaY = touchStartY - touchY; // Positive = scrolling up
         
-        if (deltaY > 0) {
-          // User is scrolling up from top - scroll the page instead
+        if (deltaY > 10) { // Only if significant upward swipe
+          // User is scrolling up from absolute top - scroll the page instead
           e.preventDefault();
           window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
         }
       }
+      // Allow normal scroll down in footer - don't prevent it
     };
     
     const handleWheel = (e: WheelEvent) => {
-      // If footer is at top and user is scrolling up, allow page scroll
-      if (footer.scrollTop <= 5 && e.deltaY < 0) {
+      // Only prevent scroll up when at the very top of footer (0 scroll)
+      // Don't interfere with scroll down at all
+      if (footer.scrollTop <= 1 && e.deltaY < 0) {
+        // Only allow page scroll up when footer is at absolute top
         e.preventDefault();
         window.scrollBy({ top: e.deltaY, behavior: 'auto' });
       }
+      // Allow normal scroll down in footer - don't prevent it
     };
     
     footer.addEventListener('touchstart', handleTouchStart, { passive: true });

@@ -13,22 +13,21 @@ const Navigation: React.FC = () => {
 
   return (
     <>
-      <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white" style={{ willChange: 'transform' }}>
-        <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo" style={{
-          WebkitTextStroke: '0.5px rgba(255,255,255,0.3)',
-          textStroke: '0.5px rgba(255,255,255,0.3)',
+      <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50" style={{ willChange: 'transform' }}>
+        <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo text-[#121212]" style={{
+          textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5)',
           willChange: 'transform'
         }}>DANIELBAU</div>
         
         {/* Desktop Menu */}
-        <nav className="hidden md:flex gap-10 text-xs uppercase tracking-widest" aria-label="Main navigation">
-          <a href="#services" className="hover:text-blue-400 transition-colors" aria-label={t.nav.services}>
+        <nav className="hidden md:flex gap-10 text-xs uppercase tracking-widest text-[#121212]" aria-label="Main navigation" style={{ textShadow: '0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(255,255,255,0.5)' }}>
+          <a href="#services" className="hover:text-blue-600 transition-colors" aria-label={t.nav.services}>
             {t.nav.services}
           </a>
-          <a href="#about" className="hover:text-blue-400 transition-colors" aria-label={t.nav.about}>
+          <a href="#about" className="hover:text-blue-600 transition-colors" aria-label={t.nav.about}>
             {t.nav.about}
           </a>
-          <a href="#portfolio" className="hover:text-blue-400 transition-colors" aria-label={t.nav.portfolio}>
+          <a href="#portfolio" className="hover:text-blue-600 transition-colors" aria-label={t.nav.portfolio}>
             {t.nav.portfolio}
           </a>
           <a 
@@ -44,7 +43,7 @@ const Navigation: React.FC = () => {
                 });
               }
             }}
-            className="hover:text-blue-400 transition-colors" 
+            className="hover:text-blue-600 transition-colors" 
             aria-label={t.nav.contact}
           >
             {t.nav.contact}
@@ -54,12 +53,10 @@ const Navigation: React.FC = () => {
         {/* Mobile Menu Button - More Visible and Bolder */}
         <button 
           onClick={toggleMenu} 
-          className="md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-white/20 backdrop-blur-md rounded border-2 border-white/40 shadow-lg"
+          className="md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-white/90 backdrop-blur-sm rounded border-2 border-[#121212]/20 shadow-lg text-[#121212]"
           style={{
-            WebkitTextStroke: '1px rgba(255,255,255,0.8)',
-            textStroke: '1px rgba(255,255,255,0.8)',
             fontWeight: 900,
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            textShadow: '0 1px 2px rgba(255,255,255,0.5)'
           }}
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}

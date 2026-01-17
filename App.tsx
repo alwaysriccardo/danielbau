@@ -92,6 +92,7 @@ const AppContent = () => {
       });
       
       // Refresh ScrollTrigger after layout is stable (batched with RAF)
+      // Longer delay to ensure Hero parallax is initialized first
       const refreshTimeout = setTimeout(() => {
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
@@ -99,7 +100,7 @@ const AppContent = () => {
           lenis.scrollTo(0, { immediate: true });
           window.scrollTo(0, 0);
         });
-      }, 200);
+      }, 400); // Increased delay to allow Hero parallax to initialize first
       
       return () => {
         clearTimeout(lockTimeout);
