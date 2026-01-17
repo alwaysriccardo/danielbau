@@ -891,7 +891,7 @@ const Portfolio: React.FC = () => {
                           // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows full gallery)
                           <div 
                             className={isMobile 
-                              ? `grid grid-cols-2 gap-3 justify-items-center ${projects[selectedProjectIndex].media.length <= 1 ? 'grid-cols-1 max-w-xs mx-auto' : projects[selectedProjectIndex].media.length === 2 ? 'max-w-md mx-auto' : ''}` 
+                              ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
                               : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
                             }
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
@@ -901,8 +901,9 @@ const Portfolio: React.FC = () => {
                               <div
                                 key={media.id}
                                 className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
-                                  isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[60%]' : 
-                                  isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[70%]' : 
+                                  isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
+                                  isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
+                                  isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
                                   'w-full'
                                 }`}
                               >
