@@ -71,33 +71,24 @@ const AppContent = () => {
         scrollLocked = false;
       }, 500);
 
-      // Optimized RAF loop for consistent 60 FPS
+      // Smooth RAF loop for lag-free scrolling
       let rafId: number;
-      let lastTime = 0;
-      const targetFPS = 60;
-      const interval = 1000 / targetFPS; // ~16.67ms per frame
-      
       function raf(time: number) {
         if (scrollLocked) {
           lenis.scrollTo(0, { immediate: true });
         }
-        
-        // Ensure consistent frame timing for smooth 60 FPS
-        const delta = time - lastTime;
-        if (delta >= interval || lastTime === 0) {
-          lenis.raf(time);
-          lastTime = time - (delta % interval); // Account for frame drift
-        }
-        
+        lenis.raf(time);
         rafId = requestAnimationFrame(raf);
       }
 
       rafId = requestAnimationFrame(raf);
       
-      // Optimize ScrollTrigger globally for 60 FPS
+      // Optimize ScrollTrigger globally for smooth performance
       ScrollTrigger.config({
         autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
-        ignoreMobileResize: true // Ignore mobile resize for better performance
+        ignoreMobileResize: true, // Ignore mobile resize for better performance
+        refreshPriority: -1, // Lower refresh priority
+        limitCallbacks: true // Limit callback frequency
       });
       
       // Refresh ScrollTrigger after layout is stable (batched with RAF)
@@ -132,7 +123,7 @@ const AppContent = () => {
         <ContactButtons />
 
         {/* Main Content Wrapper */}
-        <div className="relative z-10 bg-[#E3E1DC] shadow-[0_50px_100px_rgba(0,0,0,0.5)] mb-[100vh]">
+        <div className="relative z-10 bg-[#E3E1DC] shadow-[0_20px_40px_rgba(0,0,0,0.2)] mb-[100vh]">
         <Hero />
         <Intro />
         <ServiceStack />

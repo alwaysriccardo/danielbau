@@ -87,13 +87,14 @@ const CleaningServices: React.FC = () => {
         });
       }
 
-      // Animate bubbles with transform for better performance - optimized for higher FPS
+      // Animate bubbles with transform - pause when off-screen
+      const bubbleAnimations: gsap.core.Tween[] = [];
       bubbles.forEach((bubble) => {
         const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
         if (bubbleEl) {
           const moveY = 40 + Math.random() * 80; // Reduced movement range
           const moveX = -15 + Math.random() * 30; // Reduced movement range
-          gsap.to(bubbleEl, {
+          const anim = gsap.to(bubbleEl, {
             y: `-=${moveY}`,
             x: `+=${moveX}`,
             opacity: 0.6 + Math.random() * 0.4,
@@ -104,10 +105,37 @@ const CleaningServices: React.FC = () => {
             ease: 'sine.inOut',
             delay: bubble.delay,
             force3D: true, // GPU acceleration
-            transformOrigin: 'center center' // Optimize transform origin
+            transformOrigin: 'center center', // Optimize transform origin
+            paused: true // Start paused
           });
+          bubbleAnimations.push(anim);
         }
       });
+      
+      // Use IntersectionObserver to pause/resume bubbles when off-screen
+      if (sectionRef.current && bubbleAnimations.length > 0) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                bubbleAnimations.forEach(anim => anim.play());
+              } else {
+                bubbleAnimations.forEach(anim => anim.pause());
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: '200px' } // Start/stop slightly before entering viewport
+        );
+        
+        observer.observe(sectionRef.current);
+        
+        // Start animations if already in view
+        const rect = sectionRef.current.getBoundingClientRect();
+        const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInView) {
+          bubbleAnimations.forEach(anim => anim.play());
+        }
+      }
     }, sectionRef);
 
     return () => ctx.revert();

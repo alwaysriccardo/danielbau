@@ -89,7 +89,7 @@ const ServiceStack: React.FC = () => {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 0.5, // Optimized scrub for 60 FPS (lower = smoother)
+                  scrub: 1.5, // Balanced scrub for smooth scrolling (higher = less frequent updates, better performance)
                   invalidateOnRefresh: false, // Disable to reduce recalculations
                   refreshPriority: -1, // Lower priority
                   markers: false
@@ -218,7 +218,7 @@ const ServiceStack: React.FC = () => {
                         <img 
                           src={serviceConstant.image} 
                           alt={textData.title}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/image1:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image1:scale-[1.02]"
                           loading="lazy"
                           decoding="async"
                         />
@@ -227,7 +227,7 @@ const ServiceStack: React.FC = () => {
                         <img 
                           src={serviceConstant.image2} 
                           alt={`${textData.title} - Bathroom`}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/image2:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image2:scale-[1.02]"
                           loading="lazy"
                           decoding="async"
                         />
@@ -237,7 +237,7 @@ const ServiceStack: React.FC = () => {
                     <img 
                       src={serviceConstant.image} 
                       alt={textData.title}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
                       loading="lazy"
                       decoding="async"
                     />
@@ -245,7 +245,7 @@ const ServiceStack: React.FC = () => {
                   <img 
                     src={serviceConstant.image} 
                     alt={textData.title}
-                    className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-110" 
+                    className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]" 
                       loading="lazy"
                       decoding="async"
                   />

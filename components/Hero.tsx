@@ -31,7 +31,7 @@ const Hero: React.FC = () => {
 
       // Shine effects removed for cleaner look
 
-      // Parallax Image - optimized for 60 FPS (different settings for mobile vs desktop)
+      // Parallax Image - smooth scrolling without lag (different settings for mobile vs desktop)
       if (imageRef.current) {
         const isMobile = window.innerWidth < 768;
         
@@ -46,7 +46,7 @@ const Hero: React.FC = () => {
             trigger: containerRef.current,
             start: 'top top',
             end: 'bottom top',
-            scrub: isMobile ? 2 : 1, // Optimized scrub for 60 FPS (lower = smoother)
+            scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling (higher = less frequent updates, better performance)
             invalidateOnRefresh: false, // Disable to reduce recalculations
             refreshPriority: -1 // Lower priority to reduce impact
           }

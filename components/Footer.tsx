@@ -123,16 +123,47 @@ const Footer: React.FC = () => {
         });
       }
 
-      // Continuous glow animation for quote - optimized
+      // Continuous glow animation for quote - pause when off-screen
+      let glowAnimation: gsap.core.Tween | null = null;
       if (quoteRef.current) {
-        gsap.to(quoteRef.current, {
+        glowAnimation = gsap.to(quoteRef.current, {
           textShadow: '0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.2)',
           duration: 2,
           repeat: -1,
           yoyo: true,
           ease: 'sine.inOut',
-          force3D: true // GPU acceleration
+          force3D: true, // GPU acceleration
+          paused: true // Start paused
         });
+        
+        // Use IntersectionObserver to pause/resume when off-screen
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (glowAnimation) {
+                if (entry.isIntersecting) {
+                  glowAnimation.play();
+                } else {
+                  glowAnimation.pause();
+                }
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: '100px' } // Start/stop slightly before entering viewport
+        );
+        
+        if (footerRef.current) {
+          observer.observe(footerRef.current);
+        }
+        
+        // Start animation if already in view
+        if (footerRef.current) {
+          const rect = footerRef.current.getBoundingClientRect();
+          const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+          if (isInView && glowAnimation) {
+            glowAnimation.play();
+          }
+        }
       }
 
       // Animate phone and form - optimized for 60 FPS
