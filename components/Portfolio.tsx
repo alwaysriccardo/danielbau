@@ -203,9 +203,6 @@ const Portfolio: React.FC = () => {
     }
 
     // Update project with new media via API
-    const project = projects.find(p => p.id === selectedProjectId);
-    if (!project) return;
-
     // Format media for Supabase (convert uploadedAt to uploaded_at)
     const formattedNewMedia = newMedia.map(m => ({
       id: m.id,
