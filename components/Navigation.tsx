@@ -5,29 +5,64 @@ import { useLanguage } from '../contexts/LanguageContext';
 const Navigation: React.FC = () => {
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOverDarkBg, setIsOverDarkBg] = useState(true); // Start true since hero is dark
   const logoRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  // Detect when navigation is over dark background (hero section)
+  useEffect(() => {
+    const checkBackground = () => {
+      if (!navRef.current) return;
+      
+      // Check if we're in the hero section (first section, typically dark)
+      const heroSection = document.querySelector('section:first-of-type');
+      if (!heroSection) return;
+      
+      const heroRect = heroSection.getBoundingClientRect();
+      const isInHero = heroRect.top < window.innerHeight && heroRect.bottom > 0;
+      
+      setIsOverDarkBg(isInHero);
+    };
+
+    // Check on mount and scroll
+    checkBackground();
+    window.addEventListener('scroll', checkBackground, { passive: true });
+    window.addEventListener('resize', checkBackground, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', checkBackground);
+      window.removeEventListener('resize', checkBackground);
+    };
+  }, []);
+
   // Shine effect removed for cleaner look
+
+  const textColor = isOverDarkBg ? 'text-white' : 'text-[#121212]';
+  const textShadow = isOverDarkBg 
+    ? '0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' 
+    : '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5)';
+  const borderColor = isOverDarkBg ? 'border-white/30' : 'border-[#121212]/30';
+  const hoverColor = isOverDarkBg ? 'hover:text-blue-400' : 'hover:text-blue-600';
 
   return (
     <>
-      <nav className="fixed top-0 w-full p-8 flex justify-between items-center z-50" style={{ willChange: 'transform' }}>
-        <div ref={logoRef} className="font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo text-[#121212]" style={{
-          textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5)',
+      <nav ref={navRef} className="fixed top-0 w-full p-8 flex justify-between items-center z-50" style={{ willChange: 'transform' }}>
+        <div ref={logoRef} className={`font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo ${textColor}`} style={{
+          textShadow: textShadow,
           willChange: 'transform'
         }}>DANIELBAU</div>
         
         {/* Desktop Menu */}
-        <nav className="hidden md:flex gap-10 text-xs uppercase tracking-widest text-[#121212]" aria-label="Main navigation" style={{ textShadow: '0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(255,255,255,0.5)' }}>
-          <a href="#services" className="hover:text-blue-600 transition-colors" aria-label={t.nav.services}>
+        <nav className={`hidden md:flex gap-10 text-xs uppercase tracking-widest ${textColor}`} aria-label="Main navigation" style={{ textShadow: textShadow }}>
+          <a href="#services" className={`${hoverColor} transition-colors`} aria-label={t.nav.services}>
             {t.nav.services}
           </a>
-          <a href="#about" className="hover:text-blue-600 transition-colors" aria-label={t.nav.about}>
+          <a href="#about" className={`${hoverColor} transition-colors`} aria-label={t.nav.about}>
             {t.nav.about}
           </a>
-          <a href="#portfolio" className="hover:text-blue-600 transition-colors" aria-label={t.nav.portfolio}>
+          <a href="#portfolio" className={`${hoverColor} transition-colors`} aria-label={t.nav.portfolio}>
             {t.nav.portfolio}
           </a>
           <a 
@@ -43,7 +78,7 @@ const Navigation: React.FC = () => {
                 });
               }
             }}
-            className="hover:text-blue-600 transition-colors" 
+            className={`${hoverColor} transition-colors`} 
             aria-label={t.nav.contact}
           >
             {t.nav.contact}
@@ -53,10 +88,10 @@ const Navigation: React.FC = () => {
         {/* Mobile Menu Button - More Visible and Bolder */}
         <button 
           onClick={toggleMenu} 
-          className="md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-white/90 backdrop-blur-sm rounded border-2 border-[#121212]/20 shadow-lg text-[#121212]"
+          className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} shadow-lg ${textColor}`}
           style={{
             fontWeight: 900,
-            textShadow: '0 1px 2px rgba(255,255,255,0.5)'
+            textShadow: textShadow
           }}
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}

@@ -890,14 +890,21 @@ const Portfolio: React.FC = () => {
                         ) : (
                           // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows full gallery)
                           <div 
-                            className={isMobile ? "grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"}
+                            className={isMobile 
+                              ? `grid grid-cols-2 gap-3 justify-items-center ${projects[selectedProjectIndex].media.length <= 1 ? 'grid-cols-1 max-w-xs mx-auto' : projects[selectedProjectIndex].media.length === 2 ? 'max-w-md mx-auto' : ''}` 
+                              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                            }
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
                             style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media) => (
+                            {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
                               <div
                                 key={media.id}
-                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                                className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                  isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[60%]' : 
+                                  isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[70%]' : 
+                                  'w-full'
+                                }`}
                               >
                                 <div className="aspect-square relative overflow-hidden">
                                   {media.type === 'video' ? (
