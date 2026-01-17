@@ -27,30 +27,44 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         // Fade in text and logo smoothly
         gsap.set([textRef.current, flagRef.current], { opacity: 0, y: 20 });
         
+        // Use force3D and will-change for GPU acceleration
+        gsap.set([textRef.current, flagRef.current], { 
+          force3D: true,
+          willChange: 'transform, opacity'
+        });
+        gsap.set(containerRef.current, { 
+          force3D: true,
+          willChange: 'transform, background-color'
+        });
+
         tl.to([textRef.current, flagRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.4,
+          duration: 0.5,
           ease: 'power2.out',
-          stagger: 0.05
+          stagger: 0.08,
+          force3D: true
         })
-        .to({}, { duration: 0.6 }) // Reduced hold time
+        .to({}, { duration: 0.7 }) // Hold time
         .to([textRef.current, flagRef.current], {
           y: -30,
           opacity: 0,
-          duration: 0.3,
+          duration: 0.4,
           ease: 'power2.in',
-          stagger: 0.03
+          stagger: 0.05,
+          force3D: true
         }, "-=0.1")
         .to(containerRef.current, {
           backgroundColor: '#E3E1DC', // Fade to site background color
-          duration: 0.2,
-          ease: 'power2.inOut'
+          duration: 0.3,
+          ease: 'power2.inOut',
+          force3D: true
         }, "-=0.1")
         .to(containerRef.current, {
           yPercent: -100,
-          duration: 0.5,
+          duration: 0.6,
           ease: 'power3.inOut',
+          force3D: true,
           onStart: () => {
             // Start showing content as preloader slides up
             // Ensure scroll is at top

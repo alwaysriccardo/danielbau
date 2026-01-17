@@ -51,10 +51,14 @@ const Navigation: React.FC = () => {
           </a>
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button - More Visible */}
         <button 
           onClick={toggleMenu} 
-          className="md:hidden font-display text-sm z-[60] relative"
+          className="md:hidden font-display text-base font-bold z-[60] relative px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded border border-white/20"
+          style={{
+            WebkitTextStroke: '0.5px rgba(255,255,255,0.5)',
+            textStroke: '0.5px rgba(255,255,255,0.5)',
+          }}
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
         >

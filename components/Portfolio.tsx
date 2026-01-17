@@ -4,12 +4,22 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface PortfolioImage {
+interface PortfolioMedia {
   id: string;
   url: string;
+  type: 'image' | 'video';
   title?: string;
   description?: string;
   uploadedAt: string;
+}
+
+interface PortfolioProject {
+  id: string;
+  name: string;
+  description?: string;
+  media: PortfolioMedia[];
+  order: number;
+  createdAt: string;
 }
 
 const Portfolio: React.FC = () => {
@@ -17,48 +27,76 @@ const Portfolio: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [images, setImages] = useState<PortfolioImage[]>([]);
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [showLogin, setShowLogin] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
-  const [uploadUrl, setUploadUrl] = useState('');
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
-  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('file');
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Load images from localStorage on mount
-  useEffect(() => {
-    // Check if we're in browser environment
+  // Load projects from localStorage on mount and on storage events
+  const loadProjects = () => {
     if (typeof window === 'undefined') return;
     
-    const storedImages = localStorage.getItem('danielbau_portfolio');
-    if (storedImages) {
+    const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
+    if (storedProjects) {
       try {
-        setImages(JSON.parse(storedImages));
+        const parsed = JSON.parse(storedProjects);
+        // Sort by order
+        const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => a.order - b.order);
+        setProjects(sorted);
       } catch (e) {
-        console.error('Error loading portfolio images:', e);
+        console.error('Error loading portfolio projects:', e);
       }
     }
+  };
 
+  useEffect(() => {
+    loadProjects();
+    
+    // Listen for storage changes (for cross-tab sync)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'danielbau_portfolio_projects') {
+        loadProjects();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
     // Check if admin is already logged in
     const adminSession = sessionStorage.getItem('danielbau_admin');
     if (adminSession === 'true') {
       setIsAdmin(true);
       setIsLoggedIn(true);
     }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
-  // Save images to localStorage whenever they change
+  // Save projects to localStorage whenever they change
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    if (images.length > 0 || localStorage.getItem('danielbau_portfolio')) {
-      localStorage.setItem('danielbau_portfolio', JSON.stringify(images));
+    if (projects.length > 0 || localStorage.getItem('danielbau_portfolio_projects')) {
+      localStorage.setItem('danielbau_portfolio_projects', JSON.stringify(projects));
+      // Trigger storage event for other tabs
+      window.dispatchEvent(new Event('storage'));
     }
-  }, [images]);
+  }, [projects]);
+
+  // Poll for changes (fallback for same-tab updates)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadProjects();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,100 +123,170 @@ const Portfolio: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const validFiles: File[] = [];
+    const maxSize = 50 * 1024 * 1024; // 50MB for videos
+
+    files.forEach((file) => {
+      // Check file size
+      if (file.size > maxSize) {
+        alert(`${file.name} is too large. Max size: 50MB`);
         return;
       }
       
-      // Check if it's an image
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
+      // Check if it's an image or video
+      if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+        validFiles.push(file);
+      } else {
+        alert(`${file.name} is not a valid image or video file`);
       }
-      
-      setUploadFile(file);
-    }
+    });
+
+    setUploadFiles([...uploadFiles, ...validFiles]);
   };
 
-  const handleAddImage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    let imageUrl = '';
-    
-    if (uploadMethod === 'file' && uploadFile) {
-      // Convert file to base64 data URL
+  const createProject = () => {
+    if (!newProjectName.trim()) {
+      alert('Please enter a project name');
+      return;
+    }
+
+    const newProject: PortfolioProject = {
+      id: Date.now().toString(),
+      name: newProjectName.trim(),
+      description: '',
+      media: [],
+      order: projects.length,
+      createdAt: new Date().toISOString()
+    };
+
+    setProjects([...projects, newProject]);
+    setNewProjectName('');
+    setSelectedProjectId(newProject.id);
+  };
+
+  const handleAddMedia = async () => {
+    if (!selectedProjectId) {
+      alert('Please select or create a project first');
+      return;
+    }
+
+    if (uploadFiles.length === 0) {
+      alert('Please select at least one file');
+      return;
+    }
+
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return;
+
+    const newMedia: PortfolioMedia[] = [];
+
+    // Process all files
+    for (const file of uploadFiles) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        const newImage: PortfolioImage = {
-          id: Date.now().toString(),
-          url: base64String,
-          title: uploadTitle.trim() || undefined,
-          description: uploadDescription.trim() || undefined,
-          uploadedAt: new Date().toISOString()
+      
+      await new Promise<void>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          newMedia.push({
+            id: `${Date.now()}-${Math.random()}`,
+            url: base64String,
+            type: file.type.startsWith('video/') ? 'video' : 'image',
+            title: uploadTitle.trim() || undefined,
+            description: uploadDescription.trim() || undefined,
+            uploadedAt: new Date().toISOString()
+          });
+          resolve();
         };
-        setImages([...images, newImage]);
-        setUploadFile(null);
-        setUploadTitle('');
-        setUploadDescription('');
-        setShowUpload(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      };
-      reader.onerror = () => {
-        alert('Error reading file');
-      };
-      reader.readAsDataURL(uploadFile);
-      return;
-    } else if (uploadMethod === 'url' && uploadUrl.trim()) {
-      imageUrl = uploadUrl.trim();
-    } else {
-      alert('Please select a file or enter an image URL');
-      return;
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
+
+    // Update project with new media
+    const updatedProjects = projects.map(p => 
+      p.id === selectedProjectId 
+        ? { ...p, media: [...p.media, ...newMedia] }
+        : p
+    );
+
+    setProjects(updatedProjects);
+    setUploadFiles([]);
+    setUploadTitle('');
+    setUploadDescription('');
+    setShowUpload(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteProject = (id: string) => {
+    if (confirm('Are you sure you want to delete this project and all its media?')) {
+      setProjects(projects.filter(p => p.id !== id));
+      if (selectedProjectId === id) {
+        setSelectedProjectId(null);
+      }
+    }
+  };
+
+  const handleDeleteMedia = (projectId: string, mediaId: string) => {
+    if (confirm('Are you sure you want to delete this media?')) {
+      const updatedProjects = projects.map(p => 
+        p.id === projectId 
+          ? { ...p, media: p.media.filter(m => m.id !== mediaId) }
+          : p
+      );
+      setProjects(updatedProjects);
+    }
+  };
+
+  const moveProject = (id: string, direction: 'up' | 'down') => {
+    const index = projects.findIndex(p => p.id === id);
+    if (index === -1) return;
+
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= projects.length) return;
+
+    const updatedProjects = [...projects];
+    [updatedProjects[index], updatedProjects[newIndex]] = [updatedProjects[newIndex], updatedProjects[index]];
     
-    if (imageUrl) {
-      const newImage: PortfolioImage = {
-        id: Date.now().toString(),
-        url: imageUrl,
-        title: uploadTitle.trim() || undefined,
-        description: uploadDescription.trim() || undefined,
-        uploadedAt: new Date().toISOString()
-      };
-      setImages([...images, newImage]);
-      setUploadUrl('');
-      setUploadTitle('');
-      setUploadDescription('');
-      setShowUpload(false);
-    }
+    // Update order
+    updatedProjects.forEach((p, i) => {
+      p.order = i;
+    });
+
+    setProjects(updatedProjects);
   };
 
-  const handleDeleteImage = (id: string) => {
-    if (confirm('Are you sure you want to delete this image?')) {
-      setImages(images.filter(img => img.id !== id));
-    }
-  };
-
-  // Auto-advance carousel
+  // Auto-advance carousel for each project
   useEffect(() => {
-    if (images.length <= 1) return;
+    if (projects.length === 0) return;
     
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-    }, 5000); // Change image every 5 seconds
+    const intervals: NodeJS.Timeout[] = [];
+    
+    projects.forEach(project => {
+      if (project.media.length <= 1) return;
+      
+      const interval = setInterval(() => {
+        setCurrentMediaIndices(prev => ({
+          ...prev,
+          [project.id]: ((prev[project.id] || 0) + 1) % project.media.length
+        }));
+      }, 5000);
+      
+      intervals.push(interval);
+    });
 
-    return () => clearInterval(interval);
-  }, [images.length]);
+    return () => intervals.forEach(interval => clearInterval(interval));
+  }, [projects]);
 
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
     
     const ctx = gsap.context(() => {
-      const items = sectionRef.current?.querySelectorAll('.portfolio-item');
+      const items = sectionRef.current?.querySelectorAll('.portfolio-project');
       if (items && items.length > 0) {
         gsap.from(items, {
           y: 50,
@@ -196,7 +304,7 @@ const Portfolio: React.FC = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [images]);
+  }, [projects]);
 
   return (
     <section 
@@ -217,28 +325,65 @@ const Portfolio: React.FC = () => {
 
         {/* Admin Controls */}
         {isAdmin && (
-          <div className="mb-8 p-4 bg-white/50 rounded-lg border border-gray-300 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Admin Mode: <span className="font-bold">Active</span>
+          <div className="mb-8 p-4 bg-white/50 rounded-lg border border-gray-300 space-y-4">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Admin Mode: <span className="font-bold">Active</span>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowUpload(!showUpload)}
+                  className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                >
+                  {showUpload ? 'Cancel' : 'Add Media'}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowUpload(!showUpload)}
-                className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
-              >
-                {showUpload ? 'Cancel' : 'Add Image'}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors"
-              >
-                Logout
-              </button>
+
+            {/* Project Management */}
+            <div className="border-t border-gray-300 pt-4 space-y-4">
+              <div className="flex gap-4 items-center">
+                <input
+                  type="text"
+                  placeholder="New project name"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                />
+                <button
+                  onClick={createProject}
+                  className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                >
+                  Create Project
+                </button>
+              </div>
+
+              {projects.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">Select Project:</label>
+                  <select
+                    value={selectedProjectId || ''}
+                    onChange={(e) => setSelectedProjectId(e.target.value || null)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                  >
+                    <option value="">-- Select a project --</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Login Form - Subtle, only visible on hover/focus */}
+        {/* Login Form */}
         {!isLoggedIn && (
           <div className="mb-8 text-center opacity-20 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 group">
             <button
@@ -292,90 +437,52 @@ const Portfolio: React.FC = () => {
 
         {/* Upload Form */}
         {isAdmin && showUpload && (
-          <form onSubmit={handleAddImage} className="mb-8 p-6 bg-white/50 rounded-lg border border-gray-300">
-            <h3 className="text-xl font-bold mb-4">Add New Image</h3>
+          <form onSubmit={(e) => { e.preventDefault(); handleAddMedia(); }} className="mb-8 p-6 bg-white/50 rounded-lg border border-gray-300">
+            <h3 className="text-xl font-bold mb-4">Add Media to Project</h3>
             
-            {/* Upload Method Toggle */}
-            <div className="flex gap-4 mb-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadMethod('file');
-                  setUploadUrl('');
-                  setUploadFile(null);
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-                className={`px-4 py-2 text-sm uppercase tracking-widest transition-colors ${
-                  uploadMethod === 'file'
-                    ? 'bg-[#121212] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Upload from Device
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadMethod('url');
-                  setUploadFile(null);
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-                className={`px-4 py-2 text-sm uppercase tracking-widest transition-colors ${
-                  uploadMethod === 'url'
-                    ? 'bg-[#121212] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Image URL
-              </button>
-            </div>
-
-            {/* File Upload */}
-            {uploadMethod === 'file' && (
-              <div className="mb-4">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
-                />
-                {uploadFile && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    Selected: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
-                )}
-                <p className="mt-2 text-xs text-gray-500">
-                  Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
-                </p>
-              </div>
+            {!selectedProjectId && (
+              <p className="text-red-600 mb-4">Please select or create a project first</p>
             )}
 
-            {/* URL Input */}
-            {uploadMethod === 'url' && (
+            <div className="mb-4">
               <input
-                type="url"
-                placeholder="Image URL"
-                value={uploadUrl}
-                onChange={(e) => setUploadUrl(e.target.value)}
-                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                required={uploadMethod === 'url'}
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={handleFileChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
               />
-            )}
+              {uploadFiles.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {uploadFiles.map((file, index) => (
+                    <div key={index} className="text-sm text-gray-600 flex items-center justify-between">
+                      <span>{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                      <button
+                        type="button"
+                        onClick={() => setUploadFiles(uploadFiles.filter((_, i) => i !== index))}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="mt-2 text-xs text-gray-500">
+                Max file size: 50MB. Supported: Images (JPG, PNG, GIF, WebP) and Videos (MP4, WebM)
+              </p>
+            </div>
 
             <input
               type="text"
-              placeholder="Title (optional)"
+              placeholder="Title (optional, applies to all files)"
               value={uploadTitle}
               onChange={(e) => setUploadTitle(e.target.value)}
               className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
             />
             <textarea
-              placeholder="Description (optional)"
+              placeholder="Description (optional, applies to all files)"
               value={uploadDescription}
               onChange={(e) => setUploadDescription(e.target.value)}
               className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
@@ -384,16 +491,16 @@ const Portfolio: React.FC = () => {
             <div className="flex gap-4">
               <button
                 type="submit"
-                className="px-6 py-2 bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                disabled={!selectedProjectId || uploadFiles.length === 0}
+                className="px-6 py-2 bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add Image
+                Add {uploadFiles.length > 0 ? `${uploadFiles.length} ` : ''}Media
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setShowUpload(false);
-                  setUploadUrl('');
-                  setUploadFile(null);
+                  setUploadFiles([]);
                   setUploadTitle('');
                   setUploadDescription('');
                   if (fileInputRef.current) {
@@ -408,90 +515,154 @@ const Portfolio: React.FC = () => {
           </form>
         )}
 
-        {/* Portfolio Carousel */}
-        {images.length > 0 ? (
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div 
-                className="flex gap-6 transition-transform duration-500 ease-in-out"
-                style={{ 
-                  transform: `translateX(calc(-${currentIndex} * (100% + 1.5rem)))`
-                }}
-              >
-                {images.map((image) => (
-                  <div
-                    key={image.id}
-                    className="portfolio-item flex-shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                  >
-                    <div className="aspect-square relative overflow-hidden">
-                      <img
-                        src={image.url}
-                        alt={image.title || 'Portfolio image'}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ddd" width="400" height="400"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3EImage not found%3C/text%3E%3C/svg%3E';
-                        }}
-                      />
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDeleteImage(image.id)}
-                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                          aria-label="Delete image"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      )}
+        {/* Portfolio Projects Display */}
+        {projects.length > 0 ? (
+          <div className="space-y-16">
+            {projects.map((project, projectIndex) => (
+              <div key={project.id} className="portfolio-project">
+                {/* Project Header */}
+                <div className="mb-8 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display text-3xl md:text-4xl text-gray-800 mb-2">
+                      {project.name}
+                    </h3>
+                    {project.description && (
+                      <p className="text-gray-600">{project.description}</p>
+                    )}
+                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => moveProject(project.id, 'up')}
+                        disabled={projectIndex === 0}
+                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50"
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveProject(project.id, 'down')}
+                        disabled={projectIndex === projects.length - 1}
+                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50"
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="px-3 py-1 bg-red-500 text-white text-sm hover:bg-red-600 transition-colors"
+                        title="Delete project"
+                      >
+                        Delete
+                      </button>
                     </div>
-                    {(image.title || image.description) && (
-                      <div className="p-4">
-                        {image.title && (
-                          <h3 className="font-bold text-gray-800 mb-1">{image.title}</h3>
-                        )}
-                        {image.description && (
-                          <p className="text-sm text-gray-600">{image.description}</p>
-                        )}
+                  )}
+                </div>
+
+                {/* Project Media Carousel */}
+                {project.media.length > 0 ? (
+                  <div className="relative">
+                    <div className="overflow-hidden">
+                      <div 
+                        className="flex gap-6 transition-transform duration-500 ease-in-out"
+                        style={{ 
+                          transform: `translateX(calc(-${currentMediaIndices[project.id] || 0} * (100% + 1.5rem)))`
+                        }}
+                      >
+                        {project.media.map((media) => (
+                          <div
+                            key={media.id}
+                            className="flex-shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                          >
+                            <div className="aspect-square relative overflow-hidden">
+                              {media.type === 'video' ? (
+                                <video
+                                  src={media.url}
+                                  controls
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img
+                                  src={media.url}
+                                  alt={media.title || 'Portfolio media'}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              )}
+                              {isAdmin && (
+                                <button
+                                  onClick={() => handleDeleteMedia(project.id, media.id)}
+                                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                  aria-label="Delete media"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                            {(media.title || media.description) && (
+                              <div className="p-4">
+                                {media.title && (
+                                  <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
+                                )}
+                                {media.description && (
+                                  <p className="text-sm text-gray-600">{media.description}</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Carousel Navigation */}
+                    {project.media.length > 1 && (
+                      <div className="flex justify-center items-center gap-4 mt-8">
+                        <button
+                          onClick={() => setCurrentMediaIndices(prev => ({
+                            ...prev,
+                            [project.id]: ((prev[project.id] || 0) > 0 ? (prev[project.id] || 0) - 1 : project.media.length - 1)
+                          }))}
+                          className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
+                          aria-label="Previous media"
+                        >
+                          ←
+                        </button>
+                        <div className="flex gap-2">
+                          {project.media.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentMediaIndices(prev => ({ ...prev, [project.id]: index }))}
+                              className={`w-2 h-2 rounded-full transition-all ${
+                                index === (currentMediaIndices[project.id] || 0) ? 'bg-[#121212] w-8' : 'bg-gray-300'
+                              }`}
+                              aria-label={`Go to media ${index + 1}`}
+                            />
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => setCurrentMediaIndices(prev => ({
+                            ...prev,
+                            [project.id]: ((prev[project.id] || 0) < project.media.length - 1 ? (prev[project.id] || 0) + 1 : 0)
+                          }))}
+                          className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
+                          aria-label="Next media"
+                        >
+                          →
+                        </button>
                       </div>
                     )}
                   </div>
-                ))}
+                ) : (
+                  <div className="min-h-[200px] flex items-center justify-center text-gray-400">
+                    No media in this project yet
+                  </div>
+                )}
               </div>
-            </div>
-            
-            {/* Carousel Navigation */}
-            {images.length > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8">
-                <button
-                  onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
-                  className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
-                  aria-label="Previous image"
-                >
-                  ←
-                </button>
-                <div className="flex gap-2">
-                  {images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentIndex ? 'bg-[#121212] w-8' : 'bg-gray-300'
-                      }`}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))}
-                  className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
-                  aria-label="Next image"
-                >
-                  →
-                </button>
-              </div>
-            )}
+            ))}
           </div>
         ) : (
           <div className="min-h-[400px] flex items-center justify-center">

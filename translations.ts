@@ -70,7 +70,7 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Bereit für Veränderung?",
       offer: "ANGEBOT",
-      copyright: "© 2025 DANIELBAU SCHWEIZ",
+      copyright: "© 2026 DANIELBAU SCHWEIZ",
       namePlaceholder: "Name",
       emailPlaceholder: "E-Mail",
       messagePlaceholder: "Nachricht",
@@ -144,7 +144,7 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Ready for change?",
       offer: "QUOTE",
-      copyright: "© 2025 DANIELBAU SWITZERLAND"
+      copyright: "© 2026 DANIELBAU SWITZERLAND"
     }
   },
   fr: {
@@ -213,7 +213,7 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Prêt pour le changement ?",
       offer: "DEVIS",
-      copyright: "© 2025 DANIELBAU SUISSE"
+      copyright: "© 2026 DANIELBAU SUISSE"
     }
   },
   it: {
@@ -282,7 +282,7 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Pronto per il cambiamento?",
       offer: "PREVENTIVO",
-      copyright: "© 2025 DANIELBAU SVIZZERA"
+      copyright: "© 2026 DANIELBAU SVIZZERA"
     }
   }
 };

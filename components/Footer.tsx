@@ -122,7 +122,7 @@ const Footer: React.FC = () => {
         minHeight: '100dvh'
       }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-5xl px-4 md:px-6 py-6 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-6 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-3 md:mb-6 text-gray-400"
@@ -161,13 +161,34 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        {/* Contact Form and Map Side by Side - Smaller on Mobile */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start justify-center max-w-xs md:max-w-5xl mx-auto mb-4 md:mb-8">
-          {/* Contact Form - Smaller on Mobile */}
+        {/* Desktop Layout: Map Left, Form Right (below centered ANGEBOT) */}
+        {/* Mobile Layout: Map Left, Form Right */}
+        <div className="flex flex-row gap-4 md:gap-8 items-start justify-center max-w-xs md:max-w-6xl mx-auto mb-4 md:mb-8">
+          {/* Map - Left Side (Mobile and Desktop) */}
+          <div className="w-[45%] md:w-[300px] flex-shrink-0">
+            <div className="w-full h-[180px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="DANIELBAU Offices Map"
+              />
+            </div>
+            <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-white/70 space-y-0.5 md:space-y-1">
+              <p><strong>Main Office:</strong> 4410 Liestal / Rheistrasse 3</p>
+              <p><strong>Second Office:</strong> 3250 Lyss / Fluhrweg 16</p>
+            </div>
+          </div>
+
+          {/* Contact Form - Right Side (Mobile and Desktop) */}
           <form 
             ref={formRef}
             onSubmit={handleSubmit}
-            className="w-full md:flex-1 md:max-w-md space-y-3 md:space-y-4"
+            className="w-[55%] md:w-[320px] flex-shrink-0 space-y-3 md:space-y-4"
           >
             <input
               type="text"
@@ -201,26 +222,6 @@ const Footer: React.FC = () => {
               {isSubmitting ? (t.footer.sending || 'Sending...') : (t.footer.send || 'Send')}
             </button>
           </form>
-
-          {/* Small Square Map - Smaller on Mobile */}
-          <div className="w-full md:flex-1 md:max-w-md">
-            <div className="w-full h-[180px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="DANIELBAU Offices Map"
-              />
-            </div>
-            <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-white/70 space-y-0.5 md:space-y-1">
-              <p><strong>Main Office:</strong> 4410 Liestal / Rheistrasse 3</p>
-              <p><strong>Second Office:</strong> 3250 Lyss / Fluhrweg 16</p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 md:mt-12 text-[10px] text-gray-700">
