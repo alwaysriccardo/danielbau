@@ -5,41 +5,48 @@ import { useLanguage } from '../contexts/LanguageContext';
 const Navigation: React.FC = () => {
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isOverDarkBg, setIsOverDarkBg] = useState(false); // Start false since hero should be black
+  const [isOverDarkBg, setIsOverDarkBg] = useState(true); // Start true since hero is dark
   const logoRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Detect when navigation should be white (only services and footer)
+  // Detect when navigation is over dark background (hero, services, footer)
   useEffect(() => {
     const checkBackground = () => {
       if (!navRef.current) return;
       
       const navY = navRef.current.getBoundingClientRect().top + 40; // Nav center point
-      let shouldBeWhite = false;
+      let isOverDark = false;
       
-      // Check services section (dark background #121212) - should be WHITE
+      // Check hero section (first section, typically dark)
+      const heroSection = document.querySelector('section:first-of-type');
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        if (navY >= heroRect.top && navY <= heroRect.bottom) {
+          isOverDark = true;
+        }
+      }
+      
+      // Check services section (dark background #121212)
       const servicesSection = document.getElementById('services');
       if (servicesSection) {
         const servicesRect = servicesSection.getBoundingClientRect();
         if (navY >= servicesRect.top && navY <= servicesRect.bottom) {
-          shouldBeWhite = true;
+          isOverDark = true;
         }
       }
       
-      // Check footer (dark background #111) - should be WHITE
+      // Check footer (dark background #111)
       const footer = document.getElementById('contact');
       if (footer) {
         const footerRect = footer.getBoundingClientRect();
         if (navY >= footerRect.top && navY <= footerRect.bottom) {
-          shouldBeWhite = true;
+          isOverDark = true;
         }
       }
       
-      // All other sections (hero, intro, portfolio, cleaning) should be BLACK
-      // So we only set white for services and footer
-      setIsOverDarkBg(shouldBeWhite);
+      setIsOverDarkBg(isOverDark);
     };
 
     // Check on mount and scroll
@@ -106,7 +113,7 @@ const Navigation: React.FC = () => {
         {/* Mobile Menu Button - More Visible and Bolder */}
         <button 
           onClick={toggleMenu} 
-          className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} shadow-lg ${textColor}`}
+          className={`md:hidden font-display text-lg font-extrabold z-[60] relative px-4 py-2 bg-transparent rounded border-2 ${borderColor} ${textColor}`}
           style={{
             fontWeight: 900
           }}
