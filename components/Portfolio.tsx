@@ -1058,11 +1058,13 @@ const Portfolio: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start gap-2 mt-2">
+                      <div className="flex items-start gap-2 mt-3">
                         {project.description ? (
-                          <p className="text-gray-600 flex-1">{project.description}</p>
+                          <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 px-4 py-3 border-l-2 border-gray-300 pl-6">
+                            {project.description}
+                          </p>
                         ) : (
-                          <p className="text-gray-400 italic flex-1">No description</p>
+                          <p className="text-base md:text-lg text-gray-400 italic flex-1">No description</p>
                         )}
                         {isAdmin && (
                           <button
@@ -1454,11 +1456,11 @@ const Portfolio: React.FC = () => {
                           ) : (
                             <>
                               {projects[selectedProjectIndex].description ? (
-                                <p className="text-sm md:text-base text-gray-600 flex-1">
+                                <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 max-w-3xl mx-auto text-center px-4 py-3 border-l-2 border-gray-300 pl-6">
                                   {projects[selectedProjectIndex].description}
                                 </p>
                               ) : (
-                                <p className="text-sm md:text-base text-gray-400 italic flex-1">No description</p>
+                                <p className="text-base md:text-lg text-gray-400 italic flex-1 text-center">No description</p>
                               )}
                               {isAdmin && (
                                 <button
@@ -1835,11 +1837,11 @@ const Portfolio: React.FC = () => {
                             ) : (
                               <div className="flex items-start gap-2">
                                 {projects[selectedProjectIndex].description ? (
-                                  <p className="text-sm text-gray-700 leading-relaxed flex-1">
+                                  <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 px-4 py-3 border-l-2 border-gray-300 pl-6">
                                     {projects[selectedProjectIndex].description}
                                   </p>
                                 ) : (
-                                  <p className="text-sm text-gray-400 italic flex-1">No description</p>
+                                  <p className="text-base md:text-lg text-gray-400 italic flex-1">No description</p>
                                 )}
                                 {isAdmin && (
                                   <button
