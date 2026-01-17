@@ -9,6 +9,7 @@ import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
 import Portfolio from './components/Portfolio';
+import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import ContactButtons from './components/ContactButtons';
@@ -120,6 +121,7 @@ const AppContent = () => {
         <ServiceStack />
         <CleaningServices />
         <Portfolio />
+        <Testimonials />
         
         {/* Final Text Section */}
         <section className="py-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
