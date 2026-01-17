@@ -223,13 +223,14 @@ const Portfolio: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    const filesList = e.target.files;
+    if (!filesList || filesList.length === 0) return;
 
+    const files = Array.from(filesList) as File[];
     const validFiles: File[] = [];
     const maxSize = 50 * 1024 * 1024; // 50MB for videos
 
-    files.forEach((file) => {
+    files.forEach((file: File) => {
       // Check file size
       if (file.size > maxSize) {
         alert(`${file.name} is too large. Max size: 50MB`);
@@ -459,7 +460,7 @@ const Portfolio: React.FC = () => {
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
                 <span className="ml-2 text-xs text-gray-500">
-                  {import.meta.env.VITE_SUPABASE_URL 
+                  {(import.meta as any).env?.VITE_SUPABASE_URL 
                     ? '(Changes sync across all devices via Supabase)' 
                     : '(Using localStorage - changes are local to this device)'}
                 </span>
@@ -659,27 +660,6 @@ const Portfolio: React.FC = () => {
         {/* Portfolio Projects Display */}
         {projects.length > 0 ? (
           <div>
-            {/* Project Navigation Tabs (for switching between projects) */}
-            {!isAdmin && projects.length > 1 && (
-              <div className="mb-8 flex flex-wrap gap-3 justify-center">
-                {projects.map((project, index) => (
-                  <button
-                    key={project.id}
-                    onClick={() => {
-                      setSelectedProjectIndex(index);
-                      setExpandedProjectId(null); // Close expanded view when switching
-                    }}
-                    className={`px-6 py-3 font-display text-sm md:text-base uppercase tracking-widest transition-all duration-300 ${
-                      selectedProjectIndex === index
-                        ? 'bg-[#121212] text-white shadow-lg'
-                        : 'bg-white text-gray-800 border-2 border-gray-300 hover:border-[#121212]'
-                    }`}
-                  >
-                    {project.name}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Display selected project (for non-admin) or all projects (for admin) */}
             {isAdmin ? (
