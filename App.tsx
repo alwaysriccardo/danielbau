@@ -49,27 +49,41 @@ const AppContent = () => {
     // Only initialize Lenis after loading completes
     if (loading) return;
 
-    // Small delay to ensure DOM is ready
+    // Detect if mobile
+    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // On mobile, use native scrolling for better performance and responsiveness
+    if (isMobile) {
+      // Just refresh ScrollTrigger without Lenis for mobile
+      const refreshTimeout = setTimeout(() => {
+        ScrollTrigger.refresh();
+        window.scrollTo(0, 0);
+      }, 200);
+      
+      return () => clearTimeout(refreshTimeout);
+    }
+
+    // Desktop: Use Lenis smooth scrolling
     const initTimeout = setTimeout(() => {
       const lenis = new Lenis({
         duration: 1.0,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         direction: 'vertical',
         smoothWheel: true,
-        smoothTouch: false, // Disable smooth touch for better mobile performance
+        smoothTouch: false,
         wheelMultiplier: 0.8,
-        touchMultiplier: 2.0, // Increased for better mobile responsiveness
+        touchMultiplier: 1.0,
         gestureDirection: 'vertical',
       });
 
-      // Force scroll to top immediately and prevent any movement
+      // Force scroll to top immediately
       lenis.scrollTo(0, { immediate: true });
       
-      // Lock scroll position
+      // Lock scroll position briefly
       let scrollLocked = true;
       const lockTimeout = setTimeout(() => {
         scrollLocked = false;
-      }, 500);
+      }, 300);
 
       let rafId: number;
       let lastTime = 0;
@@ -91,7 +105,6 @@ const AppContent = () => {
       // Refresh ScrollTrigger after layout is stable
       const refreshTimeout = setTimeout(() => {
         ScrollTrigger.refresh();
-        // Ensure scroll is still at top after refresh
         lenis.scrollTo(0, { immediate: true });
         window.scrollTo(0, 0);
       }, 200);

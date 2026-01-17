@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { portfolioAPI } from '../lib/supabase';
+import { portfolioAPI, supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -223,13 +223,13 @@ const Portfolio: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files || []) as File[];
     if (files.length === 0) return;
 
     const validFiles: File[] = [];
     const maxSize = 50 * 1024 * 1024; // 50MB for videos
 
-    files.forEach((file) => {
+    files.forEach((file: File) => {
       // Check file size
       if (file.size > maxSize) {
         alert(`${file.name} is too large. Max size: 50MB`);
@@ -458,11 +458,16 @@ const Portfolio: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
-                <span className="ml-2 text-xs text-gray-500">
-                  {import.meta.env.VITE_SUPABASE_URL 
-                    ? '(Changes sync across all devices via Supabase)' 
-                    : '(Using localStorage - changes are local to this device)'}
-                </span>
+                {supabase && (
+                  <span className="ml-2 text-xs text-gray-500">
+                    (Changes sync across all devices via Supabase)
+                  </span>
+                )}
+                {!supabase && (
+                  <span className="ml-2 text-xs text-gray-500">
+                    (Using localStorage - changes are local to this device)
+                  </span>
+                )}
               </div>
               <div className="flex gap-4 flex-wrap">
                 <button
@@ -659,28 +664,6 @@ const Portfolio: React.FC = () => {
         {/* Portfolio Projects Display */}
         {projects.length > 0 ? (
           <div>
-            {/* Project Navigation Tabs (for switching between projects) */}
-            {!isAdmin && projects.length > 1 && (
-              <div className="mb-8 flex flex-wrap gap-3 justify-center">
-                {projects.map((project, index) => (
-                  <button
-                    key={project.id}
-                    onClick={() => {
-                      setSelectedProjectIndex(index);
-                      setExpandedProjectId(null); // Close expanded view when switching
-                    }}
-                    className={`px-6 py-3 font-display text-sm md:text-base uppercase tracking-widest transition-all duration-300 ${
-                      selectedProjectIndex === index
-                        ? 'bg-[#121212] text-white shadow-lg'
-                        : 'bg-white text-gray-800 border-2 border-gray-300 hover:border-[#121212]'
-                    }`}
-                  >
-                    {project.name}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Display selected project (for non-admin) or all projects (for admin) */}
             {isAdmin ? (
               // Admin view: Show all projects stacked

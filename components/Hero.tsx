@@ -57,7 +57,14 @@ const Hero: React.FC = () => {
   }, [t]); // Re-run animation if language changes might be visually slightly jumpy, but necessary for text update
 
   return (
-    <section ref={containerRef} className="flex overflow-hidden h-screen relative items-center justify-center">
+    <section 
+      ref={containerRef} 
+      className="flex overflow-hidden h-screen relative items-center justify-center"
+      style={{ 
+        touchAction: 'pan-y', // Allow vertical scrolling on mobile
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
       <img 
         ref={imageRef}
         src={IMAGES.HERO} 
@@ -65,7 +72,10 @@ const Hero: React.FC = () => {
         alt="Hero Background" 
         loading="eager"
         decoding="async"
-        style={{ willChange: 'transform' }}
+        style={{ 
+          willChange: 'transform',
+          touchAction: 'none' // Prevent image from interfering with scroll
+        }}
       />
       
       <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference" style={{ willChange: 'transform' }}>
