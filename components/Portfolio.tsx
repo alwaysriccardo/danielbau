@@ -130,28 +130,65 @@ const Portfolio: React.FC = () => {
   }, [projects]);
 
   // Poll for updates silently (only when admin is logged in, or much less frequently for public)
+  // Pause polling when section is not visible for better performance
   useEffect(() => {
+    if (!sectionRef.current) return;
+    
     // Only poll if admin is logged in, or poll much less frequently for public users
     // Public users: 60 seconds (1 minute) - very infrequent to avoid any flicker
     // Admin: 15 seconds - more frequent for admin to see changes
     const pollInterval = isAdmin ? 15000 : 60000;
     
-    const interval = setInterval(() => {
-      // Silent refresh - only updates if data changed (no flicker)
-      loadProjects();
-    }, pollInterval);
+    let interval: NodeJS.Timeout | null = null;
+    let isVisible = true;
+    
+    // Use IntersectionObserver to pause polling when section is not visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          
+          if (isVisible && !interval) {
+            // Resume polling when visible
+            interval = setInterval(() => {
+              loadProjects();
+            }, pollInterval);
+          } else if (!isVisible && interval) {
+            // Pause polling when not visible
+            clearInterval(interval);
+            interval = null;
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '200px' } // Start/stop slightly before entering viewport
+    );
+    
+    observer.observe(sectionRef.current);
+    
+    // Start polling if section is already visible
+    const rect = sectionRef.current.getBoundingClientRect();
+    const initiallyVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (initiallyVisible) {
+      interval = setInterval(() => {
+        loadProjects();
+      }, pollInterval);
+    }
     
     // Also listen to focus events (when user switches back to tab) - but silently
     const handleFocus = () => {
-      // Small delay to avoid flicker when tab becomes active
-      setTimeout(() => {
-        loadProjects();
-      }, 500);
+      if (isVisible) {
+        // Small delay to avoid flicker when tab becomes active
+        setTimeout(() => {
+          loadProjects();
+        }, 500);
+      }
     };
+    
     window.addEventListener('focus', handleFocus);
     
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
+      observer.disconnect();
       window.removeEventListener('focus', handleFocus);
     };
   }, [isAdmin]); // Removed projects from deps to avoid re-creating interval
@@ -649,7 +686,9 @@ const Portfolio: React.FC = () => {
             trigger: sectionRef.current,
             start: 'top 80%',
             toggleActions: 'play none none reverse',
-            invalidateOnRefresh: false // Reduce recalculations
+            invalidateOnRefresh: false, // Reduce recalculations
+            refreshPriority: -1, // Lower priority
+            limitCallbacks: true // Limit callback frequency
           }
         });
       }

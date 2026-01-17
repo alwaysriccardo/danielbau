@@ -66,32 +66,30 @@ const Testimonials: React.FC = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  useLayoutEffect(() => {
-    if (!sectionRef.current) return;
-
-    const ctx = gsap.context(() => {
-      const item = sectionRef.current?.querySelector('.testimonial-item');
-      if (item) {
-        gsap.set(item, { force3D: true, transform: 'translate3d(0,0,0)' });
-        
-        gsap.from(item, {
-          y: 30,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          force3D: true,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-            invalidateOnRefresh: false
-          }
-        });
-      }
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
+  // Disabled ScrollTrigger animation for better performance
+  // useLayoutEffect(() => {
+  //   if (!sectionRef.current) return;
+  //   const ctx = gsap.context(() => {
+  //     const item = sectionRef.current?.querySelector('.testimonial-item');
+  //     if (item) {
+  //       gsap.set(item, { force3D: true, transform: 'translate3d(0,0,0)' });
+  //       gsap.from(item, {
+  //         y: 30,
+  //         opacity: 0,
+  //         duration: 0.6,
+  //         ease: 'power2.out',
+  //         force3D: true,
+  //         scrollTrigger: {
+  //           trigger: sectionRef.current,
+  //           start: 'top 85%',
+  //           toggleActions: 'play none none reverse',
+  //           invalidateOnRefresh: false
+  //         }
+  //       });
+  //     }
+  //   }, sectionRef);
+  //   return () => ctx.revert();
+  // }, []);
 
   // Animate testimonial change
   useEffect(() => {

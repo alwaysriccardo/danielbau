@@ -73,7 +73,9 @@ const Intro: React.FC = () => {
               trigger: titleRef.current,
               start: 'top 80%',
               toggleActions: 'play none none reverse',
-              invalidateOnRefresh: false // Reduce recalculations
+              invalidateOnRefresh: false, // Reduce recalculations
+              refreshPriority: -1, // Lower priority
+              limitCallbacks: true // Limit callback frequency
             }
           }
         );
@@ -93,7 +95,9 @@ const Intro: React.FC = () => {
             trigger: counterRef.current,
             start: 'top 85%',
             toggleActions: 'play none none reverse',
-            invalidateOnRefresh: false // Reduce recalculations
+            invalidateOnRefresh: false, // Reduce recalculations
+            refreshPriority: -1, // Lower priority
+            limitCallbacks: true // Limit callback frequency
           }
         });
       }

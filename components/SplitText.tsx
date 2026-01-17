@@ -15,26 +15,35 @@ const SplitText: React.FC<SplitTextProps> = ({ children, className = '', tag: Ta
 
   const words = children.split(' ');
 
+  // Disabled ScrollTrigger animation for better performance
+  // useLayoutEffect(() => {
+  //   const ctx = gsap.context(() => {
+  //     const wordElements = elementRef.current?.querySelectorAll('.word-inner');
+  //     if (wordElements) {
+  //       gsap.to(wordElements, {
+  //         y: "0%",
+  //         duration: 1,
+  //         ease: "power3.out",
+  //         stagger: 0.02,
+  //         scrollTrigger: {
+  //           trigger: elementRef.current,
+  //           start: "top 85%",
+  //           toggleActions: "play none none reverse"
+  //         }
+  //       });
+  //     }
+  //   }, elementRef);
+  //   return () => ctx.revert();
+  // }, [children]);
+  
+  // Simple CSS-based reveal instead
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const wordElements = elementRef.current?.querySelectorAll('.word-inner');
-      
-      if (wordElements) {
-        gsap.to(wordElements, {
-          y: "0%",
-          duration: 1,
-          ease: "power3.out",
-          stagger: 0.02,
-          scrollTrigger: {
-            trigger: elementRef.current,
-            start: "top 85%",
-            toggleActions: "play none none reverse"
-          }
-        });
-      }
-    }, elementRef);
-
-    return () => ctx.revert();
+    const wordElements = elementRef.current?.querySelectorAll('.word-inner');
+    if (wordElements) {
+      wordElements.forEach((el) => {
+        (el as HTMLElement).style.transform = 'translateY(0%)';
+      });
+    }
   }, [children]);
 
   return (
