@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { portfolioAPI } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,19 +40,25 @@ const Portfolio: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Load projects from localStorage on mount and on storage events
-  const loadProjects = () => {
+  // Load projects from Supabase API (with localStorage fallback)
+  const loadProjects = async () => {
     if (typeof window === 'undefined') return;
     
-    const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
-    if (storedProjects) {
-      try {
-        const parsed = JSON.parse(storedProjects);
-        // Sort by order
-        const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => a.order - b.order);
-        setProjects(sorted);
-      } catch (e) {
-        console.error('Error loading portfolio projects:', e);
+    try {
+      const loadedProjects = await portfolioAPI.getProjects();
+      setProjects(loadedProjects);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      // Fallback to localStorage
+      const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
+      if (storedProjects) {
+        try {
+          const parsed = JSON.parse(storedProjects);
+          const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => a.order - b.order);
+          setProjects(sorted);
+        } catch (e) {
+          console.error('Error loading from localStorage:', e);
+        }
       }
     }
   };
@@ -59,46 +66,19 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     loadProjects();
     
-    // Listen for storage changes (for cross-tab sync)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'danielbau_portfolio_projects') {
-        loadProjects();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    
     // Check if admin is already logged in
     const adminSession = sessionStorage.getItem('danielbau_admin');
     if (adminSession === 'true') {
       setIsAdmin(true);
       setIsLoggedIn(true);
     }
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
 
-  // Save projects to localStorage whenever they change
+  // Poll for updates (every 3 seconds for Supabase, or 500ms for localStorage fallback)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    if (projects.length > 0 || localStorage.getItem('danielbau_portfolio_projects')) {
-      localStorage.setItem('danielbau_portfolio_projects', JSON.stringify(projects));
-      // Trigger storage event for other tabs
-      window.dispatchEvent(new Event('storage'));
-    }
-  }, [projects]);
-
-  // Enhanced polling for cross-device sync (more frequent checks)
-  useEffect(() => {
-    // Check immediately
-    loadProjects();
-    
-    // Poll every 500ms for faster updates
     const interval = setInterval(() => {
       loadProjects();
-    }, 500);
+    }, 3000); // Check every 3 seconds for Supabase sync
     
     // Also listen to focus events (when user switches back to tab)
     const handleFocus = () => {
@@ -113,8 +93,8 @@ const Portfolio: React.FC = () => {
   }, []);
   
   // Manual refresh function for admin
-  const handleRefresh = () => {
-    loadProjects();
+  const handleRefresh = async () => {
+    await loadProjects();
     alert('Portfolio refreshed');
   };
 
@@ -167,24 +147,21 @@ const Portfolio: React.FC = () => {
     setUploadFiles([...uploadFiles, ...validFiles]);
   };
 
-  const createProject = () => {
+  const createProject = async () => {
     if (!newProjectName.trim()) {
       alert('Please enter a project name');
       return;
     }
 
-    const newProject: PortfolioProject = {
-      id: Date.now().toString(),
-      name: newProjectName.trim(),
-      description: '',
-      media: [],
-      order: projects.length,
-      createdAt: new Date().toISOString()
-    };
-
-    setProjects([...projects, newProject]);
-    setNewProjectName('');
-    setSelectedProjectId(newProject.id);
+    const newProject = await portfolioAPI.createProject(newProjectName.trim());
+    if (newProject) {
+      // Reload projects to get the latest from API
+      await loadProjects();
+      setNewProjectName('');
+      setSelectedProjectId(newProject.id);
+    } else {
+      alert('Failed to create project. Please try again.');
+    }
   };
 
   const handleAddMedia = async () => {
@@ -225,44 +202,89 @@ const Portfolio: React.FC = () => {
       });
     }
 
-    // Update project with new media
-    const updatedProjects = projects.map(p => 
-      p.id === selectedProjectId 
-        ? { ...p, media: [...p.media, ...newMedia] }
-        : p
-    );
+    // Update project with new media via API
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return;
 
-    setProjects(updatedProjects);
-    setUploadFiles([]);
-    setUploadTitle('');
-    setUploadDescription('');
-    setShowUpload(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    // Format media for Supabase (convert uploadedAt to uploaded_at)
+    const formattedNewMedia = newMedia.map(m => ({
+      id: m.id,
+      url: m.url,
+      type: m.type,
+      title: m.title,
+      description: m.description,
+      uploaded_at: m.uploadedAt
+    }));
+
+    const updatedMedia = [...project.media.map(m => ({
+      ...m,
+      uploaded_at: m.uploadedAt
+    })), ...formattedNewMedia];
+
+    const success = await portfolioAPI.updateProject(selectedProjectId, {
+      ...project,
+      media: updatedMedia
+    });
+
+    if (success) {
+      // Reload projects to get latest from API
+      await loadProjects();
+      setUploadFiles([]);
+      setUploadTitle('');
+      setUploadDescription('');
+      setShowUpload(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      alert('Failed to add media. Please try again.');
     }
   };
 
-  const handleDeleteProject = (id: string) => {
+  const handleDeleteProject = async (id: string) => {
     if (confirm('Are you sure you want to delete this project and all its media?')) {
-      setProjects(projects.filter(p => p.id !== id));
-      if (selectedProjectId === id) {
-        setSelectedProjectId(null);
+      const success = await portfolioAPI.deleteProject(id);
+      if (success) {
+        await loadProjects(); // Reload from API
+        if (selectedProjectId === id) {
+          setSelectedProjectId(null);
+        }
+      } else {
+        alert('Failed to delete project. Please try again.');
       }
     }
   };
 
-  const handleDeleteMedia = (projectId: string, mediaId: string) => {
+  const handleDeleteMedia = async (projectId: string, mediaId: string) => {
     if (confirm('Are you sure you want to delete this media?')) {
-      const updatedProjects = projects.map(p => 
-        p.id === projectId 
-          ? { ...p, media: p.media.filter(m => m.id !== mediaId) }
-          : p
-      );
-      setProjects(updatedProjects);
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const updatedMedia = project.media
+        .filter(m => m.id !== mediaId)
+        .map(m => ({
+          id: m.id,
+          url: m.url,
+          type: m.type,
+          title: m.title,
+          description: m.description,
+          uploaded_at: m.uploadedAt || m.uploaded_at
+        }));
+
+      const success = await portfolioAPI.updateProject(projectId, {
+        ...project,
+        media: updatedMedia
+      });
+
+      if (success) {
+        await loadProjects(); // Reload from API
+      } else {
+        alert('Failed to delete media. Please try again.');
+      }
     }
   };
 
-  const moveProject = (id: string, direction: 'up' | 'down') => {
+  const moveProject = async (id: string, direction: 'up' | 'down') => {
     const index = projects.findIndex(p => p.id === id);
     if (index === -1) return;
 
@@ -277,7 +299,16 @@ const Portfolio: React.FC = () => {
       p.order = i;
     });
 
-    setProjects(updatedProjects);
+    // Update order in API
+    const projectIds = updatedProjects.map(p => p.id);
+    const success = await portfolioAPI.reorderProjects(projectIds);
+    
+    if (success) {
+      await loadProjects(); // Reload from API
+    } else {
+      // If API fails, still update locally
+      setProjects(updatedProjects);
+    }
   };
 
   // Auto-advance carousel for each project
@@ -349,7 +380,11 @@ const Portfolio: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="text-sm text-gray-700">
                 Admin Mode: <span className="font-bold">Active</span>
-                <span className="ml-2 text-xs text-gray-500">(Changes are saved locally. Refresh other devices to sync.)</span>
+                <span className="ml-2 text-xs text-gray-500">
+                  {import.meta.env.VITE_SUPABASE_URL 
+                    ? '(Changes sync across all devices via Supabase)' 
+                    : '(Using localStorage - changes are local to this device)'}
+                </span>
               </div>
               <div className="flex gap-4 flex-wrap">
                 <button
