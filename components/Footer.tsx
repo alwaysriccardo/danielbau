@@ -13,58 +13,31 @@ const Footer: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fix scroll chaining on mobile - allow page scroll when footer is at top
+  // Prevent scroll chaining - don't pull content above when scrolling in footer
   useEffect(() => {
     if (!footerRef.current) return;
     
     const footer = footerRef.current;
-    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    if (!isMobile) return; // Only needed on mobile
-    
-    // Detect when user tries to scroll up from top of footer
-    let touchStartY = 0;
-    let touchStartScrollTop = 0;
-    
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      touchStartScrollTop = footer.scrollTop;
-    };
-    
-    const handleTouchMove = (e: TouchEvent) => {
-      // Only prevent scroll up when at the very top of footer (0-1 scroll)
-      // Don't interfere with scroll down at all
-      if (footer.scrollTop <= 1 && touchStartScrollTop <= 1) {
-        const touchY = e.touches[0].clientY;
-        const deltaY = touchStartY - touchY; // Positive = scrolling up
-        
-        if (deltaY > 10) { // Only if significant upward swipe
-          // User is scrolling up from absolute top - scroll the page instead
-          e.preventDefault();
-          window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
-        }
-      }
-      // Allow normal scroll down in footer - don't prevent it
-    };
-    
+    // Prevent scroll from affecting content above
     const handleWheel = (e: WheelEvent) => {
-      // Only prevent scroll up when at the very top of footer (0 scroll)
-      // Don't interfere with scroll down at all
+      // If scrolling up at the top of footer, allow page scroll
+      // But prevent any downward pull on content above
       if (footer.scrollTop <= 1 && e.deltaY < 0) {
         // Only allow page scroll up when footer is at absolute top
-        e.preventDefault();
-        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+        // Don't prevent default - let it scroll the page naturally
+        return;
       }
-      // Allow normal scroll down in footer - don't prevent it
+      
+      // If scrolling down at the bottom of footer, stop propagation
+      if (footer.scrollTop + footer.clientHeight >= footer.scrollHeight - 1 && e.deltaY > 0) {
+        e.stopPropagation();
+      }
     };
     
-    footer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    footer.addEventListener('touchmove', handleTouchMove, { passive: false });
-    footer.addEventListener('wheel', handleWheel, { passive: false });
+    footer.addEventListener('wheel', handleWheel, { passive: true });
     
     return () => {
-      footer.removeEventListener('touchstart', handleTouchStart);
-      footer.removeEventListener('touchmove', handleTouchMove);
       footer.removeEventListener('wheel', handleWheel);
     };
   }, []);
@@ -91,12 +64,16 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
+      data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehaviorY: 'auto', // Allow scroll chaining - user can scroll page when footer is at top
-        scrollBehavior: 'auto'
+        overscrollBehaviorY: 'contain', // Prevent scroll chaining - don't pull content above
+        overscrollBehavior: 'contain', // Prevent all overscroll behavior
+        scrollBehavior: 'auto',
+        position: 'fixed', // Ensure footer stays fixed and doesn't affect content above
+        willChange: 'transform'
       }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">

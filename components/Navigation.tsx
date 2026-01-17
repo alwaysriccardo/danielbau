@@ -5,48 +5,41 @@ import { useLanguage } from '../contexts/LanguageContext';
 const Navigation: React.FC = () => {
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isOverDarkBg, setIsOverDarkBg] = useState(true); // Start true since hero is dark
+  const [isOverDarkBg, setIsOverDarkBg] = useState(false); // Start false since hero should be black
   const logoRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Detect when navigation is over dark background (hero, services, footer)
+  // Detect when navigation should be white (only services and footer)
   useEffect(() => {
     const checkBackground = () => {
       if (!navRef.current) return;
       
       const navY = navRef.current.getBoundingClientRect().top + 40; // Nav center point
-      let isOverDark = false;
+      let shouldBeWhite = false;
       
-      // Check hero section (first section, typically dark)
-      const heroSection = document.querySelector('section:first-of-type');
-      if (heroSection) {
-        const heroRect = heroSection.getBoundingClientRect();
-        if (navY >= heroRect.top && navY <= heroRect.bottom) {
-          isOverDark = true;
-        }
-      }
-      
-      // Check services section (dark background #121212)
+      // Check services section (dark background #121212) - should be WHITE
       const servicesSection = document.getElementById('services');
       if (servicesSection) {
         const servicesRect = servicesSection.getBoundingClientRect();
         if (navY >= servicesRect.top && navY <= servicesRect.bottom) {
-          isOverDark = true;
+          shouldBeWhite = true;
         }
       }
       
-      // Check footer (dark background #111)
+      // Check footer (dark background #111) - should be WHITE
       const footer = document.getElementById('contact');
       if (footer) {
         const footerRect = footer.getBoundingClientRect();
         if (navY >= footerRect.top && navY <= footerRect.bottom) {
-          isOverDark = true;
+          shouldBeWhite = true;
         }
       }
       
-      setIsOverDarkBg(isOverDark);
+      // All other sections (hero, intro, portfolio, cleaning) should be BLACK
+      // So we only set white for services and footer
+      setIsOverDarkBg(shouldBeWhite);
     };
 
     // Check on mount and scroll

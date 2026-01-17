@@ -114,7 +114,14 @@ const AppContent = () => {
         <ContactButtons />
 
         {/* Main Content Wrapper */}
-        <div className="relative z-10 bg-[#E3E1DC] shadow-[0_20px_40px_rgba(0,0,0,0.2)] mb-[100vh]">
+        <div 
+          className="relative z-10 bg-[#E3E1DC] shadow-[0_20px_40px_rgba(0,0,0,0.2)] mb-[100vh]"
+          style={{ 
+            position: 'relative',
+            willChange: 'transform',
+            overscrollBehavior: 'none' // Prevent content from being pulled down
+          }}
+        >
         <Hero />
         <Intro />
         <ServiceStack />
