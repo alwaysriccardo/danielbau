@@ -18,34 +18,43 @@ const Testimonials: React.FC = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!sectionRef.current || !cardsRef.current) return;
+    if (!sectionRef.current || !cardsRef.current || testimonials.length === 0) return;
 
-    const cards = cardsRef.current.querySelectorAll('.testimonial-card');
-    
-    // Animate cards on scroll
-    gsap.from(cards, {
-      y: 30,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 80%',
-        toggleActions: 'play none none none'
-      }
-    });
+    // Wait a bit for DOM to be ready
+    const timeout = setTimeout(() => {
+      const cards = cardsRef.current?.querySelectorAll('.testimonial-card');
+      if (!cards || cards.length === 0) return;
+      
+      // Animate cards on scroll
+      gsap.from(cards, {
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+          once: true
+        }
+      });
+    }, 100);
 
     return () => {
+      clearTimeout(timeout);
       ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.vars.trigger === sectionRef.current) {
+        if (trigger.vars && trigger.vars.trigger === sectionRef.current) {
           trigger.kill();
         }
       });
     };
-  }, []);
+  }, [testimonials]);
 
-  const testimonials = t.testimonials.items;
+  // Get testimonials with proper fallback
+  const testimonials = (t.testimonials && Array.isArray(t.testimonials.items)) 
+    ? t.testimonials.items 
+    : [];
 
   return (
     <section 
@@ -57,22 +66,23 @@ const Testimonials: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8 md:mb-10">
           <h2 className="font-display text-3xl md:text-4xl mb-2 text-gray-800">
-            {t.testimonials.header}
+            {t.testimonials?.header || 'TESTIMONIALS'}
           </h2>
           <p className="text-sm md:text-base text-gray-600">
-            {t.testimonials.subheader}
+            {t.testimonials?.subheader || 'What our clients say'}
           </p>
         </div>
 
         {/* Testimonials Grid - Compact but scrollable on mobile */}
-        <div 
-          ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-        >
-          {testimonials.map((testimonial: Testimonial, index: number) => (
+        {testimonials.length > 0 ? (
+          <div 
+            ref={cardsRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+          >
+            {testimonials.map((testimonial: Testimonial, index: number) => (
             <div
               key={index}
-              className="testimonial-card bg-white rounded-lg p-5 md:p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative overflow-hidden group"
+              className="testimonial-card bg-white rounded-lg p-5 md:p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative overflow-hidden group opacity-100"
             >
               {/* Decorative accent */}
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#121212] to-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -113,8 +123,13 @@ const Testimonials: React.FC = () => {
                 </p>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Loading testimonials...</p>
+          </div>
+        )}
       </div>
     </section>
   );
