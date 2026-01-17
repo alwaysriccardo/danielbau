@@ -1485,7 +1485,11 @@ const Portfolio: React.FC = () => {
                         {expandedProjectId === projects[selectedProjectIndex].id ? (
                           // Expanded view: Show all media in gallery (centered and bigger on desktop)
                           <div className="flex justify-center">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl">
+                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full ${
+                              projects[selectedProjectIndex].media.length === 2 
+                                ? 'max-w-5xl lg:max-w-7xl' 
+                                : 'lg:grid-cols-3 max-w-6xl'
+                            }`}>
                             {projects[selectedProjectIndex].media.map((media, index) => (
                               <div
                                 key={media.id}
@@ -1542,10 +1546,10 @@ const Portfolio: React.FC = () => {
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
                             style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            <div className={isMobile ? 'w-full' : 'w-full max-w-6xl'}>
+                            <div className={isMobile ? 'w-full' : `w-full ${projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl lg:max-w-7xl' : 'max-w-6xl'}`}>
                               <div className={isMobile 
                                 ? 'flex flex-wrap justify-center items-center gap-4' 
-                                : 'grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center'
+                                : `grid ${projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'} gap-6 md:gap-8 justify-items-center`
                               }>
                                 {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
                                   <div
@@ -1554,6 +1558,7 @@ const Portfolio: React.FC = () => {
                                       isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
                                       isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
                                       isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
+                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-full' :
                                       'w-full max-w-md'
                                     }`}
                                   >
