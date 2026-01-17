@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { IMAGES } from '../constants';
@@ -16,6 +16,57 @@ const Footer: React.FC = () => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fix scroll chaining on mobile - allow page scroll when footer is at top
+  useEffect(() => {
+    if (!footerRef.current) return;
+    
+    const footer = footerRef.current;
+    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isMobile) return; // Only needed on mobile
+    
+    // Detect when user tries to scroll up from top of footer
+    let touchStartY = 0;
+    let touchStartScrollTop = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartScrollTop = footer.scrollTop;
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      // If footer is at top and user is swiping up, allow page scroll
+      if (footer.scrollTop <= 5 && touchStartScrollTop <= 5) {
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchY; // Positive = scrolling up
+        
+        if (deltaY > 0) {
+          // User is scrolling up from top - scroll the page instead
+          e.preventDefault();
+          window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
+        }
+      }
+    };
+    
+    const handleWheel = (e: WheelEvent) => {
+      // If footer is at top and user is scrolling up, allow page scroll
+      if (footer.scrollTop <= 5 && e.deltaY < 0) {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+    };
+    
+    footer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    footer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    footer.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      footer.removeEventListener('touchstart', handleTouchStart);
+      footer.removeEventListener('touchmove', handleTouchMove);
+      footer.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,14 +166,14 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto overscroll-contain pt-safe pb-safe"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
       data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain',
+        overscrollBehaviorY: 'auto', // Allow scroll chaining - user can scroll page when footer is at top
         scrollBehavior: 'auto'
       }}
     >
