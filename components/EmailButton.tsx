@@ -3,7 +3,7 @@ import React from 'react';
 const EmailButton: React.FC = () => {
   return (
     <a
-      href="mailto:zitat@danielbau.de"
+      href="mailto:danielbau@mail.ch"
       className="fixed bottom-8 right-6 z-[90] group"
       aria-label="Email us"
     >

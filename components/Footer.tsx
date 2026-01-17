@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
     // Create mailto link with form data
     const subject = encodeURIComponent(`Contact from ${formData.name}`);
     const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-    window.location.href = `mailto:zitat@danielbau.de?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:danielbau@mail.ch?subject=${subject}&body=${body}`;
     
     setTimeout(() => {
       setIsSubmitting(false);
@@ -168,7 +168,6 @@ const Footer: React.FC = () => {
       ref={footerRef}
       className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto pt-safe pb-safe"
       id="contact"
-      data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
@@ -190,7 +189,7 @@ const Footer: React.FC = () => {
         <div className="mb-4 md:mb-8">
           <a 
             ref={quoteRef}
-            href="mailto:zitat@danielbau.de" 
+            href="mailto:danielbau@mail.ch" 
             className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none hover:text-white transition-all duration-300 block cursor-pointer relative z-50"
             style={{ 
               pointerEvents: 'auto',
@@ -199,7 +198,7 @@ const Footer: React.FC = () => {
             }}
             onClick={(e) => {
               e.preventDefault();
-              window.location.href = 'mailto:zitat@danielbau.de';
+              window.location.href = 'mailto:danielbau@mail.ch';
             }}
           >
             {t.footer.offer}

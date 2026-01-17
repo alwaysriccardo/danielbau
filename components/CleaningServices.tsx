@@ -173,7 +173,7 @@ const CleaningServices: React.FC = () => {
                 {t.cleaning.call || 'Call'}
               </a>
               <a
-                href="mailto:zitat@danielbau.de"
+                href="mailto:danielbau@mail.ch"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                 onClick={() => setShowQuoteMenu(false)}
               >

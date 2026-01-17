@@ -49,7 +49,7 @@ const ContactButtons: React.FC = () => {
 
       {/* Email Us Button */}
       <a
-        href="mailto:zitat@danielbau.de"
+        href="mailto:danielbau@mail.ch"
         className="group"
         aria-label="Email us"
       >
