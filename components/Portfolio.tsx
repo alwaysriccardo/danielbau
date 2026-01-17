@@ -282,7 +282,7 @@ const Portfolio: React.FC = () => {
 
   const handleSaveProjectEdit = async () => {
     if (!editingProjectId || !editingProjectName.trim()) {
-      alert('Please enter a project name');
+      alert('Please enter a folder name');
       return;
     }
 
@@ -301,7 +301,7 @@ const Portfolio: React.FC = () => {
       setEditingProjectName('');
       setEditingProjectDescription('');
     } else {
-      alert('Failed to update project. Please try again.');
+      alert('Failed to update folder. Please try again.');
     }
   };
 
@@ -313,7 +313,7 @@ const Portfolio: React.FC = () => {
 
   const handleAddMedia = async () => {
     if (!selectedProjectId) {
-      alert('Please select or create a project first');
+      alert('Please select or create a folder first');
       return;
     }
 
@@ -386,7 +386,7 @@ const Portfolio: React.FC = () => {
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (confirm('Are you sure you want to delete this project and all its media?')) {
+    if (confirm('Are you sure you want to delete this folder and all its media?')) {
       const success = await portfolioAPI.deleteProject(id);
       if (success) {
         await loadProjects(); // Reload from API
@@ -394,7 +394,7 @@ const Portfolio: React.FC = () => {
           setSelectedProjectId(null);
         }
       } else {
-        alert('Failed to delete project. Please try again.');
+        alert('Failed to delete folder. Please try again.');
       }
     }
   };
@@ -575,20 +575,20 @@ const Portfolio: React.FC = () => {
               </div>
             </div>
 
-            {/* Project Management */}
+            {/* Folder Management */}
             <div className="border-t border-gray-300 pt-4 space-y-4">
-              {/* Create New Project */}
+              {/* Create New Folder */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">Create New Project</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Create New Folder</h4>
                 <input
                   type="text"
-                  placeholder="Project name"
+                  placeholder="Folder name"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
                   className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
                 />
                 <textarea
-                  placeholder="Project description (optional)"
+                  placeholder="Folder description (optional)"
                   value={newProjectDescription}
                   onChange={(e) => setNewProjectDescription(e.target.value)}
                   rows={3}
@@ -598,26 +598,26 @@ const Portfolio: React.FC = () => {
                   onClick={createProject}
                   className="w-full px-4 py-3 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors rounded"
                 >
-                  Create Project
+                  Create Folder
                 </button>
               </div>
 
-              {/* Select/Edit Existing Project */}
+              {/* Select/Edit Existing Folder */}
               {projects.length > 0 && (
                 <div className="space-y-3 border-t border-gray-300 pt-4">
-                  <label className="text-sm font-semibold text-gray-700">Select Project to Add Media:</label>
+                  <label className="text-sm font-semibold text-gray-700">Select Folder to Add Media:</label>
                   <select
                     value={selectedProjectId || ''}
                     onChange={(e) => setSelectedProjectId(e.target.value || null)}
                     className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
                   >
-                    <option value="">-- Select a project --</option>
+                    <option value="">-- Select a folder --</option>
                     {projects.map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
                   
-                  {/* Edit Project Button */}
+                  {/* Edit Folder Button */}
                   {selectedProjectId && (
                     <button
                       onClick={() => {
@@ -626,25 +626,25 @@ const Portfolio: React.FC = () => {
                       }}
                       className="w-full px-4 py-2 bg-blue-600 text-white text-sm uppercase tracking-widest hover:bg-blue-700 transition-colors rounded"
                     >
-                      Edit Project Name/Description
+                      Edit Folder Name/Description
                     </button>
                   )}
                 </div>
               )}
 
-              {/* Edit Project Form */}
+              {/* Edit Folder Form */}
               {editingProjectId && (
                 <div className="border-t border-gray-300 pt-4 space-y-3 bg-gray-50 p-4 rounded">
-                  <h4 className="text-sm font-semibold text-gray-700">Edit Project</h4>
+                  <h4 className="text-sm font-semibold text-gray-700">Edit Folder</h4>
                   <input
                     type="text"
-                    placeholder="Project name"
+                    placeholder="Folder name"
                     value={editingProjectName}
                     onChange={(e) => setEditingProjectName(e.target.value)}
                     className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
                   />
                   <textarea
-                    placeholder="Project description"
+                    placeholder="Folder description"
                     value={editingProjectDescription}
                     onChange={(e) => setEditingProjectDescription(e.target.value)}
                     rows={3}
@@ -725,10 +725,10 @@ const Portfolio: React.FC = () => {
         {/* Upload Form */}
         {isAdmin && showUpload && (
           <form onSubmit={(e) => { e.preventDefault(); handleAddMedia(); }} className="mb-8 p-4 md:p-6 bg-white/50 rounded-lg border border-gray-300">
-            <h3 className="text-lg md:text-xl font-bold mb-4">Add Media to Project</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-4">Add Media to Folder</h3>
             
             {!selectedProjectId && (
-              <p className="text-red-600 mb-4">Please select or create a project first</p>
+              <p className="text-red-600 mb-4">Please select or create a folder first</p>
             )}
 
             <div className="mb-4">
@@ -855,7 +855,7 @@ const Portfolio: React.FC = () => {
                           onChange={(e) => setInlineDescriptionValue(e.target.value)}
                           rows={3}
                           className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                          placeholder="Project description"
+                          placeholder="Folder description"
                         />
                         <div className="flex flex-col gap-1">
                           <button
@@ -1091,7 +1091,7 @@ const Portfolio: React.FC = () => {
                                 onChange={(e) => setInlineDescriptionValue(e.target.value)}
                                 rows={3}
                                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                                placeholder="Project description"
+                                placeholder="Folder description"
                               />
                               <div className="flex flex-col gap-1">
                                 <button
@@ -1265,7 +1265,7 @@ const Portfolio: React.FC = () => {
                                   onChange={(e) => setInlineDescriptionValue(e.target.value)}
                                   rows={3}
                                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                                  placeholder="Project description"
+                                  placeholder="Folder description"
                                 />
                                 <div className="flex flex-col gap-1">
                                   <button
