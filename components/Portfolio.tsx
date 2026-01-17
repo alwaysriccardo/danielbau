@@ -687,8 +687,7 @@ const Portfolio: React.FC = () => {
             start: 'top 80%',
             toggleActions: 'play none none reverse',
             invalidateOnRefresh: false, // Reduce recalculations
-            refreshPriority: -1, // Lower priority
-            limitCallbacks: true // Limit callback frequency
+            refreshPriority: -1 // Lower priority
           }
         });
       }
@@ -714,132 +713,349 @@ const Portfolio: React.FC = () => {
           </p>
         </div>
 
-        {/* Admin Controls */}
+        {/* Admin Controls - Redesigned */}
         {isAdmin && (
-          <div className="mb-6 p-4 md:p-6 bg-white/50 rounded-lg border border-gray-300 space-y-4">
-            <div className="flex flex-col gap-4">
-              <div className="text-sm text-gray-700">
-                <span className="font-bold">Admin Mode: Active</span>
-                <span className="ml-2 text-xs text-gray-500 block mt-1">
-                  {(import.meta as any).env?.VITE_SUPABASE_URL 
-                    ? '(Changes sync across all devices via Supabase)' 
-                    : '(Using localStorage - changes are local to this device)'}
-                </span>
+          <div className="mb-6">
+            {/* Admin Header Bar */}
+            <div className="flex items-center justify-between bg-[#121212] text-white px-4 py-3 rounded-t-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="font-medium text-sm">Admin Mode</span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleRefresh}
-                  className="flex-1 px-4 py-3 bg-blue-600 text-white text-base uppercase tracking-widest hover:bg-blue-700 transition-colors rounded font-semibold"
-                  title="Refresh portfolio (syncs across devices)"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  title="Refresh"
                 >
-                  Refresh
-                </button>
-                <button
-                  onClick={() => setShowUpload(!showUpload)}
-                  className="flex-1 px-4 py-3 bg-[#121212] text-white text-base uppercase tracking-widest hover:bg-gray-800 transition-colors rounded font-semibold"
-                >
-                  {showUpload ? 'Cancel' : 'Add Media'}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex-1 px-4 py-3 bg-gray-400 text-white text-base uppercase tracking-widest hover:bg-gray-500 transition-colors rounded font-semibold"
+                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
                 >
                   Logout
                 </button>
               </div>
             </div>
 
-            {/* Folder Management */}
-            <div className="border-t border-gray-300 pt-4 space-y-4">
-              {/* Create New Folder */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">Create New Folder</h4>
-                <input
-                  type="text"
-                  placeholder="Folder name"
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                />
-                <textarea
-                  placeholder="Folder description (optional)"
-                  value={newProjectDescription}
-                  onChange={(e) => setNewProjectDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                />
+            {/* Admin Tabs */}
+            <div className="bg-white/80 backdrop-blur border border-t-0 border-gray-200 rounded-b-lg overflow-hidden">
+              {/* Tab Navigation */}
+              <div className="flex border-b border-gray-200">
                 <button
-                  onClick={createProject}
-                  className="w-full px-4 py-3 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors rounded"
+                  onClick={() => setShowUpload(false)}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    !showUpload 
+                      ? 'bg-white text-[#121212] border-b-2 border-[#121212]' 
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
-                  Create Folder
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    Folders
+                  </span>
+                </button>
+                <button
+                  onClick={() => setShowUpload(true)}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    showUpload 
+                      ? 'bg-white text-[#121212] border-b-2 border-[#121212]' 
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Upload
+                  </span>
                 </button>
               </div>
 
-              {/* Select/Edit Existing Folder */}
-              {projects.length > 0 && (
-                <div className="space-y-3 border-t border-gray-300 pt-4">
-                  <label className="text-sm font-semibold text-gray-700">Select Folder to Add Media:</label>
-                  <select
-                    value={selectedProjectId || ''}
-                    onChange={(e) => setSelectedProjectId(e.target.value || null)}
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                  >
-                    <option value="">-- Select a folder --</option>
-                    {projects.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                  
-                  {/* Edit Folder Button */}
-                  {selectedProjectId && (
-                    <button
-                      onClick={() => {
-                        const project = projects.find(p => p.id === selectedProjectId);
-                        if (project) handleEditProject(project);
-                      }}
-                      className="w-full px-4 py-2 bg-blue-600 text-white text-sm uppercase tracking-widest hover:bg-blue-700 transition-colors rounded"
-                    >
-                      Edit Folder Name/Description
-                    </button>
-                  )}
-                </div>
-              )}
+              {/* Tab Content */}
+              <div className="p-4">
+                {!showUpload ? (
+                  /* Folders Tab */
+                  <div className="space-y-4">
+                    {/* Quick Create */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="New folder name..."
+                        value={newProjectName}
+                        onChange={(e) => setNewProjectName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && newProjectName.trim() && createProject()}
+                        className="flex-1 px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#121212]/20 focus:border-[#121212]"
+                      />
+                      <button
+                        onClick={createProject}
+                        disabled={!newProjectName.trim()}
+                        className="px-4 py-2.5 bg-[#121212] text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span className="hidden sm:inline">Create</span>
+                      </button>
+                    </div>
 
-              {/* Edit Folder Form */}
-              {editingProjectId && (
-                <div className="border-t border-gray-300 pt-4 space-y-3 bg-gray-50 p-4 rounded">
-                  <h4 className="text-sm font-semibold text-gray-700">Edit Folder</h4>
-                  <input
-                    type="text"
-                    placeholder="Folder name"
-                    value={editingProjectName}
-                    onChange={(e) => setEditingProjectName(e.target.value)}
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                  />
-                  <textarea
-                    placeholder="Folder description"
-                    value={editingProjectDescription}
-                    onChange={(e) => setEditingProjectDescription(e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSaveProjectEdit}
-                      className="flex-1 px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors rounded"
+                    {/* Folder List */}
+                    {projects.length > 0 ? (
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {projects.map((project, idx) => (
+                          <div 
+                            key={project.id}
+                            className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                              selectedProjectId === project.id 
+                                ? 'border-[#121212] bg-gray-50 shadow-sm' 
+                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
+                            }`}
+                            onClick={() => setSelectedProjectId(selectedProjectId === project.id ? null : project.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                                  selectedProjectId === project.id ? 'bg-[#121212] text-white' : 'bg-gray-200 text-gray-600'
+                                }`}>
+                                  {idx + 1}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-gray-900 truncate">{project.name}</p>
+                                  <p className="text-xs text-gray-500">{project.media.length} media</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {/* Reorder buttons */}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); moveProject(project.id, 'up'); }}
+                                  disabled={idx === 0}
+                                  className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move up"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); moveProject(project.id, 'down'); }}
+                                  disabled={idx === projects.length - 1}
+                                  className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move down"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                {/* Delete button */}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }}
+                                  className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                                  title="Delete folder"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                            
+                            {/* Expanded folder details */}
+                            {selectedProjectId === project.id && (
+                              <div className="mt-3 pt-3 border-t border-gray-200 space-y-3" onClick={(e) => e.stopPropagation()}>
+                                {/* Description input */}
+                                <div>
+                                  <label className="text-xs font-medium text-gray-500 mb-1 block">Description</label>
+                                  <textarea
+                                    value={editingDescriptionInline === project.id ? inlineDescriptionValue : (project.description || '')}
+                                    onChange={(e) => {
+                                      if (editingDescriptionInline !== project.id) {
+                                        setEditingDescriptionInline(project.id);
+                                        setInlineDescriptionValue(e.target.value);
+                                      } else {
+                                        setInlineDescriptionValue(e.target.value);
+                                      }
+                                    }}
+                                    onBlur={() => {
+                                      if (editingDescriptionInline === project.id) {
+                                        handleSaveInlineDescription(project.id);
+                                      }
+                                    }}
+                                    placeholder="Add a description..."
+                                    rows={2}
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#121212]/20 focus:border-[#121212] resize-none"
+                                  />
+                                </div>
+                                
+                                {/* Quick action buttons */}
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setShowUpload(true);
+                                    }}
+                                    className="flex-1 px-3 py-2 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Media
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        <p className="text-sm">No folders yet</p>
+                        <p className="text-xs text-gray-400 mt-1">Create your first folder above</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Upload Tab */
+                  <div className="space-y-4">
+                    {/* Folder Selection */}
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Upload to folder</label>
+                      <select
+                        value={selectedProjectId || ''}
+                        onChange={(e) => setSelectedProjectId(e.target.value || null)}
+                        className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#121212]/20 focus:border-[#121212] bg-white"
+                      >
+                        <option value="">Select a folder...</option>
+                        {projects.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                      {!selectedProjectId && projects.length === 0 && (
+                        <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          Create a folder first in the Folders tab
+                        </p>
+                      )}
+                    </div>
+
+                    {/* File Drop Zone */}
+                    <div 
+                      className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+                        uploadFiles.length > 0 
+                          ? 'border-green-400 bg-green-50' 
+                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                      }`}
                     >
-                      Save
-                    </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        multiple
+                        onChange={handleFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      {uploadFiles.length > 0 ? (
+                        <div>
+                          <div className="w-12 h-12 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <p className="font-medium text-green-700">{uploadFiles.length} file{uploadFiles.length > 1 ? 's' : ''} selected</p>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setUploadFiles([]);
+                              if (fileInputRef.current) fileInputRef.current.value = '';
+                            }}
+                            className="text-xs text-green-600 hover:text-green-800 mt-1 underline"
+                          >
+                            Clear selection
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <p className="font-medium text-gray-700">Tap to select files</p>
+                          <p className="text-xs text-gray-500 mt-1">Photos & Videos (max 50MB)</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Selected Files Preview */}
+                    {uploadFiles.length > 0 && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-gray-500">Selected files</label>
+                        <div className="max-h-32 overflow-y-auto space-y-1">
+                          {uploadFiles.map((file, idx) => (
+                            <div key={idx} className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg text-sm">
+                              <span className="truncate flex-1 text-gray-700">{file.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => setUploadFiles(uploadFiles.filter((_, i) => i !== idx))}
+                                className="ml-2 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Optional Title/Description */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 mb-1 block">Title (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="Add a title for all files..."
+                          value={uploadTitle}
+                          onChange={(e) => setUploadTitle(e.target.value)}
+                          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#121212]/20 focus:border-[#121212]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 mb-1 block">Description (optional)</label>
+                        <textarea
+                          placeholder="Add a description..."
+                          value={uploadDescription}
+                          onChange={(e) => setUploadDescription(e.target.value)}
+                          rows={2}
+                          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#121212]/20 focus:border-[#121212] resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Upload Button */}
                     <button
-                      onClick={handleCancelEdit}
-                      className="flex-1 px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors rounded"
+                      onClick={handleAddMedia}
+                      disabled={!selectedProjectId || uploadFiles.length === 0}
+                      className="w-full py-3 bg-[#121212] text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Cancel
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      Upload {uploadFiles.length > 0 ? `${uploadFiles.length} File${uploadFiles.length > 1 ? 's' : ''}` : 'Media'}
                     </button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -896,467 +1112,151 @@ const Portfolio: React.FC = () => {
           </div>
         )}
 
-        {/* Upload Form */}
-        {isAdmin && showUpload && (
-          <form onSubmit={(e) => { e.preventDefault(); handleAddMedia(); }} className="mb-8 p-4 md:p-6 bg-white/50 rounded-lg border border-gray-300">
-            <h3 className="text-lg md:text-xl font-bold mb-4">Add Media to Folder</h3>
-            
-            {!selectedProjectId && (
-              <p className="text-red-600 mb-4">Please select or create a folder first</p>
-            )}
-
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Select Photos/Videos:
-              </label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onChange={handleFileChange}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
-              />
-              {uploadFiles.length > 0 && (
-                <div className="mt-3 p-3 bg-gray-100 rounded">
-                  <p className="text-sm font-semibold mb-2">Selected files ({uploadFiles.length}):</p>
-                  <ul className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
-                    {uploadFiles.map((file, idx) => (
-                      <li key={idx} className="flex items-center justify-between">
-                        <span className="truncate flex-1">{file.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => setUploadFiles(uploadFiles.filter((_, i) => i !== idx))}
-                          className="ml-2 text-red-600 hover:text-red-800 text-xs font-semibold"
-                        >
-                          ×
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadFiles([]);
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                    }}
-                    className="mt-2 text-xs text-red-600 hover:text-red-800 font-semibold"
-                  >
-                    Clear all
-                  </button>
-                </div>
-              )}
-              <p className="mt-2 text-xs text-gray-500">
-                Max file size: 50MB. Supported: Images (JPG, PNG, GIF, WebP) and Videos (MP4, WebM)
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Media Title (optional):
-              </label>
-              <input
-                type="text"
-                placeholder="Enter title for all selected media"
-                value={uploadTitle}
-                onChange={(e) => setUploadTitle(e.target.value)}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Media Description (optional):
-              </label>
-              <textarea
-                placeholder="Enter description for all selected media"
-                value={uploadDescription}
-                onChange={(e) => setUploadDescription(e.target.value)}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                rows={3}
-              />
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                type="submit"
-                disabled={!selectedProjectId || uploadFiles.length === 0}
-                className="flex-1 px-6 py-3 text-base bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded font-semibold"
-              >
-                Upload {uploadFiles.length > 0 ? `${uploadFiles.length} ` : ''}Media
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowUpload(false);
-                  setUploadFiles([]);
-                  setUploadTitle('');
-                  setUploadDescription('');
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-                className="px-6 py-3 text-base bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors rounded font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-
         {/* Portfolio Projects Display */}
         {projects.length > 0 ? (
           <div>
 
             {/* Display selected project (for non-admin) or all projects (for admin) */}
             {isAdmin ? (
-              // Admin view: Show all projects stacked
-              <div className="space-y-16">
-                {projects.map((project, projectIndex) => (
-                  <div key={project.id} className="portfolio-project">
-                {/* Project Header */}
-                <div className="mb-8 flex items-center justify-between">
-                  <div className="flex-1">
-                    {editingProjectNameInline === project.id ? (
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={inlineProjectNameValue}
-                          onChange={(e) => setInlineProjectNameValue(e.target.value)}
-                          className="font-display text-3xl md:text-4xl text-gray-800 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] flex-1"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleSaveInlineProjectName(project.id);
-                            } else if (e.key === 'Escape') {
-                              handleCancelInlineProjectName();
-                            }
-                          }}
-                        />
-                        <div className="flex flex-col gap-1">
-                          <button
-                            onClick={() => handleSaveInlineProjectName(project.id)}
-                            className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                            title="Save"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            onClick={handleCancelInlineProjectName}
-                            className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                            title="Cancel"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-display text-3xl md:text-4xl text-gray-800">
-                          {project.name}
-                        </h3>
-                        {isAdmin && (
-                          <button
-                            onClick={() => handleStartEditProjectName(project.id, project.name)}
-                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                            title="Edit folder name"
-                          >
-                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {editingDescriptionInline === project.id ? (
-                      <div className="flex items-start gap-2 mt-2">
-                        <textarea
-                          value={inlineDescriptionValue}
-                          onChange={(e) => setInlineDescriptionValue(e.target.value)}
-                          rows={3}
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                          placeholder="Folder description"
-                        />
-                        <div className="flex flex-col gap-1">
-                          <button
-                            onClick={() => handleSaveInlineDescription(project.id)}
-                            className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                            title="Save"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            onClick={handleCancelInlineDescription}
-                            className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                            title="Cancel"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-2 mt-3">
-                        {project.description ? (
-                          <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 px-4 py-3 border-l-2 border-gray-300 pl-6">
-                            {project.description}
-                          </p>
+              // Admin view: Simplified grid-based media management
+              <div className="space-y-8">
+                {projects.map((project) => (
+                  <div key={project.id} className="portfolio-project bg-white/60 rounded-xl p-4 md:p-6 border border-gray-200">
+                    {/* Folder Header - Compact */}
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div className="flex-1 min-w-0">
+                        {editingProjectNameInline === project.id ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={inlineProjectNameValue}
+                              onChange={(e) => setInlineProjectNameValue(e.target.value)}
+                              className="font-bold text-lg md:text-xl text-gray-800 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:border-[#121212] flex-1 min-w-0"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveInlineProjectName(project.id);
+                                else if (e.key === 'Escape') handleCancelInlineProjectName();
+                              }}
+                            />
+                            <button onClick={() => handleSaveInlineProjectName(project.id)} className="p-1.5 bg-[#121212] text-white rounded-lg hover:bg-gray-800" title="Save">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            </button>
+                            <button onClick={handleCancelInlineProjectName} className="p-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400" title="Cancel">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </div>
                         ) : (
-                          <p className="text-base md:text-lg text-gray-400 italic flex-1">No description</p>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-lg md:text-xl text-gray-800 truncate">{project.name}</h3>
+                            <button onClick={() => handleStartEditProjectName(project.id, project.name)} className="p-1 text-gray-400 hover:text-[#121212] transition-colors flex-shrink-0" title="Edit name">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{project.media.length} media</span>
+                          </div>
                         )}
-                        {isAdmin && (
-                          <button
-                            onClick={() => handleStartEditDescription(project.id, project.description || '')}
-                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                            title="Edit description"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
+                        
+                        {/* Description - inline editable */}
+                        {editingDescriptionInline === project.id ? (
+                          <div className="flex items-start gap-2 mt-2">
+                            <textarea
+                              value={inlineDescriptionValue}
+                              onChange={(e) => setInlineDescriptionValue(e.target.value)}
+                              rows={2}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#121212] resize-none"
+                              placeholder="Add description..."
+                              autoFocus
+                            />
+                            <button onClick={() => handleSaveInlineDescription(project.id)} className="p-1.5 bg-[#121212] text-white rounded-lg hover:bg-gray-800" title="Save">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            </button>
+                            <button onClick={handleCancelInlineDescription} className="p-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400" title="Cancel">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-1 mt-1">
+                            <p className={`text-sm flex-1 ${project.description ? 'text-gray-600' : 'text-gray-400 italic'}`}>
+                              {project.description || 'No description'}
+                            </p>
+                            <button onClick={() => handleStartEditDescription(project.id, project.description || '')} className="p-0.5 text-gray-400 hover:text-[#121212] transition-colors flex-shrink-0" title="Edit description">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                  {isAdmin && (
-                    <div className="flex gap-2 items-center">
-                      <span className="text-xs text-gray-500 mr-2">Order:</span>
-                      <button
-                        onClick={() => moveProject(project.id, 'up')}
-                        disabled={projectIndex === 0}
-                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
-                        title="Move up"
-                      >
-                        ↑ Up
-                      </button>
-                      <button
-                        onClick={() => moveProject(project.id, 'down')}
-                        disabled={projectIndex === projects.length - 1}
-                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
-                        title="Move down"
-                      >
-                        ↓ Down
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="px-3 py-1 bg-red-500 text-white text-sm hover:bg-red-600 transition-colors rounded"
-                        title="Delete project"
-                      >
-                        Delete
-                      </button>
+                      
+                      {/* Quick Actions */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => { setSelectedProjectId(project.id); setShowUpload(true); }}
+                          className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                          title="Add media"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProject(project.id)}
+                          className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                          title="Delete folder"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Project Media Carousel - Admin view only */}
-                {project.media.length > 0 ? (
-                  <div className="relative">
-                    <div className="overflow-hidden">
-                      <div 
-                        className="flex gap-6 transition-transform duration-500 ease-in-out"
-                        style={{ 
-                          transform: `translateX(calc(-${currentMediaIndices[project.id] || 0} * (100% + 1.5rem)))`
-                        }}
-                      >
+                    {/* Media Grid - Simple and Clean */}
+                    {project.media.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {project.media.map((media) => (
-                          <div
-                            key={media.id}
-                            className="flex-shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                          >
-                            <div className="aspect-square relative overflow-hidden">
-                              {media.type === 'video' ? (
-                                <video
-                                  src={media.url}
-                                  controls
-                                  className="w-full h-full object-cover"
-                                  preload="metadata"
-                                />
-                              ) : (
-                                <img
-                                  src={media.url}
-                                  alt={media.title || 'Portfolio media'}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                  loading="lazy"
-                                  decoding="async"
-                                />
-                              )}
-                              {isAdmin && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    handleDeleteMedia(project.id, media.id);
-                                  }}
-                                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
-                                  aria-label="Delete media"
-                                  type="button"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                </button>
-                              )}
+                          <div key={media.id} className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            {media.type === 'video' ? (
+                              <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
+                            ) : (
+                              <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="lazy" />
+                            )}
+                            
+                            {/* Overlay with actions */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                              <button
+                                onClick={() => handleDeleteMedia(project.id, media.id)}
+                                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                title="Delete"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              </button>
                             </div>
-                            {(media.title || media.description || isAdmin) && (
-                              <div className="p-4">
-                                {editingMedia?.projectId === project.id && editingMedia?.mediaId === media.id && editingMedia?.field === 'title' ? (
-                                  <div className="flex items-start gap-2 mb-2">
-                                    <input
-                                      type="text"
-                                      value={inlineMediaValue}
-                                      onChange={(e) => setInlineMediaValue(e.target.value)}
-                                      className="flex-1 px-2 py-1 text-sm font-bold border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                                      placeholder="Media title"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                          handleSaveInlineMedia();
-                                        } else if (e.key === 'Escape') {
-                                          handleCancelInlineMedia();
-                                        }
-                                      }}
-                                    />
-                                    <div className="flex flex-col gap-1">
-                                      <button
-                                        onClick={handleSaveInlineMedia}
-                                        className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                        title="Save"
-                                      >
-                                        ✓
-                                      </button>
-                                      <button
-                                        onClick={handleCancelInlineMedia}
-                                        className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                        title="Cancel"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2 mb-1">
-                                    {media.title ? (
-                                      <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                    ) : (
-                                      isAdmin && <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
-                                    )}
-                                    {isAdmin && (
-                                      <button
-                                        onClick={() => handleStartEditMedia(project.id, media.id, 'title', media.title || '')}
-                                        className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                                        title="Edit title"
-                                      >
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                                {editingMedia?.projectId === project.id && editingMedia?.mediaId === media.id && editingMedia?.field === 'description' ? (
-                                  <div className="flex items-start gap-2">
-                                    <textarea
-                                      value={inlineMediaValue}
-                                      onChange={(e) => setInlineMediaValue(e.target.value)}
-                                      rows={2}
-                                      className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                                      placeholder="Media description"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Escape') {
-                                          handleCancelInlineMedia();
-                                        }
-                                      }}
-                                    />
-                                    <div className="flex flex-col gap-1">
-                                      <button
-                                        onClick={handleSaveInlineMedia}
-                                        className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                        title="Save"
-                                      >
-                                        ✓
-                                      </button>
-                                      <button
-                                        onClick={handleCancelInlineMedia}
-                                        className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                        title="Cancel"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-start gap-2">
-                                    {media.description ? (
-                                      <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                    ) : (
-                                      isAdmin && <p className="text-sm text-gray-400 italic flex-1">No description</p>
-                                    )}
-                                    {isAdmin && (
-                                      <button
-                                        onClick={() => handleStartEditMedia(project.id, media.id, 'description', media.description || '')}
-                                        className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
-                                        title="Edit description"
-                                      >
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
+                            
+                            {/* Media type indicator */}
+                            {media.type === 'video' && (
+                              <div className="absolute top-2 left-2 p-1 bg-black/50 rounded">
+                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                              </div>
+                            )}
+                            
+                            {/* Title/Description indicator */}
+                            {(media.title || media.description) && (
+                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                                {media.title && <p className="text-white text-xs font-medium truncate">{media.title}</p>}
                               </div>
                             )}
                           </div>
                         ))}
                       </div>
-                    </div>
-                    
-                    {/* Carousel Navigation */}
-                    {project.media.length > 1 && (
-                      <div className="flex justify-center items-center gap-4 mt-8">
+                    ) : (
+                      <div className="py-8 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                        <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">No media yet</p>
                         <button
-                          onClick={() => setCurrentMediaIndices(prev => ({
-                            ...prev,
-                            [project.id]: ((prev[project.id] || 0) > 0 ? (prev[project.id] || 0) - 1 : project.media.length - 1)
-                          }))}
-                          className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
-                          aria-label="Previous media"
+                          onClick={() => { setSelectedProjectId(project.id); setShowUpload(true); }}
+                          className="mt-2 text-xs text-green-600 hover:text-green-700 font-medium"
                         >
-                          ←
-                        </button>
-                        <div className="flex gap-2">
-                          {project.media.map((_, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setCurrentMediaIndices(prev => ({ ...prev, [project.id]: index }))}
-                              className={`w-2 h-2 rounded-full transition-all ${
-                                index === (currentMediaIndices[project.id] || 0) ? 'bg-[#121212] w-8' : 'bg-gray-300'
-                              }`}
-                              aria-label={`Go to media ${index + 1}`}
-                            />
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => setCurrentMediaIndices(prev => ({
-                            ...prev,
-                            [project.id]: ((prev[project.id] || 0) < project.media.length - 1 ? (prev[project.id] || 0) + 1 : 0)
-                          }))}
-                          className="px-4 py-2 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors"
-                          aria-label="Next media"
-                        >
-                          →
+                          + Add media
                         </button>
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="min-h-[200px] flex items-center justify-center text-gray-400">
-                    No media in this project yet
-                  </div>
-                )}
-              </div>
                 ))}
               </div>
             ) : (
