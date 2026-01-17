@@ -39,6 +39,8 @@ const Portfolio: React.FC = () => {
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
+  const [editingDescriptionInline, setEditingDescriptionInline] = useState<string | null>(null);
+  const [inlineDescriptionValue, setInlineDescriptionValue] = useState('');
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
@@ -398,32 +400,68 @@ const Portfolio: React.FC = () => {
   };
 
   const handleDeleteMedia = async (projectId: string, mediaId: string) => {
-    if (confirm('Are you sure you want to delete this media?')) {
-      const project = projects.find(p => p.id === projectId);
-      if (!project) return;
-
-      const updatedMedia = project.media
-        .filter(m => m.id !== mediaId)
-        .map(m => ({
-          id: m.id,
-          url: m.url,
-          type: m.type,
-          title: m.title,
-          description: m.description,
-          uploaded_at: m.uploadedAt || m.uploaded_at
-        }));
-
-      const success = await portfolioAPI.updateProject(projectId, {
-        ...project,
-        media: updatedMedia
-      });
-
-      if (success) {
-        await loadProjects(); // Reload from API
-      } else {
-        alert('Failed to delete media. Please try again.');
-      }
+    if (!confirm('Are you sure you want to delete this media?')) {
+      return;
     }
+
+    const project = projects.find(p => p.id === projectId);
+    if (!project) {
+      alert('Project not found');
+      return;
+    }
+
+    // Filter out the media to delete
+    const updatedMedia = project.media
+      .filter(m => m.id !== mediaId)
+      .map(m => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
+      }));
+
+    // Update project with filtered media
+    const success = await portfolioAPI.updateProject(projectId, {
+      ...project,
+      media: updatedMedia
+    });
+
+    if (success) {
+      // Reload projects to get latest from API
+      await loadProjects();
+    } else {
+      alert('Failed to delete media. Please try again.');
+    }
+  };
+
+  const handleStartEditDescription = (projectId: string, currentDescription: string) => {
+    setEditingDescriptionInline(projectId);
+    setInlineDescriptionValue(currentDescription || '');
+  };
+
+  const handleSaveInlineDescription = async (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    const success = await portfolioAPI.updateProject(projectId, {
+      ...project,
+      description: inlineDescriptionValue.trim() || undefined
+    });
+
+    if (success) {
+      await loadProjects();
+      setEditingDescriptionInline(null);
+      setInlineDescriptionValue('');
+    } else {
+      alert('Failed to update description. Please try again.');
+    }
+  };
+
+  const handleCancelInlineDescription = () => {
+    setEditingDescriptionInline(null);
+    setInlineDescriptionValue('');
   };
 
   const moveProject = async (id: string, direction: 'up' | 'down') => {
@@ -806,12 +844,55 @@ const Portfolio: React.FC = () => {
                   <div key={project.id} className="portfolio-project">
                 {/* Project Header */}
                 <div className="mb-8 flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-display text-3xl md:text-4xl text-gray-800 mb-2">
                       {project.name}
                     </h3>
-                    {project.description && (
-                      <p className="text-gray-600">{project.description}</p>
+                    {editingDescriptionInline === project.id ? (
+                      <div className="flex items-start gap-2 mt-2">
+                        <textarea
+                          value={inlineDescriptionValue}
+                          onChange={(e) => setInlineDescriptionValue(e.target.value)}
+                          rows={3}
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                          placeholder="Project description"
+                        />
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => handleSaveInlineDescription(project.id)}
+                            className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                            title="Save"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={handleCancelInlineDescription}
+                            className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                            title="Cancel"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2 mt-2">
+                        {project.description ? (
+                          <p className="text-gray-600 flex-1">{project.description}</p>
+                        ) : (
+                          <p className="text-gray-400 italic flex-1">No description</p>
+                        )}
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleStartEditDescription(project.id, project.description || '')}
+                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                            title="Edit description"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                   {isAdmin && (
@@ -878,9 +959,14 @@ const Portfolio: React.FC = () => {
                               )}
                               {isAdmin && (
                                 <button
-                                  onClick={() => handleDeleteMedia(project.id, media.id)}
-                                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    handleDeleteMedia(project.id, media.id);
+                                  }}
+                                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
                                   aria-label="Delete media"
+                                  type="button"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -996,10 +1082,57 @@ const Portfolio: React.FC = () => {
                         {projects[selectedProjectIndex].name}
                       </h3>
                       {/* Desktop: Show description in header */}
-                      {!isMobile && projects[selectedProjectIndex].description && (
-                        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
-                          {projects[selectedProjectIndex].description}
-                        </p>
+                      {!isMobile && (
+                        <div className="flex items-center justify-center gap-2 max-w-2xl mx-auto px-4">
+                          {editingDescriptionInline === projects[selectedProjectIndex].id ? (
+                            <div className="flex items-start gap-2 w-full">
+                              <textarea
+                                value={inlineDescriptionValue}
+                                onChange={(e) => setInlineDescriptionValue(e.target.value)}
+                                rows={3}
+                                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                placeholder="Project description"
+                              />
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  onClick={() => handleSaveInlineDescription(projects[selectedProjectIndex].id)}
+                                  className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                                  title="Save"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={handleCancelInlineDescription}
+                                  className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                                  title="Cancel"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              {projects[selectedProjectIndex].description ? (
+                                <p className="text-sm md:text-base text-gray-600 flex-1">
+                                  {projects[selectedProjectIndex].description}
+                                </p>
+                              ) : (
+                                <p className="text-sm md:text-base text-gray-400 italic flex-1">No description</p>
+                              )}
+                              {isAdmin && (
+                                <button
+                                  onClick={() => handleStartEditDescription(projects[selectedProjectIndex].id, projects[selectedProjectIndex].description || '')}
+                                  className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                                  title="Edit description"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       )}
                       
                       {/* Mobile: Swipe indicator */}
@@ -1123,11 +1256,56 @@ const Portfolio: React.FC = () => {
                         )}
                         
                         {/* Mobile: Show project description under photos */}
-                        {isMobile && projects[selectedProjectIndex].description && (
+                        {isMobile && (
                           <div className="mt-6 px-4">
-                            <p className="text-sm text-gray-700 leading-relaxed">
-                              {projects[selectedProjectIndex].description}
-                            </p>
+                            {editingDescriptionInline === projects[selectedProjectIndex].id ? (
+                              <div className="flex items-start gap-2">
+                                <textarea
+                                  value={inlineDescriptionValue}
+                                  onChange={(e) => setInlineDescriptionValue(e.target.value)}
+                                  rows={3}
+                                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                  placeholder="Project description"
+                                />
+                                <div className="flex flex-col gap-1">
+                                  <button
+                                    onClick={() => handleSaveInlineDescription(projects[selectedProjectIndex].id)}
+                                    className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                                    title="Save"
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    onClick={handleCancelInlineDescription}
+                                    className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                                    title="Cancel"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-start gap-2">
+                                {projects[selectedProjectIndex].description ? (
+                                  <p className="text-sm text-gray-700 leading-relaxed flex-1">
+                                    {projects[selectedProjectIndex].description}
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-gray-400 italic flex-1">No description</p>
+                                )}
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleStartEditDescription(projects[selectedProjectIndex].id, projects[selectedProjectIndex].description || '')}
+                                    className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
+                                    title="Edit description"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
                         
