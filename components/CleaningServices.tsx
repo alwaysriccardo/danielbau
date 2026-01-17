@@ -23,14 +23,14 @@ const CleaningServices: React.FC = () => {
   const [bubbles] = useState<Bubble[]>(() => {
     // Create rainbow bubbles - reduced count for performance
     const newBubbles: Bubble[] = [];
-    for (let i = 0; i < 10; i++) { // Reduced from 15 to 10
+    for (let i = 0; i < 6; i++) { // Reduced from 10 to 6 for better performance
       newBubbles.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
         size: 20 + Math.random() * 40,
         delay: Math.random() * 2,
-        hue: (i * 36) % 360 // Rainbow colors
+        hue: (i * 60) % 360 // Rainbow colors
       });
     }
     return newBubbles;
@@ -64,10 +64,12 @@ const CleaningServices: React.FC = () => {
         opacity: 0,
         duration: 1,
         ease: 'power3.out',
+        force3D: true, // GPU acceleration
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top 80%',
-          toggleActions: 'play none none reverse'
+          toggleActions: 'play none none reverse',
+          invalidateOnRefresh: false // Reduce recalculations
         }
       });
 
@@ -82,23 +84,24 @@ const CleaningServices: React.FC = () => {
         });
       }
 
-      // Animate bubbles with transform for better performance
+      // Animate bubbles with transform for better performance - optimized for higher FPS
       bubbles.forEach((bubble) => {
         const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
         if (bubbleEl) {
-          const moveY = 50 + Math.random() * 100;
-          const moveX = -20 + Math.random() * 40;
+          const moveY = 40 + Math.random() * 80; // Reduced movement range
+          const moveX = -15 + Math.random() * 30; // Reduced movement range
           gsap.to(bubbleEl, {
             y: `-=${moveY}`,
             x: `+=${moveX}`,
             opacity: 0.6 + Math.random() * 0.4,
-            scale: 0.8 + Math.random() * 0.4,
-            duration: 3 + Math.random() * 2,
+            scale: 0.9 + Math.random() * 0.2, // Reduced scale variation
+            duration: 4 + Math.random() * 2, // Slightly longer duration for smoother motion
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut',
             delay: bubble.delay,
-            force3D: true // GPU acceleration
+            force3D: true, // GPU acceleration
+            transformOrigin: 'center center' // Optimize transform origin
           });
         }
       });
@@ -187,7 +190,7 @@ const CleaningServices: React.FC = () => {
           {t.cleaning.items.map((item, index) => (
             <div
               key={index}
-              className="text-center p-6 bg-white/60 backdrop-blur-md rounded-lg border border-gray-200/50 hover:bg-white/80 transition-all duration-300 shadow-lg"
+              className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/50 hover:bg-white/80 transition-all duration-300 shadow-lg"
             >
               <div className="text-sm md:text-base font-light text-gray-700">
                 {item}

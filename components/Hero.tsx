@@ -31,17 +31,19 @@ const Hero: React.FC = () => {
 
       // Shine effects removed for cleaner look
 
-      // Parallax Image - optimized
+      // Parallax Image - optimized (different settings for mobile vs desktop)
       if (imageRef.current) {
+        const isMobile = window.innerWidth < 768;
+        
         gsap.to(imageRef.current, {
-          yPercent: 30,
+          yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
           ease: 'none',
           force3D: true, // GPU acceleration
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top top',
             end: 'bottom top',
-            scrub: 1.5, // Increased scrub value for smoother, less frequent updates
+            scrub: isMobile ? 2.5 : 1.5, // Smoother, less frequent updates on mobile
             invalidateOnRefresh: false // Disable to reduce recalculations
           }
         });
