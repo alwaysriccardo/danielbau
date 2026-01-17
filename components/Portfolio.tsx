@@ -43,8 +43,9 @@ const Portfolio: React.FC = () => {
   const [inlineDescriptionValue, setInlineDescriptionValue] = useState('');
   const [editingProjectNameInline, setEditingProjectNameInline] = useState<string | null>(null);
   const [inlineProjectNameValue, setInlineProjectNameValue] = useState('');
-  const [editingMedia, setEditingMedia] = useState<{ projectId: string; mediaId: string; field: 'title' | 'description' } | null>(null);
-  const [inlineMediaValue, setInlineMediaValue] = useState('');
+  const [editingMedia, setEditingMedia] = useState<{ projectId: string; mediaId: string } | null>(null);
+  const [inlineMediaTitle, setInlineMediaTitle] = useState('');
+  const [inlineMediaDescription, setInlineMediaDescription] = useState('');
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
@@ -560,9 +561,14 @@ const Portfolio: React.FC = () => {
     setInlineProjectNameValue('');
   };
 
-  const handleStartEditMedia = (projectId: string, mediaId: string, field: 'title' | 'description', currentValue: string) => {
-    setEditingMedia({ projectId, mediaId, field });
-    setInlineMediaValue(currentValue || '');
+  const handleStartEditMedia = (projectId: string, mediaId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    const media = project?.media.find(m => m.id === mediaId);
+    if (!media) return;
+    
+    setEditingMedia({ projectId, mediaId });
+    setInlineMediaTitle(media.title || '');
+    setInlineMediaDescription(media.description || '');
   };
 
   const handleSaveInlineMedia = async () => {
@@ -575,17 +581,11 @@ const Portfolio: React.FC = () => {
     if (mediaIndex === -1) return;
 
     const updatedMedia = [...project.media];
-    if (editingMedia.field === 'title') {
-      updatedMedia[mediaIndex] = {
-        ...updatedMedia[mediaIndex],
-        title: inlineMediaValue.trim() || undefined
-      };
-    } else {
-      updatedMedia[mediaIndex] = {
-        ...updatedMedia[mediaIndex],
-        description: inlineMediaValue.trim() || undefined
-      };
-    }
+    updatedMedia[mediaIndex] = {
+      ...updatedMedia[mediaIndex],
+      title: inlineMediaTitle.trim() || undefined,
+      description: inlineMediaDescription.trim() || undefined
+    };
 
     const success = await portfolioAPI.updateProject(editingMedia.projectId, {
       ...project,
@@ -601,8 +601,6 @@ const Portfolio: React.FC = () => {
 
     if (success) {
       // Update local state immediately
-      const field = editingMedia.field;
-      const value = inlineMediaValue.trim() || undefined;
       setProjects(prevProjects => {
         const updated = prevProjects.map(p => 
           p.id === editingMedia.projectId 
@@ -612,7 +610,8 @@ const Portfolio: React.FC = () => {
                   m.id === editingMedia.mediaId
                     ? {
                         ...m,
-                        [field]: value
+                        title: inlineMediaTitle.trim() || undefined,
+                        description: inlineMediaDescription.trim() || undefined
                       }
                     : m
                 )
@@ -623,7 +622,8 @@ const Portfolio: React.FC = () => {
         return updated;
       });
       setEditingMedia(null);
-      setInlineMediaValue('');
+      setInlineMediaTitle('');
+      setInlineMediaDescription('');
       // Then sync with server
       await loadProjects();
     } else {
@@ -633,7 +633,8 @@ const Portfolio: React.FC = () => {
 
   const handleCancelInlineMedia = () => {
     setEditingMedia(null);
-    setInlineMediaValue('');
+    setInlineMediaTitle('');
+    setInlineMediaDescription('');
   };
 
   const moveProject = async (id: string, direction: 'up' | 'down') => {
@@ -1221,40 +1222,14 @@ const Portfolio: React.FC = () => {
                                 </div>
                                 <input
                                   type="text"
-                                  value={editingMedia.field === 'title' ? inlineMediaValue : (media.title || '')}
-                                  onChange={(e) => {
-                                    if (editingMedia.field !== 'title') {
-                                      setEditingMedia({ ...editingMedia, field: 'title' });
-                                      setInlineMediaValue(e.target.value);
-                                    } else {
-                                      setInlineMediaValue(e.target.value);
-                                    }
-                                  }}
-                                  onFocus={() => {
-                                    if (editingMedia.field !== 'title') {
-                                      setEditingMedia({ ...editingMedia, field: 'title' });
-                                      setInlineMediaValue(media.title || '');
-                                    }
-                                  }}
+                                  value={inlineMediaTitle}
+                                  onChange={(e) => setInlineMediaTitle(e.target.value)}
                                   placeholder="Title"
                                   className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:border-[#121212]"
                                 />
                                 <textarea
-                                  value={editingMedia.field === 'description' ? inlineMediaValue : (media.description || '')}
-                                  onChange={(e) => {
-                                    if (editingMedia.field !== 'description') {
-                                      setEditingMedia({ ...editingMedia, field: 'description' });
-                                      setInlineMediaValue(e.target.value);
-                                    } else {
-                                      setInlineMediaValue(e.target.value);
-                                    }
-                                  }}
-                                  onFocus={() => {
-                                    if (editingMedia.field !== 'description') {
-                                      setEditingMedia({ ...editingMedia, field: 'description' });
-                                      setInlineMediaValue(media.description || '');
-                                    }
-                                  }}
+                                  value={inlineMediaDescription}
+                                  onChange={(e) => setInlineMediaDescription(e.target.value)}
                                   placeholder="Description"
                                   rows={2}
                                   className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:border-[#121212] resize-none"
@@ -1286,7 +1261,7 @@ const Portfolio: React.FC = () => {
                                 {/* Overlay with actions */}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                                   <button
-                                    onClick={() => handleStartEditMedia(project.id, media.id, 'title', media.title || '')}
+                                    onClick={() => handleStartEditMedia(project.id, media.id)}
                                     className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
                                     title="Edit title & description"
                                   >
@@ -1535,110 +1510,19 @@ const Portfolio: React.FC = () => {
                                 </div>
                                 {(media.title || media.description || isAdmin) && (
                                   <div className="p-4">
-                                    {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'title' ? (
-                                      <div className="flex items-start gap-2 mb-2">
-                                        <input
-                                          type="text"
-                                          value={inlineMediaValue}
-                                          onChange={(e) => setInlineMediaValue(e.target.value)}
-                                          className="flex-1 px-2 py-1 text-sm font-bold border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                                          placeholder="Media title"
-                                          autoFocus
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                              handleSaveInlineMedia();
-                                            } else if (e.key === 'Escape') {
-                                              handleCancelInlineMedia();
-                                            }
-                                          }}
-                                        />
-                                        <div className="flex flex-col gap-1">
-                                          <button
-                                            onClick={handleSaveInlineMedia}
-                                            className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                            title="Save"
-                                          >
-                                            ✓
-                                          </button>
-                                          <button
-                                            onClick={handleCancelInlineMedia}
-                                            className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                            title="Cancel"
-                                          >
-                                            ×
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-center gap-2 mb-1">
-                                        {media.title ? (
-                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                        ) : (
-                                          <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
-                                        )}
-                                        {isAdmin && (
-                                          <button
-                                            onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'title', media.title || '')}
-                                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                                            title="Edit title"
-                                          >
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                          </button>
-                                        )}
-                                      </div>
-                                    )}
-                                    {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'description' ? (
-                                      <div className="flex items-start gap-2">
-                                        <textarea
-                                          value={inlineMediaValue}
-                                          onChange={(e) => setInlineMediaValue(e.target.value)}
-                                          rows={2}
-                                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                                          placeholder="Media description"
-                                          autoFocus
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Escape') {
-                                              handleCancelInlineMedia();
-                                            }
-                                          }}
-                                        />
-                                        <div className="flex flex-col gap-1">
-                                          <button
-                                            onClick={handleSaveInlineMedia}
-                                            className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                            title="Save"
-                                          >
-                                            ✓
-                                          </button>
-                                          <button
-                                            onClick={handleCancelInlineMedia}
-                                            className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                            title="Cancel"
-                                          >
-                                            ×
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-start gap-2">
-                                        {media.description ? (
-                                          <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                        ) : (
-                                          <p className="text-sm text-gray-400 italic flex-1">No description</p>
-                                        )}
-                                        {isAdmin && (
-                                          <button
-                                            onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'description', media.description || '')}
-                                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
-                                            title="Edit description"
-                                          >
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                          </button>
-                                        )}
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {media.title ? (
+                                        <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                      ) : (
+                                        <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
+                                      )}
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                      {media.description ? (
+                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      ) : (
+                                        <p className="text-sm text-gray-400 italic flex-1">No description</p>
+                                      )}
                                       </div>
                                     )}
                                   </div>
@@ -1696,114 +1580,17 @@ const Portfolio: React.FC = () => {
                                   <div className="p-4">
                                     {/* Title - Desktop only */}
                                     {!isMobile && (
-                                      <>
-                                        {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'title' ? (
-                                          <div className="flex items-start gap-2 mb-2">
-                                            <input
-                                              type="text"
-                                              value={inlineMediaValue}
-                                              onChange={(e) => setInlineMediaValue(e.target.value)}
-                                              className="flex-1 px-2 py-1 text-sm font-bold border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-                                              placeholder="Media title"
-                                              autoFocus
-                                              onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                  handleSaveInlineMedia();
-                                                } else if (e.key === 'Escape') {
-                                                  handleCancelInlineMedia();
-                                                }
-                                              }}
-                                            />
-                                            <div className="flex flex-col gap-1">
-                                              <button
-                                                onClick={handleSaveInlineMedia}
-                                                className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                                title="Save"
-                                              >
-                                                ✓
-                                              </button>
-                                              <button
-                                                onClick={handleCancelInlineMedia}
-                                                className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                                title="Cancel"
-                                              >
-                                                ×
-                                              </button>
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center gap-2 mb-1">
-                                            {media.title ? (
-                                              <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                            ) : (
-                                              isAdmin && <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
-                                            )}
-                                            {isAdmin && (
-                                              <button
-                                                onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'title', media.title || '')}
-                                                className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
-                                                title="Edit title"
-                                              >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
-                                      </>
+                                      <div className="flex items-center gap-2 mb-1">
+                                        {media.title ? (
+                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                        ) : null}
+                                      </div>
                                     )}
                                     {/* Description - Desktop and Mobile */}
-                                    {editingMedia?.projectId === projects[selectedProjectIndex].id && editingMedia?.mediaId === media.id && editingMedia?.field === 'description' ? (
-                                      <div className="flex items-start gap-2">
-                                        <textarea
-                                          value={inlineMediaValue}
-                                          onChange={(e) => setInlineMediaValue(e.target.value)}
-                                          rows={2}
-                                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-                                          placeholder="Media description"
-                                          autoFocus
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Escape') {
-                                              handleCancelInlineMedia();
-                                            }
-                                          }}
-                                        />
-                                        <div className="flex flex-col gap-1">
-                                          <button
-                                            onClick={handleSaveInlineMedia}
-                                            className="px-2 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
-                                            title="Save"
-                                          >
-                                            ✓
-                                          </button>
-                                          <button
-                                            onClick={handleCancelInlineMedia}
-                                            className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
-                                            title="Cancel"
-                                          >
-                                            ×
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-start gap-2">
-                                        {media.description ? (
-                                          <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                        ) : (
-                                          isAdmin && <p className="text-sm text-gray-400 italic flex-1">No description</p>
-                                        )}
-                                        {isAdmin && (
-                                          <button
-                                            onClick={() => handleStartEditMedia(projects[selectedProjectIndex].id, media.id, 'description', media.description || '')}
-                                            className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
-                                            title="Edit description"
-                                          >
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                          </button>
-                                        )}
+                                    <div className="flex items-start gap-2">
+                                      {media.description ? (
+                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      ) : null}
                                       </div>
                                     )}
                                   </div>
