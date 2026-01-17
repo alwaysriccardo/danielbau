@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { portfolioAPI } from '../lib/supabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,6 +25,7 @@ interface PortfolioProject {
 }
 
 const Portfolio: React.FC = () => {
+  const { t } = useLanguage();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
@@ -33,6 +35,10 @@ const Portfolio: React.FC = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [editingProjectName, setEditingProjectName] = useState('');
+  const [editingProjectDescription, setEditingProjectDescription] = useState('');
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
@@ -254,15 +260,53 @@ const Portfolio: React.FC = () => {
       return;
     }
 
-    const newProject = await portfolioAPI.createProject(newProjectName.trim());
+    const newProject = await portfolioAPI.createProject(newProjectName.trim(), newProjectDescription.trim() || undefined);
     if (newProject) {
       // Reload projects to get the latest from API
       await loadProjects();
       setNewProjectName('');
+      setNewProjectDescription('');
       setSelectedProjectId(newProject.id);
     } else {
       alert('Failed to create project. Please try again.');
     }
+  };
+
+  const handleEditProject = (project: PortfolioProject) => {
+    setEditingProjectId(project.id);
+    setEditingProjectName(project.name);
+    setEditingProjectDescription(project.description || '');
+  };
+
+  const handleSaveProjectEdit = async () => {
+    if (!editingProjectId || !editingProjectName.trim()) {
+      alert('Please enter a project name');
+      return;
+    }
+
+    const project = projects.find(p => p.id === editingProjectId);
+    if (!project) return;
+
+    const success = await portfolioAPI.updateProject(editingProjectId, {
+      ...project,
+      name: editingProjectName.trim(),
+      description: editingProjectDescription.trim() || undefined
+    });
+
+    if (success) {
+      await loadProjects();
+      setEditingProjectId(null);
+      setEditingProjectName('');
+      setEditingProjectDescription('');
+    } else {
+      alert('Failed to update project. Please try again.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProjectId(null);
+    setEditingProjectName('');
+    setEditingProjectDescription('');
   };
 
   const handleAddMedia = async () => {
@@ -451,42 +495,42 @@ const Portfolio: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="font-display text-5xl md:text-7xl mb-4 text-gray-800">
-            PORTFOLIO
+            {t.portfolio.header}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Showcasing our completed projects and craftsmanship
+            {t.portfolio.subheader}
           </p>
         </div>
 
         {/* Admin Controls */}
         {isAdmin && (
-          <div className="mb-6 p-4 bg-white/50 rounded-lg border border-gray-300 space-y-4">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="mb-6 p-4 md:p-6 bg-white/50 rounded-lg border border-gray-300 space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="text-sm text-gray-700">
-                Admin Mode: <span className="font-bold">Active</span>
-                <span className="ml-2 text-xs text-gray-500">
+                <span className="font-bold">Admin Mode: Active</span>
+                <span className="ml-2 text-xs text-gray-500 block mt-1">
                   {(import.meta as any).env?.VITE_SUPABASE_URL 
                     ? '(Changes sync across all devices via Supabase)' 
                     : '(Using localStorage - changes are local to this device)'}
                 </span>
               </div>
-              <div className="flex gap-4 flex-wrap">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleRefresh}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm uppercase tracking-widest hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white text-base uppercase tracking-widest hover:bg-blue-700 transition-colors rounded font-semibold"
                   title="Refresh portfolio (syncs across devices)"
                 >
                   Refresh
                 </button>
                 <button
                   onClick={() => setShowUpload(!showUpload)}
-                  className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  className="flex-1 px-4 py-3 bg-[#121212] text-white text-base uppercase tracking-widest hover:bg-gray-800 transition-colors rounded font-semibold"
                 >
                   {showUpload ? 'Cancel' : 'Add Media'}
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors"
+                  className="flex-1 px-4 py-3 bg-gray-400 text-white text-base uppercase tracking-widest hover:bg-gray-500 transition-colors rounded font-semibold"
                 >
                   Logout
                 </button>
@@ -495,35 +539,93 @@ const Portfolio: React.FC = () => {
 
             {/* Project Management */}
             <div className="border-t border-gray-300 pt-4 space-y-4">
-              <div className="flex gap-4 items-center">
+              {/* Create New Project */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-gray-700">Create New Project</h4>
                 <input
                   type="text"
-                  placeholder="New project name"
+                  placeholder="Project name"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                />
+                <textarea
+                  placeholder="Project description (optional)"
+                  value={newProjectDescription}
+                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
                 />
                 <button
                   onClick={createProject}
-                  className="px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  className="w-full px-4 py-3 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors rounded"
                 >
                   Create Project
                 </button>
               </div>
 
+              {/* Select/Edit Existing Project */}
               {projects.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Select Project:</label>
+                <div className="space-y-3 border-t border-gray-300 pt-4">
+                  <label className="text-sm font-semibold text-gray-700">Select Project to Add Media:</label>
                   <select
                     value={selectedProjectId || ''}
                     onChange={(e) => setSelectedProjectId(e.target.value || null)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
                   >
                     <option value="">-- Select a project --</option>
                     {projects.map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
+                  
+                  {/* Edit Project Button */}
+                  {selectedProjectId && (
+                    <button
+                      onClick={() => {
+                        const project = projects.find(p => p.id === selectedProjectId);
+                        if (project) handleEditProject(project);
+                      }}
+                      className="w-full px-4 py-2 bg-blue-600 text-white text-sm uppercase tracking-widest hover:bg-blue-700 transition-colors rounded"
+                    >
+                      Edit Project Name/Description
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Edit Project Form */}
+              {editingProjectId && (
+                <div className="border-t border-gray-300 pt-4 space-y-3 bg-gray-50 p-4 rounded">
+                  <h4 className="text-sm font-semibold text-gray-700">Edit Project</h4>
+                  <input
+                    type="text"
+                    placeholder="Project name"
+                    value={editingProjectName}
+                    onChange={(e) => setEditingProjectName(e.target.value)}
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+                  />
+                  <textarea
+                    placeholder="Project description"
+                    value={editingProjectDescription}
+                    onChange={(e) => setEditingProjectDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveProjectEdit}
+                      className="flex-1 px-4 py-2 bg-[#121212] text-white text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="flex-1 px-4 py-2 bg-gray-400 text-white text-sm uppercase tracking-widest hover:bg-gray-500 transition-colors rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -584,36 +686,54 @@ const Portfolio: React.FC = () => {
 
         {/* Upload Form */}
         {isAdmin && showUpload && (
-          <form onSubmit={(e) => { e.preventDefault(); handleAddMedia(); }} className="mb-8 p-6 bg-white/50 rounded-lg border border-gray-300">
-            <h3 className="text-xl font-bold mb-4">Add Media to Project</h3>
+          <form onSubmit={(e) => { e.preventDefault(); handleAddMedia(); }} className="mb-8 p-4 md:p-6 bg-white/50 rounded-lg border border-gray-300">
+            <h3 className="text-lg md:text-xl font-bold mb-4">Add Media to Project</h3>
             
             {!selectedProjectId && (
               <p className="text-red-600 mb-4">Please select or create a project first</p>
             )}
 
             <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2 text-gray-700">
+                Select Photos/Videos:
+              </label>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*,video/*"
                 multiple
                 onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
+                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#121212] file:text-white hover:file:bg-gray-800 file:cursor-pointer"
               />
               {uploadFiles.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {uploadFiles.map((file, index) => (
-                    <div key={index} className="text-sm text-gray-600 flex items-center justify-between">
-                      <span>{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                      <button
-                        type="button"
-                        onClick={() => setUploadFiles(uploadFiles.filter((_, i) => i !== index))}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
+                <div className="mt-3 p-3 bg-gray-100 rounded">
+                  <p className="text-sm font-semibold mb-2">Selected files ({uploadFiles.length}):</p>
+                  <ul className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
+                    {uploadFiles.map((file, idx) => (
+                      <li key={idx} className="flex items-center justify-between">
+                        <span className="truncate flex-1">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setUploadFiles(uploadFiles.filter((_, i) => i !== idx))}
+                          className="ml-2 text-red-600 hover:text-red-800 text-xs font-semibold"
+                        >
+                          ×
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadFiles([]);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
+                    }}
+                    className="mt-2 text-xs text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    Clear all
+                  </button>
                 </div>
               )}
               <p className="mt-2 text-xs text-gray-500">
@@ -621,27 +741,39 @@ const Portfolio: React.FC = () => {
               </p>
             </div>
 
-            <input
-              type="text"
-              placeholder="Title (optional, applies to all files)"
-              value={uploadTitle}
-              onChange={(e) => setUploadTitle(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
-            />
-            <textarea
-              placeholder="Description (optional, applies to all files)"
-              value={uploadDescription}
-              onChange={(e) => setUploadDescription(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
-              rows={3}
-            />
-            <div className="flex gap-4">
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2 text-gray-700">
+                Media Title (optional):
+              </label>
+              <input
+                type="text"
+                placeholder="Enter title for all selected media"
+                value={uploadTitle}
+                onChange={(e) => setUploadTitle(e.target.value)}
+                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212]"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2 text-gray-700">
+                Media Description (optional):
+              </label>
+              <textarea
+                placeholder="Enter description for all selected media"
+                value={uploadDescription}
+                onChange={(e) => setUploadDescription(e.target.value)}
+                className="w-full px-4 py-3 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
                 disabled={!selectedProjectId || uploadFiles.length === 0}
-                className="px-6 py-2 bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 text-base bg-[#121212] text-white uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded font-semibold"
               >
-                Add {uploadFiles.length > 0 ? `${uploadFiles.length} ` : ''}Media
+                Upload {uploadFiles.length > 0 ? `${uploadFiles.length} ` : ''}Media
               </button>
               <button
                 type="button"
@@ -654,7 +786,7 @@ const Portfolio: React.FC = () => {
                     fileInputRef.current.value = '';
                   }
                 }}
-                className="px-6 py-2 bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors"
+                className="px-6 py-3 text-base bg-gray-400 text-white uppercase tracking-widest hover:bg-gray-500 transition-colors rounded font-semibold"
               >
                 Cancel
               </button>
@@ -827,12 +959,44 @@ const Portfolio: React.FC = () => {
               >
                 {projects[selectedProjectIndex] && (
                   <>
+                    {/* Desktop: Project Navigation Arrows */}
+                    {!isMobile && projects.length > 1 && (
+                      <div className="flex items-center justify-center gap-8 mb-8">
+                        <button
+                          onClick={() => setSelectedProjectIndex((prev) => (prev > 0 ? prev - 1 : projects.length - 1))}
+                          className="p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform"
+                          aria-label="Previous project"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M15 18l-6-6 6-6"/>
+                          </svg>
+                        </button>
+                        
+                        <div className="text-center">
+                          <span className="text-sm text-gray-500">
+                            {selectedProjectIndex + 1} / {projects.length}
+                          </span>
+                        </div>
+                        
+                        <button
+                          onClick={() => setSelectedProjectIndex((prev) => (prev < projects.length - 1 ? prev + 1 : 0))}
+                          className="p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform"
+                          aria-label="Next project"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 18l6-6-6-6"/>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+
                     {/* Project Header */}
                     <div className="mb-6 md:mb-8 text-center">
                       <h3 className="font-display text-2xl md:text-5xl text-gray-800 mb-4">
                         {projects[selectedProjectIndex].name}
                       </h3>
-                      {projects[selectedProjectIndex].description && (
+                      {/* Desktop: Show description in header */}
+                      {!isMobile && projects[selectedProjectIndex].description && (
                         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
                           {projects[selectedProjectIndex].description}
                         </p>
@@ -849,8 +1013,9 @@ const Portfolio: React.FC = () => {
                     {projects[selectedProjectIndex].media.length > 0 ? (
                       <>
                         {expandedProjectId === projects[selectedProjectIndex].id ? (
-                          // Expanded view: Show all media in gallery
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                          // Expanded view: Show all media in gallery (centered and bigger on desktop)
+                          <div className="flex justify-center">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl">
                             {projects[selectedProjectIndex].media.map((media, index) => (
                               <div
                                 key={media.id}
@@ -886,27 +1051,33 @@ const Portfolio: React.FC = () => {
                                 )}
                               </div>
                             ))}
+                            </div>
                           </div>
                         ) : (
-                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows full gallery)
+                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows centered larger grid)
                           <div 
                             className={isMobile 
                               ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
-                              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                              : "flex justify-center items-center"
                             }
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
                             style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
-                              <div
-                                key={media.id}
-                                className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
-                                  isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
-                                  isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
-                                  isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
-                                  'w-full'
-                                }`}
-                              >
+                            <div className={isMobile ? 'w-full' : 'w-full max-w-6xl'}>
+                              <div className={isMobile 
+                                ? 'flex flex-wrap justify-center items-center gap-4' 
+                                : 'grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center'
+                              }>
+                                {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
+                                  <div
+                                    key={media.id}
+                                    className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
+                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
+                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
+                                      'w-full max-w-md'
+                                    }`}
+                                  >
                                 <div className="relative overflow-hidden">
                                   {media.type === 'video' ? (
                                     <video
@@ -938,6 +1109,8 @@ const Portfolio: React.FC = () => {
                                 )}
                               </div>
                             ))}
+                              </div>
+                            </div>
                             {isMobile && projects[selectedProjectIndex].media.length > 4 && (
                               <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
                                 <div className="text-center px-4">
@@ -946,6 +1119,15 @@ const Portfolio: React.FC = () => {
                                 </div>
                               </div>
                             )}
+                          </div>
+                        )}
+                        
+                        {/* Mobile: Show project description under photos */}
+                        {isMobile && projects[selectedProjectIndex].description && (
+                          <div className="mt-6 px-4">
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                              {projects[selectedProjectIndex].description}
+                            </p>
                           </div>
                         )}
                         

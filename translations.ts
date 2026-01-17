@@ -76,6 +76,10 @@ export const TRANSLATIONS = {
       messagePlaceholder: "Nachricht",
       send: "Senden",
       sending: "Wird gesendet..."
+    },
+    portfolio: {
+      header: "PORTFOLIO",
+      subheader: "Präsentation unserer abgeschlossenen Projekte und Handwerkskunst"
     }
   },
   en: {
@@ -145,6 +149,10 @@ export const TRANSLATIONS = {
       ready: "Ready for change?",
       offer: "QUOTE",
       copyright: "© 2026 DANIELBAU SWITZERLAND"
+    },
+    portfolio: {
+      header: "PORTFOLIO",
+      subheader: "Showcasing our completed projects and craftsmanship"
     }
   },
   fr: {
@@ -214,6 +222,10 @@ export const TRANSLATIONS = {
       ready: "Prêt pour le changement ?",
       offer: "DEVIS",
       copyright: "© 2026 DANIELBAU SUISSE"
+    },
+    portfolio: {
+      header: "PORTFOLIO",
+      subheader: "Présentation de nos projets terminés et de notre savoir-faire"
     }
   },
   it: {
@@ -283,6 +295,10 @@ export const TRANSLATIONS = {
       ready: "Pronto per il cambiamento?",
       offer: "PREVENTIVO",
       copyright: "© 2026 DANIELBAU SVIZZERA"
+    },
+    portfolio: {
+      header: "PORTFOLIO",
+      subheader: "Mostra dei nostri progetti completati e della nostra maestria"
     }
   }
 };
