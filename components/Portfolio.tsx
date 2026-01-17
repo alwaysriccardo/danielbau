@@ -1285,8 +1285,9 @@ const Portfolio: React.FC = () => {
                                 
                                 {/* Title/Description indicator */}
                                 {(media.title || media.description) && (
-                                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                                    {media.title && <p className="text-white text-xs font-medium truncate">{media.title}</p>}
+                                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                                    {media.title && <p className="text-white text-xs font-medium truncate mb-0.5">{media.title}</p>}
+                                    {media.description && <p className="text-white text-[10px] opacity-90 line-clamp-2 leading-tight">{media.description}</p>}
                                   </div>
                                 )}
                               </div>
