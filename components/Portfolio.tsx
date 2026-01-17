@@ -42,6 +42,21 @@ const Portfolio: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
+  
+  // Touch/swipe handling for mobile
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load projects from Supabase API (with localStorage fallback)
   // Only updates state if data actually changed to prevent flicker
@@ -135,6 +150,47 @@ const Portfolio: React.FC = () => {
       setSelectedProjectIndex(0);
     }
   }, [projects.length, selectedProjectIndex]);
+
+  // Swipe gesture handlers for mobile (horizontal swipe to switch projects)
+  const touchStartY = useRef<number>(0);
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile || isAdmin || projects.length <= 1) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchEndX.current = 0;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isMobile || isAdmin || projects.length <= 1) return;
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isMobile || isAdmin || projects.length <= 1) return;
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distanceX = touchStartX.current - touchEndX.current;
+    const distanceY = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    const minSwipeDistance = 50; // Minimum distance for a swipe
+    
+    // Only trigger if it's primarily a horizontal swipe (not vertical scroll)
+    if (Math.abs(distanceX) > minSwipeDistance && Math.abs(distanceX) > distanceY) {
+      if (distanceX > 0) {
+        // Swipe left - next project
+        setSelectedProjectIndex(prev => (prev < projects.length - 1 ? prev + 1 : 0));
+        setExpandedProjectId(null); // Close expanded view when switching
+      } else {
+        // Swipe right - previous project
+        setSelectedProjectIndex(prev => (prev > 0 ? prev - 1 : projects.length - 1));
+        setExpandedProjectId(null); // Close expanded view when switching
+      }
+    }
+    
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+    touchStartY.current = 0;
+  };
   
   // Manual refresh function for admin
   const handleRefresh = async () => {
@@ -777,62 +833,138 @@ const Portfolio: React.FC = () => {
                 ))}
               </div>
             ) : (
-              // Public view: Show selected project with gallery
-              <div className="portfolio-project">
+              // Public view: Show selected project with gallery (mobile: swipe + tap to expand)
+              <div 
+                className="portfolio-project"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 {projects[selectedProjectIndex] && (
                   <>
                     {/* Project Header */}
-                    <div className="mb-8 text-center">
-                      <h3 className="font-display text-3xl md:text-5xl text-gray-800 mb-4">
+                    <div className="mb-6 md:mb-8 text-center">
+                      <h3 className="font-display text-2xl md:text-5xl text-gray-800 mb-4">
                         {projects[selectedProjectIndex].name}
                       </h3>
                       {projects[selectedProjectIndex].description && (
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
                           {projects[selectedProjectIndex].description}
                         </p>
                       )}
+                      
+                      {/* Mobile: Swipe indicator */}
+                      {isMobile && projects.length > 1 && (
+                        <p className="text-xs text-gray-400 mt-4">Swipe left/right to switch projects</p>
+                      )}
                     </div>
 
-                    {/* Project Gallery - All images in grid when expanded, or preview when not */}
+                    {/* Project Gallery - Mobile: thumbnails grid, tap to see full media */}
+                    {/* Desktop: full gallery grid */}
                     {projects[selectedProjectIndex].media.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {projects[selectedProjectIndex].media.map((media, index) => (
-                          <div
-                            key={media.id}
-                            className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
-                            onClick={() => setCurrentMediaIndices(prev => ({ ...prev, [projects[selectedProjectIndex].id]: index }))}
+                      <>
+                        {expandedProjectId === projects[selectedProjectIndex].id ? (
+                          // Expanded view: Show all media in gallery
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                            {projects[selectedProjectIndex].media.map((media, index) => (
+                              <div
+                                key={media.id}
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                <div className="aspect-square relative overflow-hidden">
+                                  {media.type === 'video' ? (
+                                    <video
+                                      src={media.url}
+                                      controls
+                                      className="w-full h-full object-cover"
+                                      preload="metadata"
+                                    />
+                                  ) : (
+                                    <img
+                                      src={media.url}
+                                      alt={media.title || 'Portfolio media'}
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
+                                  )}
+                                </div>
+                                {(media.title || media.description) && (
+                                  <div className="p-4">
+                                    {media.title && (
+                                      <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
+                                    )}
+                                    {media.description && (
+                                      <p className="text-sm text-gray-600">{media.description}</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows full gallery)
+                          <div 
+                            className={isMobile ? "grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"}
+                            onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
+                            style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            <div className="aspect-square relative overflow-hidden">
-                              {media.type === 'video' ? (
-                                <video
-                                  src={media.url}
-                                  controls
-                                  className="w-full h-full object-cover"
-                                  preload="metadata"
-                                />
-                              ) : (
-                                <img
-                                  src={media.url}
-                                  alt={media.title || 'Portfolio media'}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                  loading="lazy"
-                                  decoding="async"
-                                />
-                              )}
-                            </div>
-                            {(media.title || media.description) && (
-                              <div className="p-4">
-                                {media.title && (
-                                  <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
+                            {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media) => (
+                              <div
+                                key={media.id}
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                <div className="aspect-square relative overflow-hidden">
+                                  {media.type === 'video' ? (
+                                    <video
+                                      src={media.url}
+                                      controls={!isMobile}
+                                      className="w-full h-full object-cover"
+                                      preload="metadata"
+                                      onClick={(e) => isMobile && e.preventDefault()}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={media.url}
+                                      alt={media.title || 'Portfolio media'}
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
+                                  )}
+                                </div>
+                                {!isMobile && (media.title || media.description) && (
+                                  <div className="p-4">
+                                    {media.title && (
+                                      <h4 className="font-bold text-gray-800 mb-1">{media.title}</h4>
+                                    )}
+                                    {media.description && (
+                                      <p className="text-sm text-gray-600">{media.description}</p>
+                                    )}
+                                  </div>
                                 )}
-                                {media.description && (
-                                  <p className="text-sm text-gray-600">{media.description}</p>
-                                )}
+                              </div>
+                            ))}
+                            {isMobile && projects[selectedProjectIndex].media.length > 4 && (
+                              <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center px-4">
+                                  <p className="text-xs text-gray-500 mb-1">+{projects[selectedProjectIndex].media.length - 4} more</p>
+                                  <p className="text-xs text-gray-400">Tap to view all</p>
+                                </div>
                               </div>
                             )}
                           </div>
-                        ))}
-                      </div>
+                        )}
+                        
+                        {isMobile && expandedProjectId === projects[selectedProjectIndex].id && (
+                          <button
+                            onClick={() => setExpandedProjectId(null)}
+                            className="mt-6 mx-auto block px-6 py-3 bg-[#121212] text-white font-display text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                          >
+                            Close Gallery
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <div className="min-h-[200px] flex items-center justify-center text-gray-400">
                         No media in this project yet

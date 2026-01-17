@@ -115,14 +115,18 @@ const Footer: React.FC = () => {
   return (
     <footer 
       ref={footerRef}
-      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col justify-center items-center overflow-y-auto pt-safe pb-safe"
+      className="fixed bottom-0 left-0 w-full h-screen z-[1] bg-[#111] text-white flex flex-col items-center overflow-y-auto overscroll-contain pt-safe pb-safe"
       id="contact"
+      data-lenis-prevent
       style={{ 
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
-        minHeight: '100dvh'
+        minHeight: '100dvh',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehavior: 'contain',
+        scrollBehavior: 'auto'
       }}
     >
-      <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-6 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
+      <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
         <div 
           ref={readyRef}
           className="text-xs uppercase tracking-[0.3em] mb-3 md:mb-6 text-gray-400"
@@ -166,10 +170,10 @@ const Footer: React.FC = () => {
 
         {/* Desktop Layout: Map Left, Form Right (below centered ANGEBOT) */}
         {/* Mobile Layout: Map Left, Form Right */}
-        <div className="flex flex-row gap-3 md:gap-8 items-start justify-center max-w-xs md:max-w-6xl mx-auto mb-4 md:mb-8 w-full">
+        <div className="flex flex-row gap-4 md:gap-8 items-start justify-center max-w-full md:max-w-6xl mx-auto mb-6 md:mb-8 w-full px-2 md:px-0">
           {/* Map - Left Side (Mobile and Desktop) */}
-          <div className="w-[45%] md:w-[300px] flex-shrink-0">
-            <div className="w-full h-[200px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg pointer-events-auto">
+          <div className="w-[40%] md:w-[300px] flex-shrink-0">
+            <div className="w-full h-[180px] md:h-[300px] rounded-lg overflow-hidden border border-white/20 shadow-lg pointer-events-auto touch-none">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.5!2d7.52065!3d47.2794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDE2JzQ1LjgiTiA3wrAzMScxNC4zIkU!5e0!3m2!1sen!2sch!4v1234567890&q=Rheistrasse+3,+4410+Liestal+Switzerland|Fluhrweg+16,+3250+Lyss+Switzerland"
                 width="100%"
@@ -187,18 +191,20 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Contact Form - Right Side (Mobile and Desktop) */}
+          {/* Contact Form - Right Side (Mobile and Desktop) - Bigger on Mobile */}
           <form 
             ref={formRef}
             onSubmit={handleSubmit}
-            className="w-[55%] md:w-[320px] flex-shrink-0 space-y-3 md:space-y-4"
+            className="w-[60%] md:w-[320px] flex-shrink-0 space-y-4 md:space-y-4"
+            style={{ touchAction: 'manipulation' }}
           >
             <input
               type="text"
               placeholder={t.footer.namePlaceholder || "Name"}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-sm md:text-base"
+              className="w-full px-4 py-3 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-base md:text-base"
+              style={{ fontSize: '16px' }}
               required
             />
             <input
@@ -206,21 +212,24 @@ const Footer: React.FC = () => {
               placeholder={t.footer.emailPlaceholder || "Email"}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-sm md:text-base"
+              className="w-full px-4 py-3 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-base md:text-base"
+              style={{ fontSize: '16px' }}
               required
             />
             <textarea
               placeholder={t.footer.messagePlaceholder || "Message"}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              rows={2}
-              className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors resize-none text-sm md:text-base"
+              rows={4}
+              className="w-full px-4 py-3 md:px-4 md:py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors resize-none text-base md:text-base"
+              style={{ fontSize: '16px', minHeight: '100px' }}
               required
             />
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full px-4 py-1.5 md:px-6 md:py-2 bg-white/20 hover:bg-white/30 border border-white/30 rounded text-white uppercase tracking-widest text-xs md:text-sm transition-all duration-300 disabled:opacity-50"
+              className="w-full px-6 py-3 md:px-6 md:py-2 bg-white/20 hover:bg-white/30 border border-white/30 rounded text-white uppercase tracking-widest text-sm md:text-sm transition-all duration-300 disabled:opacity-50 font-medium"
+              style={{ touchAction: 'manipulation' }}
             >
               {isSubmitting ? (t.footer.sending || 'Sending...') : (t.footer.send || 'Send')}
             </button>

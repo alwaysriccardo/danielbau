@@ -56,9 +56,10 @@ const AppContent = () => {
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         direction: 'vertical',
         smoothWheel: true,
-        smoothTouch: false,
+        smoothTouch: false, // Disable smooth touch for better mobile performance
         wheelMultiplier: 0.8,
-        touchMultiplier: 1.5,
+        touchMultiplier: 2.0, // Increased for better mobile responsiveness
+        gestureDirection: 'vertical',
       });
 
       // Force scroll to top immediately and prevent any movement

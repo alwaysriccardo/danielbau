@@ -31,20 +31,25 @@ const Hero: React.FC = () => {
 
       // Shine effects removed for cleaner look
 
-      // Parallax Image - optimized
+      // Parallax Image - optimized (disabled on mobile for better performance)
       if (imageRef.current) {
-        gsap.to(imageRef.current, {
-          yPercent: 30,
-          ease: 'none',
-          force3D: true, // GPU acceleration
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1.5, // Increased scrub value for smoother, less frequent updates
-            invalidateOnRefresh: false // Disable to reduce recalculations
-          }
-        });
+        const isMobile = window.innerWidth < 768;
+        
+        // Disable parallax on mobile to fix scrolling issues
+        if (!isMobile) {
+          gsap.to(imageRef.current, {
+            yPercent: 30,
+            ease: 'none',
+            force3D: true, // GPU acceleration
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 1.5, // Increased scrub value for smoother, less frequent updates
+              invalidateOnRefresh: false // Disable to reduce recalculations
+            }
+          });
+        }
       }
     }, containerRef);
 
