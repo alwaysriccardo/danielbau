@@ -1716,89 +1716,17 @@ const Portfolio: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Project Gallery - Mobile: thumbnails grid, tap to see full media */}
-                    {/* Desktop: full gallery grid */}
+                    {/* Project Gallery - Simple grid view */}
                     {projects[selectedProjectIndex].media.length > 0 ? (
                       <>
-                        {expandedProjectId === projects[selectedProjectIndex].id ? (
-                          // Expanded view: Show all media in gallery (centered and bigger on desktop)
-                          <div className="flex justify-center">
-                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full ${
-                              projects[selectedProjectIndex].media.length === 2 
-                                ? 'max-w-5xl lg:max-w-7xl' 
-                                : 'lg:grid-cols-3 max-w-6xl'
-                            }`}>
+                      <div className="flex justify-center w-full">
+                        <div className="w-full max-w-7xl mx-auto">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center">
                             {projects[selectedProjectIndex].media.map((media, index) => (
                               <div
                                 key={media.id}
-                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-[250px]"
                               >
-                                <div className="relative overflow-hidden">
-                                  {media.type === 'video' ? (
-                                    <video
-                                      src={media.url}
-                                      controls
-                                      className="w-full h-auto object-contain"
-                                      preload="metadata"
-                                    />
-                                  ) : (
-                                    <img
-                                      src={media.url}
-                                      alt={media.title || 'Portfolio media'}
-                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                                      loading="lazy"
-                                      decoding="async"
-                                    />
-                                  )}
-                                </div>
-                                {(media.title || media.description || isAdmin) && (
-                                  <div className="p-4">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      {media.title ? (
-                                        <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                      ) : (
-                                        <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
-                                      )}
-                                    </div>
-                                    <div className="flex items-start gap-2">
-                                      {media.description ? (
-                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                      ) : (
-                                        <p className="text-sm text-gray-400 italic flex-1">No description</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                            </div>
-                          </div>
-                        ) : (
-                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows centered larger grid)
-                          <div 
-                            className={isMobile 
-                              ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
-                              : "flex justify-center items-center"
-                            }
-                            onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
-                            style={{ cursor: isMobile ? 'pointer' : 'default' }}
-                          >
-                            <div className={isMobile ? 'w-full' : 'w-full max-w-7xl mx-auto'}>
-                              <div className={isMobile 
-                                ? 'flex flex-wrap justify-center items-center gap-4' 
-                                : 'grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center mx-auto'
-                              }>
-                                {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
-                                  <div
-                                    key={media.id}
-                                    className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
-                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[48%] max-w-[200px]' : 
-                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[48%] max-w-[200px]' : 
-                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%] max-w-[200px]' :
-                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[300px]' :
-                                      'w-[250px]'
-                                    }`}
-                                  >
                                 <div className="aspect-square relative overflow-hidden">
                                   {media.type === 'video' ? (
                                     <video
@@ -1806,7 +1734,6 @@ const Portfolio: React.FC = () => {
                                       controls={!isMobile}
                                       className="w-full h-full object-cover"
                                       preload="metadata"
-                                      onClick={(e) => isMobile && e.preventDefault()}
                                     />
                                   ) : (
                                     <img
@@ -1818,39 +1745,22 @@ const Portfolio: React.FC = () => {
                                     />
                                   )}
                                 </div>
-                                {/* Desktop: Show title and description, Mobile: Show description only */}
-                                {(!isMobile && (media.title || media.description || isAdmin)) || (isMobile && (media.description || isAdmin)) ? (
-                                  <div className="p-4">
-                                    {/* Title - Desktop only */}
-                                    {!isMobile && (
-                                      <div className="flex items-center gap-2 mb-1">
-                                        {media.title ? (
-                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                        ) : null}
-                                      </div>
+                                {/* Show title and description if they exist or if admin */}
+                                {((media.title || media.description) || isAdmin) && (
+                                  <div className="p-3">
+                                    {media.title && (
+                                      <h4 className="font-bold text-gray-800 text-sm mb-1">{media.title}</h4>
                                     )}
-                                    {/* Description - Desktop and Mobile */}
-                                    <div className="flex items-start gap-2">
-                                      {media.description ? (
-                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                      ) : null}
-                                    </div>
+                                    {media.description && (
+                                      <p className="text-xs text-gray-600 line-clamp-2">{media.description}</p>
+                                    )}
                                   </div>
-                                ) : null}
+                                )}
                               </div>
                             ))}
-                              </div>
-                            </div>
-                            {isMobile && projects[selectedProjectIndex].media.length > 4 && (
-                              <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                                <div className="text-center px-4">
-                                  <p className="text-xs text-gray-500 mb-1">+{projects[selectedProjectIndex].media.length - 4} more</p>
-                                  <p className="text-xs text-gray-400">Tap to view all</p>
-                                </div>
-                              </div>
-                            )}
                           </div>
-                        )}
+                        </div>
+                      </div>
                         
                         {/* Mobile: Show project description under photos */}
                         {isMobile && (
