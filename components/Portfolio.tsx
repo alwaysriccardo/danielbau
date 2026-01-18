@@ -54,8 +54,6 @@ const Portfolio: React.FC = () => {
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
-  const [activeMediaId, setActiveMediaId] = useState<string | null>(null); // Track which media item is in interaction mode on mobile
-  const activeMediaTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Timeout to hide buttons after inactivity
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
@@ -161,15 +159,6 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     projectsRef.current = projects;
   }, [projects]);
-
-  // Cleanup timeout when component unmounts or activeMediaId changes
-  useEffect(() => {
-    return () => {
-      if (activeMediaTimeoutRef.current) {
-        clearTimeout(activeMediaTimeoutRef.current);
-      }
-    };
-  }, [activeMediaId]);
 
   // Poll for updates silently (only when admin is logged in, or much less frequently for public)
   // Pause polling when section is not visible for better performance
@@ -655,44 +644,6 @@ const Portfolio: React.FC = () => {
       alert('Failed to delete media. Please try again.');
       setDeletingMediaId(null);
     }
-  };
-
-  // Mobile interaction handler: first tap shows buttons, second tap allows interaction
-  const handleMediaTap = (mediaId: string, e: React.MouseEvent | React.TouchEvent) => {
-    // Check if mobile dynamically to avoid closure issues
-    const isMobileDevice = window.innerWidth < 768;
-    if (!isMobileDevice) return; // Only on mobile
-    
-    // If buttons are already visible for this media and user taps the media itself (not a button),
-    // hide the buttons. Buttons have stopPropagation so their clicks won't reach here.
-    if (activeMediaId === mediaId) {
-      // Hide buttons when tapping the media again (not the buttons)
-      e.preventDefault();
-      e.stopPropagation();
-      setActiveMediaId(null);
-      if (activeMediaTimeoutRef.current) {
-        clearTimeout(activeMediaTimeoutRef.current);
-        activeMediaTimeoutRef.current = null;
-      }
-      return;
-    }
-    
-    // First tap: show buttons
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Clear any existing timeout
-    if (activeMediaTimeoutRef.current) {
-      clearTimeout(activeMediaTimeoutRef.current);
-    }
-    
-    // Show buttons for this media
-    setActiveMediaId(mediaId);
-    
-    // Hide buttons after 5 seconds of inactivity
-    activeMediaTimeoutRef.current = setTimeout(() => {
-      setActiveMediaId(null);
-    }, 5000);
   };
 
   const handleStartEditDescription = (projectId: string, currentDescription: string) => {
@@ -1481,80 +1432,80 @@ const Portfolio: React.FC = () => {
                               </div>
                             ) : (
                               /* Normal media display */
-                              <div 
-                                className="aspect-square relative"
-                                onClick={(e) => handleMediaTap(media.id, e)}
-                                onTouchStart={(e) => handleMediaTap(media.id, e)}
-                              >
+                              <div className="aspect-square relative">
                                 {media.type === 'video' ? (
                                   <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
                                 ) : (
                                   <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="lazy" />
                                 )}
                                 
-                                {/* Overlay with actions */}
-                                <div 
-                                  className={`absolute inset-0 transition-all duration-200 flex items-center justify-center gap-2 ${
-                                    isMobile 
-                                      ? (activeMediaId === media.id 
-                                          ? 'bg-black/40 opacity-100 pointer-events-auto' 
-                                          : 'bg-black/0 opacity-0 pointer-events-none')
-                                      : 'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
-                                  }`}
-                                  onClick={(e) => {
-                                    // On mobile, if buttons are visible and we tap the overlay (not buttons), hide buttons
-                                    // Buttons have stopPropagation so their clicks won't reach here
-                                    if (isMobile && activeMediaId === media.id) {
-                                      setActiveMediaId(null);
-                                      if (activeMediaTimeoutRef.current) {
-                                        clearTimeout(activeMediaTimeoutRef.current);
-                                        activeMediaTimeoutRef.current = null;
-                                      }
-                                    }
-                                    e.stopPropagation();
-                                  }}
-                                  onTouchStart={(e) => {
-                                    // On mobile, if buttons are visible and we tap the overlay (not buttons), hide buttons
-                                    // Buttons have stopPropagation so their clicks won't reach here
-                                    if (isMobile && activeMediaId === media.id) {
-                                      setActiveMediaId(null);
-                                      if (activeMediaTimeoutRef.current) {
-                                        clearTimeout(activeMediaTimeoutRef.current);
-                                        activeMediaTimeoutRef.current = null;
-                                      }
-                                    }
-                                    e.stopPropagation();
-                                  }}
-                                >
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleStartEditMedia(project.id, media.id);
-                                    }}
-                                    className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
-                                    title="Edit title & description"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteMedia(project.id, media.id);
-                                    }}
-                                    disabled={deletingMediaId === media.id}
-                                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-wait"
-                                    title={deletingMediaId === media.id ? "Deleting..." : "Delete"}
-                                  >
-                                    {deletingMediaId === media.id ? (
-                                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : (
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    )}
-                                  </button>
-                                </div>
+                                {/* Mobile: Always-visible buttons in top-right corner */}
+                                {isMobile && (
+                                  <div className="absolute top-2 right-2 flex gap-1.5 z-10">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStartEditMedia(project.id, media.id);
+                                      }}
+                                      className="p-1.5 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full shadow-md active:bg-gray-200 transition-colors touch-manipulation"
+                                      title="Edit title & description"
+                                    >
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteMedia(project.id, media.id);
+                                      }}
+                                      disabled={deletingMediaId === media.id}
+                                      className="p-1.5 bg-red-500/90 backdrop-blur-sm text-white rounded-full shadow-md active:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-wait touch-manipulation"
+                                      title={deletingMediaId === media.id ? "Deleting..." : "Delete"}
+                                    >
+                                      {deletingMediaId === media.id ? (
+                                        <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                      ) : (
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                      )}
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* Desktop: Hover overlay with centered buttons */}
+                                {!isMobile && (
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStartEditMedia(project.id, media.id);
+                                      }}
+                                      className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
+                                      title="Edit title & description"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteMedia(project.id, media.id);
+                                      }}
+                                      disabled={deletingMediaId === media.id}
+                                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-wait"
+                                      title={deletingMediaId === media.id ? "Deleting..." : "Delete"}
+                                    >
+                                      {deletingMediaId === media.id ? (
+                                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                      ) : (
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                      )}
+                                    </button>
+                                  </div>
+                                )}
                                 
                                 {/* Media type indicator */}
                                 {media.type === 'video' && (
