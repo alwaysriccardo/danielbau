@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -8,11 +8,13 @@ import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
-import Portfolio from './components/Portfolio';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import ContactButtons from './components/ContactButtons';
+
+// Lazy load Portfolio for code-splitting - loads when needed
+const Portfolio = lazy(() => import('./components/Portfolio'));
 
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
@@ -131,7 +133,9 @@ const AppContent = () => {
         <Intro />
         <ServiceStack />
         <CleaningServices />
-        <Portfolio />
+        <Suspense fallback={<div className="min-h-[400px]" />}>
+          <Portfolio />
+        </Suspense>
         <Testimonials />
         
         {/* Final Text Section */}

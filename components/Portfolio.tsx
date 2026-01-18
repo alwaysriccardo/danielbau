@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { portfolioAPI } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -95,6 +95,18 @@ const Portfolio: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Fast shallow comparison helper - checks length and IDs first before deep comparison
+  const projectsEqual = (a: PortfolioProject[], b: PortfolioProject[]): boolean => {
+    if (a.length !== b.length) return false;
+    // Quick ID check first
+    const aIds = a.map(p => p.id).sort().join(',');
+    const bIds = b.map(p => p.id).sort().join(',');
+    if (aIds !== bIds) return false;
+    // If IDs match, do deeper comparison only if needed
+    return JSON.stringify(a.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id).sort().join(',') }))) === 
+           JSON.stringify(b.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id).sort().join(',') })));
+  };
+
   // Load projects from Supabase API (with localStorage fallback)
   // Only updates state if data actually changed to prevent flicker
   // For admin: Skip updates if there was a recent local change (within last 30 seconds) to prevent flicker
@@ -123,13 +135,11 @@ const Portfolio: React.FC = () => {
         return;
       }
       
-      // Compare with current projects using ref to avoid unnecessary re-renders
+      // Compare with current projects using optimized comparison
       const currentProjects = projectsRef.current;
-      const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
-      const loadedProjectsStr = JSON.stringify(loadedProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
       
-      // Only update if data actually changed
-      if (currentProjectsStr !== loadedProjectsStr) {
+      // Only update if data actually changed (fast shallow comparison first)
+      if (!projectsEqual(currentProjects, loadedProjects)) {
         projectsRef.current = loadedProjects;
         setProjects(loadedProjects);
         
@@ -160,10 +170,7 @@ const Portfolio: React.FC = () => {
           
           // Compare before updating (only if we have current projects to compare)
           if (currentProjects && currentProjects.length > 0) {
-            const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
-            const sortedProjectsStr = JSON.stringify(sorted.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
-            
-            if (currentProjectsStr !== sortedProjectsStr) {
+            if (!projectsEqual(currentProjects, sorted)) {
               projectsRef.current = sorted;
               setProjects(sorted);
             }
@@ -178,6 +185,11 @@ const Portfolio: React.FC = () => {
       }
     }
   };
+
+  // Memoize sorted projects to avoid re-sorting on every render
+  const sortedProjects = useMemo(() => {
+    return [...projects].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [projects]);
 
   useEffect(() => {
     // Initialize projectsRef with current projects (loaded from localStorage in useState initializer)
@@ -244,13 +256,10 @@ const Portfolio: React.FC = () => {
       }, pollInterval);
     }
     
-    // Also listen to focus events (when user switches back to tab) - but silently
+    // Also listen to focus events (when user switches back to tab) - load immediately
     const handleFocus = () => {
       if (isVisible) {
-        // Small delay to avoid flicker when tab becomes active
-        setTimeout(() => {
-          loadProjects();
-        }, 500);
+        loadProjects();
       }
     };
     
@@ -996,7 +1005,7 @@ const Portfolio: React.FC = () => {
                     {/* Folder List */}
                     {projects.length > 0 ? (
                       <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                        {[...projects].sort((a, b) => (a.order || 0) - (b.order || 0)).map((project, idx) => (
+                        {sortedProjects.map((project, idx) => (
                           <div 
                             key={project.id}
                             className={`p-3 rounded-lg border transition-all cursor-pointer ${
