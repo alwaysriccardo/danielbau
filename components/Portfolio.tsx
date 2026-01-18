@@ -57,6 +57,7 @@ const Portfolio: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
+  const lastLocalChangeRef = useRef<number>(0); // Track when admin makes local changes (upload/delete)
   
   // Touch/swipe handling for mobile
   const touchStartX = useRef<number>(0);
@@ -75,8 +76,21 @@ const Portfolio: React.FC = () => {
 
   // Load projects from Supabase API (with localStorage fallback)
   // Only updates state if data actually changed to prevent flicker
+  // For admin: Skip updates if there was a recent local change (within last 30 seconds) to prevent flicker
   const loadProjects = async () => {
     if (typeof window === 'undefined') return;
+    
+    // For admin: If there was a recent local change, skip polling update to prevent flicker
+    // Public users always get updates (they don't make local changes)
+    // Check admin session directly to avoid stale closure issues
+    const isAdminSession = sessionStorage.getItem('danielbau_admin') === 'true';
+    if (isAdminSession && lastLocalChangeRef.current > 0) {
+      const timeSinceLastChange = Date.now() - lastLocalChangeRef.current;
+      // Skip updating if there was a local change in the last 30 seconds
+      if (timeSinceLastChange < 30000) {
+        return;
+      }
+    }
     
     try {
       const loadedProjects = await portfolioAPI.getProjects();
@@ -322,11 +336,24 @@ const Portfolio: React.FC = () => {
 
     const newProject = await portfolioAPI.createProject(newProjectName.trim(), newProjectDescription.trim() || undefined);
     if (newProject) {
-      // Reload projects to get the latest from API
-      await loadProjects();
+      // Update local state immediately for instant UI feedback
+      const projectToAdd: PortfolioProject = {
+        id: newProject.id,
+        name: newProject.name,
+        description: newProject.description,
+        media: [],
+        order: projects.length
+      };
+      setProjects(prevProjects => {
+        const updated = [...prevProjects, projectToAdd];
+        projectsRef.current = updated;
+        lastLocalChangeRef.current = Date.now(); // Mark local change
+        return updated;
+      });
       setNewProjectName('');
       setNewProjectDescription('');
       setSelectedProjectId(newProject.id);
+      // Don't reload immediately - let normal polling handle sync to prevent flicker
     } else {
       alert('Failed to create project. Please try again.');
     }
@@ -450,6 +477,8 @@ const Portfolio: React.FC = () => {
             : p
         );
         projectsRef.current = updated;
+        // Mark that admin made a local change - prevent polling from overriding
+        lastLocalChangeRef.current = Date.now();
         return updated;
       });
 
@@ -513,10 +542,17 @@ const Portfolio: React.FC = () => {
     if (confirm('Are you sure you want to delete this folder and all its media?')) {
       const success = await portfolioAPI.deleteProject(id);
       if (success) {
-        await loadProjects(); // Reload from API
+        // Update local state immediately for instant UI feedback
+        setProjects(prevProjects => {
+          const updated = prevProjects.filter(p => p.id !== id);
+          projectsRef.current = updated;
+          lastLocalChangeRef.current = Date.now(); // Mark local change
+          return updated;
+        });
         if (selectedProjectId === id) {
           setSelectedProjectId(null);
         }
+        // Don't reload immediately - let normal polling handle sync to prevent flicker
       } else {
         alert('Failed to delete folder. Please try again.');
       }
@@ -547,6 +583,8 @@ const Portfolio: React.FC = () => {
           : p
       );
       projectsRef.current = updated;
+      // Mark that admin made a local change - prevent polling from overriding
+      lastLocalChangeRef.current = Date.now();
       return updated;
     });
     
@@ -616,12 +654,12 @@ const Portfolio: React.FC = () => {
             : p
         );
         projectsRef.current = updated;
+        lastLocalChangeRef.current = Date.now(); // Mark local change
         return updated;
       });
       setEditingDescriptionInline(null);
       setInlineDescriptionValue('');
-      // Then sync with server
-      await loadProjects();
+      // Don't reload immediately - let normal polling handle sync to prevent flicker
     } else {
       alert('Failed to update description. Please try again.');
     }
@@ -660,12 +698,12 @@ const Portfolio: React.FC = () => {
             : p
         );
         projectsRef.current = updated;
+        lastLocalChangeRef.current = Date.now(); // Mark local change
         return updated;
       });
       setEditingProjectNameInline(null);
       setInlineProjectNameValue('');
-      // Then sync with server
-      await loadProjects();
+      // Don't reload immediately - let normal polling handle sync to prevent flicker
     } else {
       alert('Failed to update folder name. Please try again.');
     }
@@ -734,13 +772,13 @@ const Portfolio: React.FC = () => {
             : p
         );
         projectsRef.current = updated;
+        lastLocalChangeRef.current = Date.now(); // Mark local change
         return updated;
       });
       setEditingMedia(null);
       setInlineMediaTitle('');
       setInlineMediaDescription('');
-      // Then sync with server
-      await loadProjects();
+      // Don't reload immediately - let normal polling handle sync to prevent flicker
     } else {
       alert('Failed to update media. Please try again.');
     }
@@ -767,16 +805,17 @@ const Portfolio: React.FC = () => {
       p.order = i;
     });
 
-    // Update order in API
-    const projectIds = updatedProjects.map(p => p.id);
-    const success = await portfolioAPI.reorderProjects(projectIds);
+    // Update local state immediately for instant UI feedback
+    setProjects(updatedProjects);
+    projectsRef.current = updatedProjects;
+    lastLocalChangeRef.current = Date.now(); // Mark local change
     
-    if (success) {
-      await loadProjects(); // Reload from API
-    } else {
-      // If API fails, still update locally
-      setProjects(updatedProjects);
-    }
+    // Update order in API (async, don't wait)
+    const projectIds = updatedProjects.map(p => p.id);
+    portfolioAPI.reorderProjects(projectIds).catch(err => {
+      console.error('Failed to update project order:', err);
+      // On error, the next polling will sync with server
+    });
   };
 
   // Auto-advance carousel disabled - users can navigate manually
