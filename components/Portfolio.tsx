@@ -424,43 +424,32 @@ const Portfolio: React.FC = () => {
     try {
       const newMedia: PortfolioMedia[] = [];
 
-      // Process all files with error handling
+      // Process all files - upload to Supabase Storage
       for (const file of uploadFiles) {
         // Check file size (50MB limit)
         const maxSize = 50 * 1024 * 1024;
         if (file.size > maxSize) {
           alert(`${file.name} is too large. Maximum file size is 50MB.`);
+          setIsUploading(false);
           return;
         }
 
-        const reader = new FileReader();
+        // Upload to Supabase Storage (or fallback to base64)
+        const url = await portfolioAPI.uploadMedia(file);
         
-        await new Promise<void>((resolve, reject) => {
-          reader.onloadend = () => {
-            try {
-              if (!reader.result || typeof reader.result !== 'string') {
-                reject(new Error(`Failed to read ${file.name}`));
-                return;
-              }
-              
-              const base64String = reader.result;
-              newMedia.push({
-                id: `${Date.now()}-${Math.random()}`,
-                url: base64String,
-                type: file.type.startsWith('video/') ? 'video' : 'image',
-                title: uploadTitle.trim() || undefined,
-                description: uploadDescription.trim() || undefined,
-                uploadedAt: new Date().toISOString()
-              });
-              resolve();
-            } catch (error) {
-              reject(error);
-            }
-          };
-          reader.onerror = () => {
-            reject(new Error(`Error reading ${file.name}`));
-          };
-          reader.readAsDataURL(file);
+        if (!url) {
+          alert(`Failed to upload ${file.name}. Please try again.`);
+          setIsUploading(false);
+          return;
+        }
+
+        newMedia.push({
+          id: `${Date.now()}-${Math.random()}`,
+          url: url, // This is now a public URL from Supabase Storage (or base64 fallback)
+          type: file.type.startsWith('video/') ? 'video' : 'image',
+          title: uploadTitle.trim() || undefined,
+          description: uploadDescription.trim() || undefined,
+          uploadedAt: new Date().toISOString()
         });
       }
 
@@ -1731,7 +1720,8 @@ const Portfolio: React.FC = () => {
                                   {media.type === 'video' ? (
                                     <video
                                       src={media.url}
-                                      controls={!isMobile}
+                                      controls
+                                      playsInline
                                       className="w-full h-auto max-h-[600px] object-contain block"
                                       preload="metadata"
                                     />
@@ -1742,16 +1732,11 @@ const Portfolio: React.FC = () => {
                                       className="w-full h-auto max-h-[600px] object-contain block transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                       decoding="async"
-                                      onLoad={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.opacity = '1';
-                                      }}
                                       onError={(e) => {
                                         const target = e.target as HTMLImageElement;
                                         target.style.display = 'none';
                                         console.error('Failed to load image');
                                       }}
-                                      style={{ opacity: 0, transition: 'opacity 0.3s' }}
                                     />
                                   )}
                                 </div>
