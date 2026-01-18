@@ -153,6 +153,12 @@ const Portfolio: React.FC = () => {
       setIsAdmin(true);
       setIsLoggedIn(true);
     }
+
+    // Run migration automatically in the background (only once)
+    // This migrates base64 media to Supabase Storage for better performance
+    portfolioAPI.migrateBase64ToStorage().catch((error) => {
+      console.error('Migration error (non-critical):', error);
+    });
   }, []);
   
   // Update ref whenever projects change
@@ -435,7 +441,7 @@ const Portfolio: React.FC = () => {
         }
 
         // Upload to Supabase Storage (or fallback to base64)
-        const url = await portfolioAPI.uploadMedia(file);
+        const url = await portfolioAPI.uploadMedia(file, selectedProjectId);
         
         if (!url) {
           alert(`Failed to upload ${file.name}. Please try again.`);

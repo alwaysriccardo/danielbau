@@ -210,7 +210,7 @@ export const portfolioAPI = {
   },
 
   // Upload file to Supabase Storage
-  async uploadMedia(file: File): Promise<string | null> {
+  async uploadMedia(file: File, projectId?: string): Promise<string | null> {
     if (!supabase) {
       // Fallback to base64 for localStorage mode
       return new Promise((resolve) => {
@@ -226,7 +226,9 @@ export const portfolioAPI = {
     try {
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = projectId 
+        ? `${projectId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        : `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `portfolio/${fileName}`;
 
       // Upload to Supabase Storage
@@ -256,6 +258,137 @@ export const portfolioAPI = {
         reader.onerror = () => resolve(null);
         reader.readAsDataURL(file);
       });
+    }
+  },
+
+  // Migrate base64 media to Supabase Storage
+  // This runs automatically in the background and updates the database
+  async migrateBase64ToStorage(): Promise<void> {
+    if (!supabase) {
+      console.log('Migration skipped: Supabase not configured');
+      return;
+    }
+
+    // Check if migration already completed
+    const migrationKey = 'danielbau_migration_completed';
+    if (localStorage.getItem(migrationKey) === 'true') {
+      return; // Migration already completed
+    }
+
+    try {
+      // Check if storage bucket exists by trying to list it
+      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+      if (bucketError) {
+        console.log('Migration skipped: Cannot access storage buckets');
+        return;
+      }
+      
+      const bucketExists = buckets?.some(b => b.name === 'portfolio-media');
+      if (!bucketExists) {
+        console.log('Migration skipped: portfolio-media bucket does not exist yet');
+        return; // Bucket doesn't exist, skip migration (will run when bucket is created)
+      }
+
+      console.log('Starting base64 to Storage migration...');
+      
+      // Fetch all projects
+      const projects = await portfolioAPI.getProjects();
+      let migratedCount = 0;
+      let errorCount = 0;
+
+      // Process each project
+      for (const project of projects) {
+        if (!project.media || project.media.length === 0) continue;
+
+        let hasChanges = false;
+        const updatedMedia = await Promise.all(
+          project.media.map(async (media) => {
+            // Check if URL is base64
+            if (!media.url || !media.url.startsWith('data:')) {
+              return media; // Already migrated or not base64
+            }
+
+            try {
+              // Convert base64 to File
+              const base64Data = media.url;
+              const matches = base64Data.match(/^data:([^;]+);base64,(.+)$/);
+              if (!matches) {
+                console.warn(`Invalid base64 format for media ${media.id}`);
+                return media;
+              }
+
+              const mimeType = matches[1];
+              const base64String = matches[2];
+              const byteCharacters = atob(base64String);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              
+              // Determine file extension from mime type
+              let fileExt = 'jpg';
+              if (mimeType.includes('png')) fileExt = 'png';
+              else if (mimeType.includes('gif')) fileExt = 'gif';
+              else if (mimeType.includes('webp')) fileExt = 'webp';
+              else if (mimeType.includes('video') || mimeType.includes('mp4')) fileExt = 'mp4';
+              else if (mimeType.includes('webm')) fileExt = 'webm';
+
+              const fileName = `${media.id}.${fileExt}`;
+              const file = new File([byteArray], fileName, { type: mimeType });
+
+              // Upload to Storage
+              const storageUrl = await portfolioAPI.uploadMedia(file, project.id);
+              
+              if (storageUrl && !storageUrl.startsWith('data:')) {
+                // Only update if we got a Storage URL (not base64 fallback)
+                hasChanges = true;
+                migratedCount++;
+                console.log(`Migrated media ${media.id} from base64 to Storage`);
+                return {
+                  ...media,
+                  url: storageUrl
+                };
+              } else {
+                errorCount++;
+                console.warn(`Failed to upload media ${media.id} to Storage, keeping base64`);
+                return media;
+              }
+            } catch (error) {
+              errorCount++;
+              console.error(`Error migrating media ${media.id}:`, error);
+              return media; // Keep original on error
+            }
+          })
+        );
+
+        // Update project if any media was migrated
+        if (hasChanges) {
+          const success = await portfolioAPI.updateProject(project.id, {
+            ...project,
+            media: updatedMedia
+          });
+          if (!success) {
+            console.error(`Failed to update project ${project.id} after migration`);
+          }
+        }
+      }
+
+      // Mark migration as completed only if we successfully migrated at least one item
+      // or if there were no base64 items to migrate
+      if (migratedCount > 0) {
+        localStorage.setItem(migrationKey, 'true');
+        console.log(`Migration completed: ${migratedCount} media items migrated, ${errorCount} errors`);
+      } else if (errorCount === 0) {
+        // No base64 items found, mark as completed
+        localStorage.setItem(migrationKey, 'true');
+        console.log('Migration completed: No base64 media found to migrate');
+      } else {
+        console.warn(`Migration completed with errors: ${migratedCount} migrated, ${errorCount} errors`);
+      }
+    } catch (error) {
+      console.error('Error during migration:', error);
+      // Don't mark as completed if there was a critical error
     }
   }
 };
