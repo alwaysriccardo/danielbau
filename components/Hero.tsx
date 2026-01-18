@@ -81,6 +81,7 @@ const Hero: React.FC = () => {
         alt="Hero Background" 
         loading="eager"
         decoding="async"
+        fetchPriority="high"
         style={{ willChange: 'transform' }}
       />
       

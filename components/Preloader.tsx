@@ -121,6 +121,9 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
           src="/images/logo.png" 
           alt="DANIELBAU Logo" 
           className="w-full h-full object-contain"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
           onError={(e) => {
             console.error('Logo failed to load:', e);
             // Fallback if logo not found - show placeholder
