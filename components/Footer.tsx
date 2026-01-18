@@ -113,30 +113,43 @@ const Footer: React.FC = () => {
           <a 
             ref={quoteRef}
             href="mailto:danielbau@mail.ch" 
-            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none block cursor-pointer relative z-50 inline-block group"
+            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none block cursor-pointer relative z-50 inline-block group shine-button"
             style={{ 
               pointerEvents: 'auto',
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              color: '#ffffff',
+              textShadow: '0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)',
+              animation: 'pulseGlow 2s ease-in-out infinite'
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget;
               el.style.transform = 'scale(1.05)';
               el.style.letterSpacing = '0.1em';
-              el.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.5)';
+              el.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.4)';
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget;
               el.style.transform = 'scale(1)';
               el.style.letterSpacing = '0';
-              el.style.textShadow = 'none';
+              el.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)';
             }}
             onClick={(e) => {
               e.preventDefault();
               window.location.href = 'mailto:danielbau@mail.ch';
             }}
           >
+            <style>{`
+              @keyframes pulseGlow {
+                0%, 100% {
+                  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
+                }
+                50% {
+                  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3), 0 0 45px rgba(255, 255, 255, 0.2);
+                }
+              }
+            `}</style>
             {t.footer.offer}
           </a>
 
