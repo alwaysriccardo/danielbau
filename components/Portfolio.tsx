@@ -1719,13 +1719,13 @@ const Portfolio: React.FC = () => {
                     {/* Project Gallery - Simple grid view */}
                     {projects[selectedProjectIndex].media.length > 0 ? (
                       <>
-                      <div className="flex justify-center w-full">
-                        <div className="w-full max-w-7xl mx-auto">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center">
+                      <div className="flex justify-center items-center w-full py-8">
+                        <div className="w-full max-w-6xl mx-auto px-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 justify-items-center">
                             {projects[selectedProjectIndex].media.map((media, index) => (
                               <div
                                 key={media.id}
-                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-[250px]"
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-[400px]"
                               >
                                 <div className="aspect-square relative overflow-hidden">
                                   {media.type === 'video' ? (
