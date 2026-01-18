@@ -72,23 +72,8 @@ const Portfolio: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Load video duration metadata
-  const loadVideoDuration = (mediaId: string, url: string) => {
-    if (videoDurations[mediaId]) return; // Already loaded
-    
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    video.src = url;
-    video.onloadedmetadata = () => {
-      setVideoDurations(prev => ({
-        ...prev,
-        [mediaId]: video.duration
-      }));
-    };
-    video.onerror = () => {
-      // If video fails to load, don't track duration
-    };
-  };
+  // Note: Video duration loading is now handled by onLoadedMetadata on video elements
+  // This avoids creating extra video elements and only loads metadata when videos are rendered
   
   // Check if mobile on mount and window resize
   useEffect(() => {
@@ -220,9 +205,9 @@ const Portfolio: React.FC = () => {
     if (!sectionRef.current) return;
     
     // Only poll if admin is logged in, or poll much less frequently for public users
-    // Public users: 60 seconds (1 minute) - very infrequent to avoid any flicker
-    // Admin: 15 seconds - more frequent for admin to see changes
-    const pollInterval = isAdmin ? 15000 : 60000;
+    // Public users: 120 seconds (2 minutes) - very infrequent to reduce load
+    // Admin: 30 seconds - more frequent for admin to see changes
+    const pollInterval = isAdmin ? 30000 : 120000;
     
     let interval: NodeJS.Timeout | null = null;
     let isVisible = true;
@@ -1794,14 +1779,14 @@ const Portfolio: React.FC = () => {
                                       src={media.url}
                                       controls
                                       className="w-full h-auto object-contain"
-                                      preload="metadata"
+                                      preload={index < 2 ? "metadata" : "none"}
                                     />
                                   ) : (
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
                                       className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                                      loading="eager"
+                                      loading={index < 4 ? "eager" : "lazy"}
                                       decoding="async"
                                     />
                                   )}
@@ -1838,11 +1823,6 @@ const Portfolio: React.FC = () => {
                               'max-w-5xl grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                             } gap-4 md:gap-6`}>
                               {projects[selectedProjectIndex].media.map((media, index) => {
-                                // Load video duration on mount
-                                if (media.type === 'video' && !videoDurations[media.id]) {
-                                  setTimeout(() => loadVideoDuration(media.id, media.url), 0);
-                                }
-                                
                                 return (
                                   <div
                                     key={media.id}
@@ -1852,11 +1832,11 @@ const Portfolio: React.FC = () => {
                                     <div className="relative w-full h-full">
                                       {media.type === 'video' ? (
                                         <>
-                                          {/* Video thumbnail */}
+                                          {/* Video thumbnail - only load metadata for first few visible videos */}
                                           <video
                                             src={media.url}
                                             className="w-full h-full object-cover"
-                                            preload="metadata"
+                                            preload={index < 4 ? "metadata" : "none"}
                                             muted
                                             playsInline
                                             onLoadedMetadata={(e) => {
@@ -1885,14 +1865,14 @@ const Portfolio: React.FC = () => {
                                           )}
                                         </>
                                       ) : (
-                                        /* Image thumbnail - eager for first 4, lazy for rest */
+                                        /* Image thumbnail - eager for first 2 only, lazy for rest */
                                         <img
                                           src={media.url}
                                           alt={media.title || 'Portfolio media'}
                                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                          loading={index < 4 ? "eager" : "lazy"}
+                                          loading={index < 2 ? "eager" : "lazy"}
                                           decoding="async"
-                                          fetchPriority={index < 4 ? "high" : "low"}
+                                          fetchPriority={index < 2 ? "high" : "low"}
                                         />
                                       )}
                                     </div>
