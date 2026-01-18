@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { portfolioAPI } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface PortfolioMedia {
   id: string;
@@ -26,21 +30,7 @@ const Portfolio: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  // Initialize projects from localStorage synchronously for instant display
-  const [projects, setProjects] = useState<PortfolioProject[]>(() => {
-    if (typeof window === 'undefined') return [];
-    const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
-    if (storedProjects) {
-      try {
-        const parsed = JSON.parse(storedProjects);
-        const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => (a.order || 0) - (b.order || 0));
-        return sorted;
-      } catch (e) {
-        console.error('Error loading from localStorage:', e);
-      }
-    }
-    return [];
-  });
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [showLogin, setShowLogin] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -64,7 +54,6 @@ const Portfolio: React.FC = () => {
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
-  const [videoDurations, setVideoDurations] = useState<Record<string, number>>({}); // Track video durations by media ID
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
@@ -75,16 +64,6 @@ const Portfolio: React.FC = () => {
   const touchEndX = useRef<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   
-  // Helper function to format video duration
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  // Note: Video duration loading is now handled by onLoadedMetadata on video elements
-  // This avoids creating extra video elements and only loads metadata when videos are rendered
-  
   // Check if mobile on mount and window resize
   useEffect(() => {
     const checkMobile = () => {
@@ -94,18 +73,6 @@ const Portfolio: React.FC = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Fast shallow comparison helper - checks length and IDs first before deep comparison
-  const projectsEqual = (a: PortfolioProject[], b: PortfolioProject[]): boolean => {
-    if (a.length !== b.length) return false;
-    // Quick ID check first
-    const aIds = a.map(p => p.id).sort().join(',');
-    const bIds = b.map(p => p.id).sort().join(',');
-    if (aIds !== bIds) return false;
-    // If IDs match, do deeper comparison only if needed
-    return JSON.stringify(a.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id).sort().join(',') }))) === 
-           JSON.stringify(b.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id).sort().join(',') })));
-  };
 
   // Load projects from Supabase API (with localStorage fallback)
   // Only updates state if data actually changed to prevent flicker
@@ -128,27 +95,15 @@ const Portfolio: React.FC = () => {
     try {
       const loadedProjects = await portfolioAPI.getProjects();
       
-      // Safety check: Don't clear projects if API returns empty array (might be temporary error)
-      // Only update if we have projects OR if current projects are also empty
-      if (loadedProjects.length === 0 && projectsRef.current.length > 0) {
-        // Don't clear existing projects if API returns empty - might be a temporary issue
-        return;
-      }
-      
-      // Compare with current projects using optimized comparison
+      // Compare with current projects using ref to avoid unnecessary re-renders
       const currentProjects = projectsRef.current;
+      const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+      const loadedProjectsStr = JSON.stringify(loadedProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
       
-      // Only update if data actually changed (fast shallow comparison first)
-      if (!projectsEqual(currentProjects, loadedProjects)) {
+      // Only update if data actually changed
+      if (currentProjectsStr !== loadedProjectsStr) {
         projectsRef.current = loadedProjects;
         setProjects(loadedProjects);
-        
-        // Save to localStorage for instant loading on next visit
-        try {
-          localStorage.setItem('danielbau_portfolio_projects', JSON.stringify(loadedProjects));
-        } catch (e) {
-          console.error('Error saving to localStorage:', e);
-        }
       }
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -170,7 +125,10 @@ const Portfolio: React.FC = () => {
           
           // Compare before updating (only if we have current projects to compare)
           if (currentProjects && currentProjects.length > 0) {
-            if (!projectsEqual(currentProjects, sorted)) {
+            const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+            const sortedProjectsStr = JSON.stringify(sorted.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+            
+            if (currentProjectsStr !== sortedProjectsStr) {
               projectsRef.current = sorted;
               setProjects(sorted);
             }
@@ -186,16 +144,7 @@ const Portfolio: React.FC = () => {
     }
   };
 
-  // Memoize sorted projects to avoid re-sorting on every render
-  const sortedProjects = useMemo(() => {
-    return [...projects].sort((a, b) => (a.order || 0) - (b.order || 0));
-  }, [projects]);
-
   useEffect(() => {
-    // Initialize projectsRef with current projects (loaded from localStorage in useState initializer)
-    projectsRef.current = projects;
-    
-    // Sync with API in the background
     loadProjects();
     
     // Check if admin is already logged in
@@ -217,9 +166,9 @@ const Portfolio: React.FC = () => {
     if (!sectionRef.current) return;
     
     // Only poll if admin is logged in, or poll much less frequently for public users
-    // Public users: 120 seconds (2 minutes) - very infrequent to reduce load
-    // Admin: 30 seconds - more frequent for admin to see changes
-    const pollInterval = isAdmin ? 30000 : 120000;
+    // Public users: 60 seconds (1 minute) - very infrequent to avoid any flicker
+    // Admin: 15 seconds - more frequent for admin to see changes
+    const pollInterval = isAdmin ? 15000 : 60000;
     
     let interval: NodeJS.Timeout | null = null;
     let isVisible = true;
@@ -256,10 +205,13 @@ const Portfolio: React.FC = () => {
       }, pollInterval);
     }
     
-    // Also listen to focus events (when user switches back to tab) - load immediately
+    // Also listen to focus events (when user switches back to tab) - but silently
     const handleFocus = () => {
       if (isVisible) {
-        loadProjects();
+        // Small delay to avoid flicker when tab becomes active
+        setTimeout(() => {
+          loadProjects();
+        }, 500);
       }
     };
     
@@ -395,8 +347,7 @@ const Portfolio: React.FC = () => {
         name: newProject.name,
         description: newProject.description,
         media: [],
-        order: currentMaxOrder + 1,
-        createdAt: new Date().toISOString()
+        order: currentMaxOrder + 1
       };
       
       setProjects(prevProjects => {
@@ -891,8 +842,36 @@ const Portfolio: React.FC = () => {
 
   // Auto-advance carousel disabled - users can navigate manually
   // This prevents the visual refresh bug
-  
-  // Animation removed for instant portfolio display
+
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      const items = sectionRef.current?.querySelectorAll('.portfolio-project');
+      if (items && items.length > 0) {
+        // Set GPU acceleration for all items
+        gsap.set(items, { force3D: true, transform: 'translate3d(0,0,0)' });
+        
+        gsap.from(items, {
+          y: 50,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out',
+          force3D: true, // GPU acceleration
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+            invalidateOnRefresh: false, // Reduce recalculations
+            refreshPriority: -1 // Lower priority
+          }
+        });
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [projects]);
 
   return (
     <section 
@@ -1005,7 +984,7 @@ const Portfolio: React.FC = () => {
                     {/* Folder List */}
                     {projects.length > 0 ? (
                       <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                        {sortedProjects.map((project, idx) => (
+                        {[...projects].sort((a, b) => (a.order || 0) - (b.order || 0)).map((project, idx) => (
                           <div 
                             key={project.id}
                             className={`p-3 rounded-lg border transition-all cursor-pointer ${
@@ -1464,7 +1443,7 @@ const Portfolio: React.FC = () => {
                                 {media.type === 'video' ? (
                                   <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
                                 ) : (
-                                  <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="eager" />
+                                  <img src={media.url} alt={media.title || ''} className="w-full h-full object-cover" loading="lazy" />
                                 )}
                                 
                                 {/* Mobile: Always-visible buttons in top-right corner */}
@@ -1760,14 +1739,14 @@ const Portfolio: React.FC = () => {
                                       src={media.url}
                                       controls
                                       className="w-full h-auto object-contain"
-                                      preload={index < 2 ? "metadata" : "none"}
+                                      preload="metadata"
                                     />
                                   ) : (
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
                                       className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                                      loading={index < 4 ? "eager" : "lazy"}
+                                      loading="lazy"
                                       decoding="async"
                                     />
                                   )}
@@ -1795,72 +1774,81 @@ const Portfolio: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          // Preview/Thumbnail view - smaller thumbnails that fit normal screen
-                          <div className="flex justify-center">
-                            <div className={`w-full ${
-                              projects[selectedProjectIndex].media.length === 1 ? 'max-w-md grid grid-cols-1' :
-                              projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl grid grid-cols-2' :
-                              projects[selectedProjectIndex].media.length === 3 ? 'max-w-5xl grid grid-cols-2 md:grid-cols-3' :
-                              'max-w-5xl grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-                            } gap-4 md:gap-6`}>
-                              {projects[selectedProjectIndex].media.map((media, index) => {
-                                return (
+                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows centered larger grid)
+                          <div 
+                            className={isMobile 
+                              ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
+                              : "flex justify-center items-center"
+                            }
+                            onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
+                            style={{ cursor: isMobile ? 'pointer' : 'default' }}
+                          >
+                            <div className={isMobile ? 'w-full' : `w-full ${projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl lg:max-w-7xl' : 'max-w-6xl'}`}>
+                              <div className={isMobile 
+                                ? 'flex flex-wrap justify-center items-center gap-4' 
+                                : `grid ${projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'} gap-6 md:gap-8 justify-items-center`
+                              }>
+                                {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
                                   <div
                                     key={media.id}
-                                    onClick={() => setExpandedProjectId(projects[selectedProjectIndex].id)}
-                                    className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+                                    className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
+                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
+                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
+                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-full' :
+                                      'w-full max-w-md'
+                                    }`}
                                   >
-                                    <div className="relative w-full h-full">
-                                      {media.type === 'video' ? (
-                                        <>
-                                          {/* Video thumbnail - only load metadata for first few visible videos */}
-                                          <video
-                                            src={media.url}
-                                            className="w-full h-full object-cover"
-                                            preload={index < 4 ? "metadata" : "none"}
-                                            muted
-                                            playsInline
-                                            onLoadedMetadata={(e) => {
-                                              const video = e.currentTarget;
-                                              if (video.duration && !videoDurations[media.id]) {
-                                                setVideoDurations(prev => ({
-                                                  ...prev,
-                                                  [media.id]: video.duration
-                                                }));
-                                              }
-                                            }}
-                                          />
-                                          {/* Play button overlay - centered */}
-                                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                                            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                              <svg className="w-6 h-6 md:w-8 md:h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z"/>
-                                              </svg>
-                                            </div>
-                                          </div>
-                                          {/* Video duration - bottom right corner */}
-                                          {videoDurations[media.id] && (
-                                            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/80 text-white text-xs md:text-sm font-medium rounded">
-                                              {formatDuration(videoDurations[media.id])}
-                                            </div>
-                                          )}
-                                        </>
-                                      ) : (
-                                        /* Image thumbnail - eager for first 2 only, lazy for rest */
-                                        <img
-                                          src={media.url}
-                                          alt={media.title || 'Portfolio media'}
-                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                          loading={index < 2 ? "eager" : "lazy"}
-                                          decoding="async"
-                                          fetchPriority={index < 2 ? "high" : "low"}
-                                        />
-                                      )}
+                                <div className="relative overflow-hidden">
+                                  {media.type === 'video' ? (
+                                    <video
+                                      src={media.url}
+                                      controls={!isMobile}
+                                      className="w-full h-auto object-contain"
+                                      preload="metadata"
+                                      onClick={(e) => isMobile && e.preventDefault()}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={media.url}
+                                      alt={media.title || 'Portfolio media'}
+                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
+                                  )}
+                                </div>
+                                {/* Desktop: Show title and description, Mobile: Show description only */}
+                                {(!isMobile && (media.title || media.description || isAdmin)) || (isMobile && (media.description || isAdmin)) ? (
+                                  <div className="p-4">
+                                    {/* Title - Desktop only */}
+                                    {!isMobile && (
+                                      <div className="flex items-center gap-2 mb-1">
+                                        {media.title ? (
+                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                        ) : null}
+                                      </div>
+                                    )}
+                                    {/* Description - Desktop and Mobile */}
+                                    <div className="flex items-start gap-2">
+                                      {media.description ? (
+                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      ) : null}
                                     </div>
                                   </div>
-                                );
-                              })}
+                                ) : null}
+                              </div>
+                            ))}
+                              </div>
                             </div>
+                            {isMobile && projects[selectedProjectIndex].media.length > 4 && (
+                              <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center px-4">
+                                  <p className="text-xs text-gray-500 mb-1">+{projects[selectedProjectIndex].media.length - 4} more</p>
+                                  <p className="text-xs text-gray-400">Tap to view all</p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                         
@@ -1918,7 +1906,7 @@ const Portfolio: React.FC = () => {
                           </div>
                         )}
                         
-                        {expandedProjectId === projects[selectedProjectIndex].id && (
+                        {isMobile && expandedProjectId === projects[selectedProjectIndex].id && (
                           <button
                             onClick={() => setExpandedProjectId(null)}
                             className="mt-6 mx-auto block px-6 py-3 bg-[#121212] text-white font-display text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"

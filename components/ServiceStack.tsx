@@ -12,24 +12,55 @@ const ServiceStack: React.FC = () => {
   const { t } = useLanguage();
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Initialize immediately, don't wait for images - improves perceived performance
+  // Wait for images to load
   useEffect(() => {
-    // Set images as loaded immediately so ScrollTrigger initializes right away
-    // Images will load progressively with loading="eager" for above-fold items
-    setImagesLoaded(true);
-    
-    // Refresh ScrollTrigger immediately using RAF - no delay
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
+    const images = sectionRef.current?.querySelectorAll('img');
+    if (!images || images.length === 0) {
+      setImagesLoaded(true);
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalImages = images.length;
+
+    const checkAllLoaded = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        // Small delay to ensure layout is calculated
+        setTimeout(() => {
+          setImagesLoaded(true);
+          ScrollTrigger.refresh();
+        }, 100);
+      }
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        checkAllLoaded();
+      } else {
+        img.addEventListener('load', checkAllLoaded);
+        img.addEventListener('error', checkAllLoaded);
+      }
     });
 
+    // Fallback timeout
+    const timeout = setTimeout(() => {
+      setImagesLoaded(true);
+      ScrollTrigger.refresh();
+    }, 2000);
+
     return () => {
-      // No cleanup needed
+      clearTimeout(timeout);
+      images.forEach((img) => {
+        img.removeEventListener('load', checkAllLoaded);
+        img.removeEventListener('error', checkAllLoaded);
+      });
     };
   }, []);
 
   useLayoutEffect(() => {
-    // Initialize immediately - don't wait for imagesLoaded
+    if (!imagesLoaded) return;
+
     const ctx = gsap.context(() => {
       // Clear any existing ScrollTriggers for this section - optimized
       const existingTriggers = ScrollTrigger.getAll().filter(trigger => {
@@ -68,18 +99,23 @@ const ServiceStack: React.FC = () => {
             }
           }
         });
+
+        // Batch ScrollTrigger refresh for better performance
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
       };
 
-      // Single initialization - refresh will happen automatically
+      // Single initialization
       initScrollTriggers();
     }, sectionRef);
 
     return () => {
       ctx.revert();
     };
-  }, [t]); // Removed imagesLoaded dependency - initialize immediately
+  }, [t, imagesLoaded]);
 
-  // Refresh on window resize (debounced and optimized) - increased debounce for better performance
+  // Refresh on window resize (debounced and optimized)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     let rafId: number;
@@ -91,7 +127,7 @@ const ServiceStack: React.FC = () => {
         rafId = requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
-      }, 300); // Increased from 150ms to 300ms for better performance
+      }, 150);
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
@@ -104,6 +140,8 @@ const ServiceStack: React.FC = () => {
 
   // Add shine effect to view project buttons - optimized
   useEffect(() => {
+    if (!imagesLoaded) return;
+
     const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
     buttons?.forEach((btn) => {
       gsap.to(btn, {
@@ -115,7 +153,7 @@ const ServiceStack: React.FC = () => {
         lazy: true // Only animate when visible
       });
     });
-  }, []); // Removed imagesLoaded dependency - initialize immediately
+  }, [imagesLoaded]);
 
   return (
     <section ref={sectionRef} className="py-[10vh] bg-[#121212] text-[#E3E1DC] relative" id="services">
@@ -182,9 +220,8 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image} 
                           alt={textData.title}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image1:scale-[1.02]"
-                          loading="eager"
+                          loading="lazy"
                           decoding="async"
-                          fetchPriority="high"
                         />
                       </div>
                       <div className="relative overflow-hidden group/image2">
@@ -192,9 +229,8 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image2} 
                           alt={`${textData.title} - Bathroom`}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image2:scale-[1.02]"
-                          loading="eager"
+                          loading="lazy"
                           decoding="async"
-                          fetchPriority="high"
                         />
                       </div>
                     </div>
@@ -203,18 +239,16 @@ const ServiceStack: React.FC = () => {
                       src={serviceConstant.image} 
                       alt={textData.title}
                       className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
-                      loading="eager"
+                      loading="lazy"
                       decoding="async"
-                      fetchPriority="high"
                     />
                   ) : (
                   <img 
                     src={serviceConstant.image} 
                     alt={textData.title}
                     className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]" 
-                      loading="eager"
+                      loading="lazy"
                       decoding="async"
-                      fetchPriority="high"
                   />
                   )}
                 </div>

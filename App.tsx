@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState } from 'react';
 import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -8,13 +8,11 @@ import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
+import Portfolio from './components/Portfolio';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import ContactButtons from './components/ContactButtons';
-
-// Lazy load Portfolio for code-splitting - loads when needed
-const Portfolio = lazy(() => import('./components/Portfolio'));
 
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
@@ -53,42 +51,32 @@ const AppContent = () => {
   }, [loading]);
 
   useEffect(() => {
-    // Only continue after loading completes
+    // Only initialize Lenis after loading completes
     if (loading) return;
 
-    // Check if desktop - enable smooth scrolling on desktop only, native on mobile
-    const isDesktop = window.innerWidth >= 768;
-    
-    let lenis: Lenis | null = null;
-    let rafId: number | undefined;
-    
-    if (isDesktop) {
-      // Initialize Lenis on desktop with optimized settings for responsive, fast scrolling
-      lenis = new Lenis({
-        duration: 1.2, // Slightly faster duration for more responsive feel
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Smooth easing
-        direction: 'vertical',
-        smoothWheel: true,
-        wheelMultiplier: 1.0, // Normal multiplier for responsive scrolling
-        touchMultiplier: 1.5, // Lower for mobile (though not used on desktop)
-        gestureDirection: 'vertical',
-        infinite: false,
-      });
+    // Initialize immediately - no delay to prevent white flash and shaking
+    const lenis = new Lenis({
+      duration: 1.0,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      smoothWheel: true,
+      smoothTouch: false, // Disable smooth touch for better mobile performance
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2.0, // Increased for better mobile responsiveness
+      gestureDirection: 'vertical',
+    });
 
-      // Force scroll to top immediately
-      lenis.scrollTo(0, { immediate: true });
-      
-      // Smooth RAF loop for lag-free scrolling
-      function raf(time: number) {
-        if (lenis) lenis.raf(time);
-        rafId = requestAnimationFrame(raf);
-      }
-
+    // Force scroll to top immediately
+    lenis.scrollTo(0, { immediate: true });
+    
+    // Smooth RAF loop for lag-free scrolling
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
       rafId = requestAnimationFrame(raf);
-      
-      // Sync ScrollTrigger with Lenis for smooth animations
-      lenis.on('scroll', ScrollTrigger.update);
     }
+
+    rafId = requestAnimationFrame(raf);
     
     // Optimize ScrollTrigger globally for smooth performance
     ScrollTrigger.config({
@@ -98,22 +86,21 @@ const AppContent = () => {
       limitCallbacks: true // Limit callback frequency
     });
     
-    // Refresh ScrollTrigger immediately - no delay needed
-    // Use multiple RAF calls for better initialization
-    requestAnimationFrame(() => {
+    // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
+    // But don't block scrolling
+    const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
         // Ensure scroll is still at top after refresh
-        if (lenis) {
-          lenis.scrollTo(0, { immediate: true });
-        }
+        lenis.scrollTo(0, { immediate: true });
         window.scrollTo(0, 0);
       });
-    });
+    }, 300); // Brief delay for Hero parallax, but don't block user scrolling
       
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (lenis) lenis.destroy();
+      clearTimeout(refreshTimeout);
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
     };
   }, [loading]);
 
@@ -133,9 +120,7 @@ const AppContent = () => {
         <Intro />
         <ServiceStack />
         <CleaningServices />
-        <Suspense fallback={<div className="min-h-[400px]" />}>
-          <Portfolio />
-        </Suspense>
+        <Portfolio />
         <Testimonials />
         
         {/* Final Text Section */}

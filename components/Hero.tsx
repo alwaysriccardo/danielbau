@@ -14,19 +14,19 @@ const Hero: React.FC = () => {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Intro Text Reveal - start immediately, no delays
+      // Intro Text Reveal
       gsap.to('.hero-text-line', {
         y: 0,
-        stagger: 0.08,
-        duration: 1.2,
+        stagger: 0.1,
+        duration: 1.5,
         ease: 'power4.out',
-        delay: 0.2 // Reduced from 0.5s
+        delay: 0.5 
       });
       
       gsap.to('.hero-fade', {
         opacity: 1,
-        duration: 0.8,
-        delay: 0.6 // Reduced from 1.2s
+        duration: 1,
+        delay: 1.2
       });
 
       // Shine effects removed for cleaner look
@@ -62,10 +62,10 @@ const Hero: React.FC = () => {
           });
         };
 
-        // Initialize parallax immediately - no delay needed
-        requestAnimationFrame(() => {
+        // Delay parallax initialization to prevent conflicts with Lenis
+        setTimeout(() => {
           initParallax();
-        });
+        }, 300); // Wait for Lenis to be ready
       }
     }, containerRef);
 
@@ -81,7 +81,6 @@ const Hero: React.FC = () => {
         alt="Hero Background" 
         loading="eager"
         decoding="async"
-        fetchPriority="high"
         style={{ willChange: 'transform' }}
       />
       
