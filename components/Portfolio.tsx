@@ -49,6 +49,8 @@ const Portfolio: React.FC = () => {
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDescription, setUploadDescription] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
@@ -384,6 +386,7 @@ const Portfolio: React.FC = () => {
       return;
     }
 
+    setIsUploading(true);
     try {
       const newMedia: PortfolioMedia[] = [];
 
@@ -427,7 +430,39 @@ const Portfolio: React.FC = () => {
         });
       }
 
-      // Update project with new media via API
+      // Update local state IMMEDIATELY for instant UI feedback (admin sees it right away)
+      const newMediaFormatted = newMedia.map(m => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        uploadedAt: m.uploadedAt
+      }));
+
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p => 
+          p.id === selectedProjectId 
+            ? { 
+                ...p, 
+                media: [...p.media, ...newMediaFormatted]
+              }
+            : p
+        );
+        projectsRef.current = updated;
+        return updated;
+      });
+
+      // Clear upload form immediately
+      setUploadFiles([]);
+      setUploadTitle('');
+      setUploadDescription('');
+      setShowUpload(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      // Now sync with API in the background (non-blocking)
       // Format media for Supabase (convert uploadedAt to uploaded_at)
       const formattedNewMedia = newMedia.map(m => ({
         id: m.id,
@@ -443,28 +478,30 @@ const Portfolio: React.FC = () => {
         uploaded_at: m.uploadedAt || (m as any).uploaded_at || new Date().toISOString()
       })), ...formattedNewMedia];
 
-      const success = await portfolioAPI.updateProject(selectedProjectId, {
+      // Sync with server in the background
+      portfolioAPI.updateProject(selectedProjectId, {
         ...project,
         media: updatedMedia
-      });
-
-      if (success) {
-        // Reload projects to get latest from API
-        await loadProjects();
-        setUploadFiles([]);
-        setUploadTitle('');
-        setUploadDescription('');
-        setShowUpload(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+      }).then((success) => {
+        if (!success) {
+          // If API call fails, reload to get server state (but don't block UI)
+          console.error('Failed to sync media to server, reloading from server');
+          loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
+        } else {
+          // On success, just refresh to ensure sync (but UI already updated)
+          loadProjects().catch(err => console.error('Error refreshing after sync:', err));
         }
-      } else {
-        alert('Failed to add media. The file might be too large or there was a network error. Please try again.');
-      }
+      }).catch((error) => {
+        console.error('Error syncing media to server:', error);
+        // Try to reload to get correct server state
+        loadProjects().catch(err => console.error('Error reloading after error:', err));
+      });
     } catch (error) {
       console.error('Error adding media:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       alert(`Failed to add media: ${errorMessage}. Please try again.`);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -493,46 +530,58 @@ const Portfolio: React.FC = () => {
       return;
     }
 
-    // Filter out the media to delete
-    const updatedMedia = project.media
-      .filter(m => m.id !== mediaId)
-      .map(m => ({
-        id: m.id,
-        url: m.url,
-        type: m.type,
-        title: m.title,
-        description: m.description,
-        uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
-      }));
-
-    // Update project with filtered media
-    const success = await portfolioAPI.updateProject(projectId, {
-      ...project,
-      media: updatedMedia
+    setDeletingMediaId(mediaId);
+    
+    // Update local state IMMEDIATELY for instant UI feedback (admin sees it right away)
+    setProjects(prevProjects => {
+      const updated = prevProjects.map(p => 
+        p.id === projectId 
+          ? { 
+              ...p, 
+              media: p.media.filter(m => m.id !== mediaId)
+            }
+          : p
+      );
+      projectsRef.current = updated;
+      return updated;
     });
+    
+    try {
+      // Filter out the media to delete
+      const updatedMedia = project.media
+        .filter(m => m.id !== mediaId)
+        .map(m => ({
+          id: m.id,
+          url: m.url,
+          type: m.type,
+          title: m.title,
+          description: m.description,
+          uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
+        }));
 
-    if (success) {
-      // Update local state immediately for instant UI feedback (especially for admin)
-      setProjects(prevProjects => {
-        const updated = prevProjects.map(p => 
-          p.id === projectId 
-            ? { 
-                ...p, 
-                media: p.media.filter(m => m.id !== mediaId)
-              }
-            : p
-        );
-        projectsRef.current = updated;
-        return updated;
+      // Sync with server in the background (non-blocking)
+      portfolioAPI.updateProject(projectId, {
+        ...project,
+        media: updatedMedia
+      }).then((success) => {
+        if (!success) {
+          // If API call fails, reload to get server state (but don't block UI)
+          console.error('Failed to sync delete to server, reloading from server');
+          loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
+        } else {
+          // On success, just refresh to ensure sync (but UI already updated)
+          loadProjects().catch(err => console.error('Error refreshing after sync:', err));
+        }
+      }).catch((error) => {
+        console.error('Error syncing delete to server:', error);
+        // Try to reload to get correct server state
+        loadProjects().catch(err => console.error('Error reloading after error:', err));
       });
-      
-      // Then sync with server in the background
-      loadProjects().catch(err => {
-        console.error('Error syncing with server after delete:', err);
-        // If sync fails, we still have the local update, so it's okay
-      });
-    } else {
+    } catch (error) {
+      console.error('Error processing delete:', error);
       alert('Failed to delete media. Please try again.');
+    } finally {
+      setDeletingMediaId(null);
     }
   };
 
@@ -1104,13 +1153,25 @@ const Portfolio: React.FC = () => {
                     {/* Upload Button */}
                     <button
                       onClick={handleAddMedia}
-                      disabled={!selectedProjectId || uploadFiles.length === 0}
+                      disabled={!selectedProjectId || uploadFiles.length === 0 || isUploading}
                       className="w-full py-3 bg-[#121212] text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                      </svg>
-                      Upload {uploadFiles.length > 0 ? `${uploadFiles.length} File${uploadFiles.length > 1 ? 's' : ''}` : 'Media'}
+                      {isUploading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                          Upload {uploadFiles.length > 0 ? `${uploadFiles.length} File${uploadFiles.length > 1 ? 's' : ''}` : 'Media'}
+                        </>
+                      )}
                     </button>
                   </div>
                 )}
@@ -1327,10 +1388,18 @@ const Portfolio: React.FC = () => {
                                   </button>
                                   <button
                                     onClick={() => handleDeleteMedia(project.id, media.id)}
-                                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                    title="Delete"
+                                    disabled={deletingMediaId === media.id}
+                                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-wait"
+                                    title={deletingMediaId === media.id ? "Deleting..." : "Delete"}
                                   >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    {deletingMediaId === media.id ? (
+                                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    )}
                                   </button>
                                 </div>
                                 
