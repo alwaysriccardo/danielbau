@@ -182,9 +182,9 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image} 
                           alt={textData.title}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image1:scale-[1.02]"
-                          loading={index < 2 ? "eager" : "lazy"}
+                          loading="eager"
                           decoding="async"
-                          fetchPriority={index < 2 ? "high" : "low"}
+                          fetchPriority="high"
                         />
                       </div>
                       <div className="relative overflow-hidden group/image2">
@@ -192,9 +192,9 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image2} 
                           alt={`${textData.title} - Bathroom`}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image2:scale-[1.02]"
-                          loading={index < 2 ? "eager" : "lazy"}
+                          loading="eager"
                           decoding="async"
-                          fetchPriority={index < 2 ? "high" : "low"}
+                          fetchPriority="high"
                         />
                       </div>
                     </div>
@@ -203,18 +203,18 @@ const ServiceStack: React.FC = () => {
                       src={serviceConstant.image} 
                       alt={textData.title}
                       className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
-                      loading={index < 2 ? "eager" : "lazy"}
+                      loading="eager"
                       decoding="async"
-                      fetchPriority={index < 2 ? "high" : "low"}
+                      fetchPriority="high"
                     />
                   ) : (
                   <img 
                     src={serviceConstant.image} 
                     alt={textData.title}
                     className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]" 
-                      loading={index < 2 ? "eager" : "lazy"}
+                      loading="eager"
                       decoding="async"
-                      fetchPriority={index < 2 ? "high" : "low"}
+                      fetchPriority="high"
                   />
                   )}
                 </div>
