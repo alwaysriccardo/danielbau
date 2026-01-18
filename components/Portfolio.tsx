@@ -337,15 +337,22 @@ const Portfolio: React.FC = () => {
     const newProject = await portfolioAPI.createProject(newProjectName.trim(), newProjectDescription.trim() || undefined);
     if (newProject) {
       // Update local state immediately for instant UI feedback
+      // Get current max order to ensure new project appears at the end
+      const currentMaxOrder = projects.length > 0 
+        ? Math.max(...projects.map(p => p.order || 0)) 
+        : -1;
+      
       const projectToAdd: PortfolioProject = {
         id: newProject.id,
         name: newProject.name,
         description: newProject.description,
         media: [],
-        order: projects.length
+        order: currentMaxOrder + 1
       };
+      
       setProjects(prevProjects => {
-        const updated = [...prevProjects, projectToAdd];
+        // Add new project and sort by order to ensure correct display
+        const updated = [...prevProjects, projectToAdd].sort((a, b) => (a.order || 0) - (b.order || 0));
         projectsRef.current = updated;
         lastLocalChangeRef.current = Date.now(); // Mark local change
         return updated;
@@ -977,7 +984,7 @@ const Portfolio: React.FC = () => {
                     {/* Folder List */}
                     {projects.length > 0 ? (
                       <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                        {projects.map((project, idx) => (
+                        {[...projects].sort((a, b) => (a.order || 0) - (b.order || 0)).map((project, idx) => (
                           <div 
                             key={project.id}
                             className={`p-3 rounded-lg border transition-all cursor-pointer ${
