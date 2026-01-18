@@ -50,32 +50,32 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         tl.to([textRef.current, flagRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.6, // Faster fade-in
+          duration: 0.4, // Even faster fade-in
           ease: 'power1.out',
-          stagger: 0.08,
-          force3D: true,
-          lazy: false
-        })
-        .to({}, { duration: 0.7 }) // Shorter hold time
-        .to([textRef.current, flagRef.current], {
-          y: -30,
-          opacity: 0,
-          duration: 0.4, // Faster fade-out
-          ease: 'power1.in',
           stagger: 0.05,
           force3D: true,
           lazy: false
-        }, "-=0.1")
+        })
+        .to({}, { duration: 0.5 }) // Shorter hold time
+        .to([textRef.current, flagRef.current], {
+          y: -30,
+          opacity: 0,
+          duration: 0.3, // Faster fade-out
+          ease: 'power1.in',
+          stagger: 0.03,
+          force3D: true,
+          lazy: false
+        }, "-=0.05")
         .to(containerRef.current, {
           backgroundColor: '#E3E1DC', // Fade to site background color
-          duration: 0.3, // Faster background transition
+          duration: 0.2, // Faster background transition
           ease: 'power1.inOut',
           force3D: true,
           lazy: false
-        }, "-=0.1")
+        }, "-=0.05")
         .to(containerRef.current, {
           yPercent: -100,
-          duration: 0.5, // Faster slide-up
+          duration: 0.4, // Faster slide-up
           ease: 'power2.inOut',
           force3D: true,
           lazy: false,
@@ -85,7 +85,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
           }
-        }, "-=0.05");
+        }, "-=0.03");
       };
 
       if (logoImg.complete) {

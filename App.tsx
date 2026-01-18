@@ -96,8 +96,9 @@ const AppContent = () => {
       limitCallbacks: true // Limit callback frequency
     });
     
-    // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
-    const refreshTimeout = setTimeout(() => {
+    // Refresh ScrollTrigger immediately - no delay needed
+    // Use multiple RAF calls for better initialization
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
         // Ensure scroll is still at top after refresh
@@ -106,10 +107,9 @@ const AppContent = () => {
         }
         window.scrollTo(0, 0);
       });
-    }, 300); // Brief delay for Hero parallax
+    });
       
     return () => {
-      clearTimeout(refreshTimeout);
       if (rafId) cancelAnimationFrame(rafId);
       if (lenis) lenis.destroy();
     };

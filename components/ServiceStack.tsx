@@ -18,13 +18,13 @@ const ServiceStack: React.FC = () => {
     // Images will load progressively with loading="eager" for above-fold items
     setImagesLoaded(true);
     
-    // Refresh ScrollTrigger after a short delay to account for layout
-    const refreshTimer = setTimeout(() => {
+    // Refresh ScrollTrigger immediately using RAF - no delay
+    requestAnimationFrame(() => {
       ScrollTrigger.refresh();
-    }, 200);
+    });
 
     return () => {
-      clearTimeout(refreshTimer);
+      // No cleanup needed
     };
   }, []);
 
