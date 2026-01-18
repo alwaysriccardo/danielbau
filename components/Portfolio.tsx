@@ -478,7 +478,7 @@ const Portfolio: React.FC = () => {
         uploaded_at: m.uploadedAt || (m as any).uploaded_at || new Date().toISOString()
       })), ...formattedNewMedia];
 
-      // Sync with server in the background
+      // Sync with server in the background (don't reload on success - let normal polling handle sync)
       portfolioAPI.updateProject(selectedProjectId, {
         ...project,
         media: updatedMedia
@@ -486,15 +486,19 @@ const Portfolio: React.FC = () => {
         if (!success) {
           // If API call fails, reload to get server state (but don't block UI)
           console.error('Failed to sync media to server, reloading from server');
-          loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
-        } else {
-          // On success, just refresh to ensure sync (but UI already updated)
-          loadProjects().catch(err => console.error('Error refreshing after sync:', err));
+          // Delay reload slightly to avoid flicker
+          setTimeout(() => {
+            loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
+          }, 500);
         }
+        // On success, don't reload - normal polling (every 15s for admin) will sync eventually
+        // This prevents flicker from reloading before server has fully processed
       }).catch((error) => {
         console.error('Error syncing media to server:', error);
-        // Try to reload to get correct server state
-        loadProjects().catch(err => console.error('Error reloading after error:', err));
+        // Try to reload to get correct server state, but delay to avoid flicker
+        setTimeout(() => {
+          loadProjects().catch(err => console.error('Error reloading after error:', err));
+        }, 500);
       });
     } catch (error) {
       console.error('Error adding media:', error);
@@ -559,7 +563,7 @@ const Portfolio: React.FC = () => {
           uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
         }));
 
-      // Sync with server in the background (non-blocking)
+      // Sync with server in the background (don't reload on success - let normal polling handle sync)
       portfolioAPI.updateProject(projectId, {
         ...project,
         media: updatedMedia
@@ -567,15 +571,19 @@ const Portfolio: React.FC = () => {
         if (!success) {
           // If API call fails, reload to get server state (but don't block UI)
           console.error('Failed to sync delete to server, reloading from server');
-          loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
-        } else {
-          // On success, just refresh to ensure sync (but UI already updated)
-          loadProjects().catch(err => console.error('Error refreshing after sync:', err));
+          // Delay reload slightly to avoid flicker
+          setTimeout(() => {
+            loadProjects().catch(err => console.error('Error reloading after failed sync:', err));
+          }, 500);
         }
+        // On success, don't reload - normal polling (every 15s for admin) will sync eventually
+        // This prevents flicker from reloading before server has fully processed
       }).catch((error) => {
         console.error('Error syncing delete to server:', error);
-        // Try to reload to get correct server state
-        loadProjects().catch(err => console.error('Error reloading after error:', err));
+        // Try to reload to get correct server state, but delay to avoid flicker
+        setTimeout(() => {
+          loadProjects().catch(err => console.error('Error reloading after error:', err));
+        }, 500);
       });
     } catch (error) {
       console.error('Error processing delete:', error);
