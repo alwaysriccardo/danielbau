@@ -659,7 +659,9 @@ const Portfolio: React.FC = () => {
 
   // Mobile interaction handler: first tap shows buttons, second tap allows interaction
   const handleMediaTap = (mediaId: string, e: React.MouseEvent | React.TouchEvent) => {
-    if (!isMobile) return; // Only on mobile
+    // Check if mobile dynamically to avoid closure issues
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) return; // Only on mobile
     
     // If buttons are already visible for this media and user taps the media itself (not a button),
     // hide the buttons. Buttons have stopPropagation so their clicks won't reach here.
@@ -1492,7 +1494,13 @@ const Portfolio: React.FC = () => {
                                 
                                 {/* Overlay with actions */}
                                 <div 
-                                  className={`absolute inset-0 bg-black/0 ${isMobile ? (activeMediaId === media.id ? 'bg-black/40 opacity-100' : 'opacity-0') : 'group-hover:bg-black/40 opacity-0 group-hover:opacity-100'} transition-colors flex items-center justify-center gap-2`}
+                                  className={`absolute inset-0 transition-all duration-200 flex items-center justify-center gap-2 ${
+                                    isMobile 
+                                      ? (activeMediaId === media.id 
+                                          ? 'bg-black/40 opacity-100 pointer-events-auto' 
+                                          : 'bg-black/0 opacity-0 pointer-events-none')
+                                      : 'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
+                                  }`}
                                   onClick={(e) => e.stopPropagation()}
                                   onTouchStart={(e) => e.stopPropagation()}
                                 >
