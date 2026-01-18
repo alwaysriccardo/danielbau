@@ -54,15 +54,40 @@ const AppContent = () => {
     // Only initialize Lenis after loading completes
     if (loading) return;
 
-    // Initialize immediately - no delay to prevent white flash and shaking
+    // Detect if mobile - disable Lenis on mobile for native scrolling (smoother performance)
+    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // On mobile, use native scrolling for better performance
+    if (isMobile) {
+      // Still optimize ScrollTrigger for mobile
+      ScrollTrigger.config({
+        autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
+        ignoreMobileResize: true,
+        refreshPriority: -1,
+        limitCallbacks: true
+      });
+      
+      // Refresh ScrollTrigger after a brief delay
+      const refreshTimeout = setTimeout(() => {
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
+      }, 300);
+      
+      return () => {
+        clearTimeout(refreshTimeout);
+      };
+    }
+
+    // Initialize Lenis only on desktop
     const lenis = new Lenis({
       duration: 1.0,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       smoothWheel: true,
-      smoothTouch: false, // Disable smooth touch for better mobile performance
+      smoothTouch: false,
       wheelMultiplier: 0.8,
-      touchMultiplier: 2.0, // Increased for better mobile responsiveness
+      touchMultiplier: 2.0,
       gestureDirection: 'vertical',
     });
 
