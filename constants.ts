@@ -36,7 +36,8 @@ export const SERVICES: ServiceItem[] = [
     title: "PUTZ & ISOLIERUNG",
     subtitle: "Fachgerechte Ausführung",
     description: "Professionelle Putzarbeiten für perfekte Wandoberflächen. Isolierungsarbeiten für optimale Energieeffizienz und Komfort in Ihrem Zuhause.",
-    image: "/images/interior-4.jpg", // Replace with your uploaded image
+    image: "/images/interior-4.jpg",
+    image2: "/images/interior-4-1.jpg", // Second image for split view
     accentColor: "text-amber-600"
   }
 ];
