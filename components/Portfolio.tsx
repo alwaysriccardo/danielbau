@@ -1885,13 +1885,14 @@ const Portfolio: React.FC = () => {
                                           )}
                                         </>
                                       ) : (
-                                        /* Image thumbnail */
+                                        /* Image thumbnail - eager for first 4, lazy for rest */
                                         <img
                                           src={media.url}
                                           alt={media.title || 'Portfolio media'}
                                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                          loading="eager"
+                                          loading={index < 4 ? "eager" : "lazy"}
                                           decoding="async"
+                                          fetchPriority={index < 4 ? "high" : "low"}
                                         />
                                       )}
                                     </div>

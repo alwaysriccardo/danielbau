@@ -12,55 +12,24 @@ const ServiceStack: React.FC = () => {
   const { t } = useLanguage();
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Wait for images to load
+  // Initialize immediately, don't wait for images - improves perceived performance
   useEffect(() => {
-    const images = sectionRef.current?.querySelectorAll('img');
-    if (!images || images.length === 0) {
-      setImagesLoaded(true);
-      return;
-    }
-
-    let loadedCount = 0;
-    const totalImages = images.length;
-
-    const checkAllLoaded = () => {
-      loadedCount++;
-      if (loadedCount === totalImages) {
-        // Small delay to ensure layout is calculated
-        setTimeout(() => {
-          setImagesLoaded(true);
-          ScrollTrigger.refresh();
-        }, 100);
-      }
-    };
-
-    images.forEach((img) => {
-      if (img.complete) {
-        checkAllLoaded();
-      } else {
-        img.addEventListener('load', checkAllLoaded);
-        img.addEventListener('error', checkAllLoaded);
-      }
-    });
-
-    // Fallback timeout
-    const timeout = setTimeout(() => {
-      setImagesLoaded(true);
+    // Set images as loaded immediately so ScrollTrigger initializes right away
+    // Images will load progressively with loading="eager" for above-fold items
+    setImagesLoaded(true);
+    
+    // Refresh ScrollTrigger after a short delay to account for layout
+    const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 2000);
+    }, 200);
 
     return () => {
-      clearTimeout(timeout);
-      images.forEach((img) => {
-        img.removeEventListener('load', checkAllLoaded);
-        img.removeEventListener('error', checkAllLoaded);
-      });
+      clearTimeout(refreshTimer);
     };
   }, []);
 
   useLayoutEffect(() => {
-    if (!imagesLoaded) return;
-
+    // Initialize immediately - don't wait for imagesLoaded
     const ctx = gsap.context(() => {
       // Clear any existing ScrollTriggers for this section - optimized
       const existingTriggers = ScrollTrigger.getAll().filter(trigger => {
@@ -99,23 +68,18 @@ const ServiceStack: React.FC = () => {
             }
           }
         });
-
-        // Batch ScrollTrigger refresh for better performance
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
       };
 
-      // Single initialization
+      // Single initialization - refresh will happen automatically
       initScrollTriggers();
     }, sectionRef);
 
     return () => {
       ctx.revert();
     };
-  }, [t, imagesLoaded]);
+  }, [t]); // Removed imagesLoaded dependency - initialize immediately
 
-  // Refresh on window resize (debounced and optimized)
+  // Refresh on window resize (debounced and optimized) - increased debounce for better performance
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     let rafId: number;
@@ -127,7 +91,7 @@ const ServiceStack: React.FC = () => {
         rafId = requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
-      }, 150);
+      }, 300); // Increased from 150ms to 300ms for better performance
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
@@ -140,8 +104,6 @@ const ServiceStack: React.FC = () => {
 
   // Add shine effect to view project buttons - optimized
   useEffect(() => {
-    if (!imagesLoaded) return;
-
     const buttons = sectionRef.current?.querySelectorAll('.view-project-btn');
     buttons?.forEach((btn) => {
       gsap.to(btn, {
@@ -153,7 +115,7 @@ const ServiceStack: React.FC = () => {
         lazy: true // Only animate when visible
       });
     });
-  }, [imagesLoaded]);
+  }, []); // Removed imagesLoaded dependency - initialize immediately
 
   return (
     <section ref={sectionRef} className="py-[10vh] bg-[#121212] text-[#E3E1DC] relative" id="services">
@@ -220,8 +182,9 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image} 
                           alt={textData.title}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image1:scale-[1.02]"
-                          loading="lazy"
+                          loading={index < 2 ? "eager" : "lazy"}
                           decoding="async"
+                          fetchPriority={index < 2 ? "high" : "low"}
                         />
                       </div>
                       <div className="relative overflow-hidden group/image2">
@@ -229,8 +192,9 @@ const ServiceStack: React.FC = () => {
                           src={serviceConstant.image2} 
                           alt={`${textData.title} - Bathroom`}
                           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/image2:scale-[1.02]"
-                          loading="lazy"
+                          loading={index < 2 ? "eager" : "lazy"}
                           decoding="async"
+                          fetchPriority={index < 2 ? "high" : "low"}
                         />
                       </div>
                     </div>
@@ -239,16 +203,18 @@ const ServiceStack: React.FC = () => {
                       src={serviceConstant.image} 
                       alt={textData.title}
                       className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
-                      loading="lazy"
+                      loading={index < 2 ? "eager" : "lazy"}
                       decoding="async"
+                      fetchPriority={index < 2 ? "high" : "low"}
                     />
                   ) : (
                   <img 
                     src={serviceConstant.image} 
                     alt={textData.title}
                     className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]" 
-                      loading="lazy"
+                      loading={index < 2 ? "eager" : "lazy"}
                       decoding="async"
+                      fetchPriority={index < 2 ? "high" : "low"}
                   />
                   )}
                 </div>
