@@ -1783,10 +1783,10 @@ const Portfolio: React.FC = () => {
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
                             style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            <div className={isMobile ? 'w-full' : 'w-full max-w-7xl'}>
+                            <div className={isMobile ? 'w-full' : 'w-full max-w-7xl mx-auto'}>
                               <div className={isMobile 
                                 ? 'flex flex-wrap justify-center items-center gap-4' 
-                                : 'grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center'
+                                : 'grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center mx-auto'
                               }>
                                 {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
                                   <div
