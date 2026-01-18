@@ -1528,8 +1528,7 @@ const Portfolio: React.FC = () => {
                                       ) : (
                                         <p className="text-sm text-gray-400 italic flex-1">No description</p>
                                       )}
-                                      </div>
-                                    )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -1597,8 +1596,7 @@ const Portfolio: React.FC = () => {
                                       {media.description ? (
                                         <p className="text-sm text-gray-600 flex-1">{media.description}</p>
                                       ) : null}
-                                      </div>
-                                    )}
+                                    </div>
                                   </div>
                                 ) : null}
                               </div>
