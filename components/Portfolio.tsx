@@ -54,6 +54,8 @@ const Portfolio: React.FC = () => {
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
+  const [activeMediaId, setActiveMediaId] = useState<string | null>(null); // Track which media item is in interaction mode on mobile
+  const activeMediaTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Timeout to hide buttons after inactivity
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
@@ -159,6 +161,15 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     projectsRef.current = projects;
   }, [projects]);
+
+  // Cleanup timeout when component unmounts or activeMediaId changes
+  useEffect(() => {
+    return () => {
+      if (activeMediaTimeoutRef.current) {
+        clearTimeout(activeMediaTimeoutRef.current);
+      }
+    };
+  }, [activeMediaId]);
 
   // Poll for updates silently (only when admin is logged in, or much less frequently for public)
   // Pause polling when section is not visible for better performance
@@ -560,17 +571,43 @@ const Portfolio: React.FC = () => {
   };
 
   const handleDeleteMedia = async (projectId: string, mediaId: string) => {
+    // Prevent double deletion - if already deleting this media, ignore
+    if (deletingMediaId === mediaId) {
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this media?')) {
       return;
     }
 
-    const project = projects.find(p => p.id === projectId);
+    // Use ref to get the latest state to avoid stale closure issues
+    const currentProjects = projectsRef.current;
+    const project = currentProjects.find(p => p.id === projectId);
     if (!project) {
       alert('Project not found');
       return;
     }
 
+    // Check if media still exists (prevent deleting already-deleted media)
+    const mediaExists = project.media.some(m => m.id === mediaId);
+    if (!mediaExists) {
+      // Media was already deleted, ignore
+      return;
+    }
+
     setDeletingMediaId(mediaId);
+    
+    // Get the media data for API call before updating state
+    const updatedMedia = project.media
+      .filter(m => m.id !== mediaId)
+      .map(m => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
+      }));
     
     // Update local state IMMEDIATELY for instant UI feedback (admin sees it right away)
     setProjects(prevProjects => {
@@ -589,18 +626,6 @@ const Portfolio: React.FC = () => {
     });
     
     try {
-      // Filter out the media to delete
-      const updatedMedia = project.media
-        .filter(m => m.id !== mediaId)
-        .map(m => ({
-          id: m.id,
-          url: m.url,
-          type: m.type,
-          title: m.title,
-          description: m.description,
-          uploaded_at: m.uploadedAt || m.uploaded_at || new Date().toISOString()
-        }));
-
       // Sync with server in the background (don't reload on success - let normal polling handle sync)
       portfolioAPI.updateProject(projectId, {
         ...project,
@@ -622,13 +647,50 @@ const Portfolio: React.FC = () => {
         setTimeout(() => {
           loadProjects().catch(err => console.error('Error reloading after error:', err));
         }, 500);
+      }).finally(() => {
+        setDeletingMediaId(null);
       });
     } catch (error) {
       console.error('Error processing delete:', error);
       alert('Failed to delete media. Please try again.');
-    } finally {
       setDeletingMediaId(null);
     }
+  };
+
+  // Mobile interaction handler: first tap shows buttons, second tap allows interaction
+  const handleMediaTap = (mediaId: string, e: React.MouseEvent | React.TouchEvent) => {
+    if (!isMobile) return; // Only on mobile
+    
+    // If buttons are already visible for this media and user taps the media itself (not a button),
+    // hide the buttons. Buttons have stopPropagation so their clicks won't reach here.
+    if (activeMediaId === mediaId) {
+      // Hide buttons when tapping the media again (not the buttons)
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveMediaId(null);
+      if (activeMediaTimeoutRef.current) {
+        clearTimeout(activeMediaTimeoutRef.current);
+        activeMediaTimeoutRef.current = null;
+      }
+      return;
+    }
+    
+    // First tap: show buttons
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Clear any existing timeout
+    if (activeMediaTimeoutRef.current) {
+      clearTimeout(activeMediaTimeoutRef.current);
+    }
+    
+    // Show buttons for this media
+    setActiveMediaId(mediaId);
+    
+    // Hide buttons after 5 seconds of inactivity
+    activeMediaTimeoutRef.current = setTimeout(() => {
+      setActiveMediaId(null);
+    }, 5000);
   };
 
   const handleStartEditDescription = (projectId: string, currentDescription: string) => {
@@ -1417,7 +1479,11 @@ const Portfolio: React.FC = () => {
                               </div>
                             ) : (
                               /* Normal media display */
-                              <div className="aspect-square relative">
+                              <div 
+                                className="aspect-square relative"
+                                onClick={(e) => handleMediaTap(media.id, e)}
+                                onTouchStart={(e) => handleMediaTap(media.id, e)}
+                              >
                                 {media.type === 'video' ? (
                                   <video src={media.url} className="w-full h-full object-cover" preload="metadata" />
                                 ) : (
@@ -1425,16 +1491,26 @@ const Portfolio: React.FC = () => {
                                 )}
                                 
                                 {/* Overlay with actions */}
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                <div 
+                                  className={`absolute inset-0 bg-black/0 ${isMobile ? (activeMediaId === media.id ? 'bg-black/40 opacity-100' : 'opacity-0') : 'group-hover:bg-black/40 opacity-0 group-hover:opacity-100'} transition-colors flex items-center justify-center gap-2`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                >
                                   <button
-                                    onClick={() => handleStartEditMedia(project.id, media.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleStartEditMedia(project.id, media.id);
+                                    }}
                                     className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
                                     title="Edit title & description"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteMedia(project.id, media.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteMedia(project.id, media.id);
+                                    }}
                                     disabled={deletingMediaId === media.id}
                                     className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-60 disabled:cursor-wait"
                                     title={deletingMediaId === media.id ? "Deleting..." : "Delete"}
