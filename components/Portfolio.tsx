@@ -30,7 +30,21 @@ const Portfolio: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  // Initialize projects from localStorage synchronously for instant display
+  const [projects, setProjects] = useState<PortfolioProject[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
+    if (storedProjects) {
+      try {
+        const parsed = JSON.parse(storedProjects);
+        const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => (a.order || 0) - (b.order || 0));
+        return sorted;
+      } catch (e) {
+        console.error('Error loading from localStorage:', e);
+      }
+    }
+    return [];
+  });
   const [showLogin, setShowLogin] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -170,20 +184,10 @@ const Portfolio: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load from localStorage immediately for instant display, then sync with API
-    const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
-    if (storedProjects) {
-      try {
-        const parsed = JSON.parse(storedProjects);
-        const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => (a.order || 0) - (b.order || 0));
-        projectsRef.current = sorted;
-        setProjects(sorted);
-      } catch (e) {
-        console.error('Error loading from localStorage:', e);
-      }
-    }
+    // Initialize projectsRef with current projects (loaded from localStorage in useState initializer)
+    projectsRef.current = projects;
     
-    // Then sync with API in the background
+    // Sync with API in the background
     loadProjects();
     
     // Check if admin is already logged in
