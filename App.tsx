@@ -51,32 +51,11 @@ const AppContent = () => {
   }, [loading]);
 
   useEffect(() => {
-    // Only initialize Lenis after loading completes
+    // Only continue after loading completes
     if (loading) return;
 
-    // Initialize immediately - no delay to prevent white flash and shaking
-    const lenis = new Lenis({
-      duration: 1.0,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      smoothWheel: true,
-      smoothTouch: false, // Disable smooth touch for better mobile performance
-      wheelMultiplier: 0.8,
-      touchMultiplier: 2.0, // Increased for better mobile responsiveness
-      gestureDirection: 'vertical',
-    });
-
-    // Force scroll to top immediately
-    lenis.scrollTo(0, { immediate: true });
-    
-    // Smooth RAF loop for lag-free scrolling
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
+    // Disable Lenis smooth scrolling - use native scrolling on both desktop and mobile
+    // Native scrolling is faster and more performant
     
     // Optimize ScrollTrigger globally for smooth performance
     ScrollTrigger.config({
@@ -87,20 +66,15 @@ const AppContent = () => {
     });
     
     // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
-    // But don't block scrolling
     const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
-        // Ensure scroll is still at top after refresh
-        lenis.scrollTo(0, { immediate: true });
         window.scrollTo(0, 0);
       });
-    }, 300); // Brief delay for Hero parallax, but don't block user scrolling
+    }, 300); // Brief delay for Hero parallax
       
     return () => {
       clearTimeout(refreshTimeout);
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
     };
   }, [loading]);
 
