@@ -54,6 +54,7 @@ const Portfolio: React.FC = () => {
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
+  const [videoDurations, setVideoDurations] = useState<Record<string, number>>({}); // Track video durations by media ID
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
@@ -63,6 +64,31 @@ const Portfolio: React.FC = () => {
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  
+  // Helper function to format video duration
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  // Load video duration metadata
+  const loadVideoDuration = (mediaId: string, url: string) => {
+    if (videoDurations[mediaId]) return; // Already loaded
+    
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = url;
+    video.onloadedmetadata = () => {
+      setVideoDurations(prev => ({
+        ...prev,
+        [mediaId]: video.duration
+      }));
+    };
+    video.onerror = () => {
+      // If video fails to load, don't track duration
+    };
+  };
   
   // Check if mobile on mount and window resize
   useEffect(() => {
@@ -94,6 +120,13 @@ const Portfolio: React.FC = () => {
     
     try {
       const loadedProjects = await portfolioAPI.getProjects();
+      
+      // Safety check: Don't clear projects if API returns empty array (might be temporary error)
+      // Only update if we have projects OR if current projects are also empty
+      if (loadedProjects.length === 0 && projectsRef.current.length > 0) {
+        // Don't clear existing projects if API returns empty - might be a temporary issue
+        return;
+      }
       
       // Compare with current projects using ref to avoid unnecessary re-renders
       const currentProjects = projectsRef.current;
@@ -368,7 +401,8 @@ const Portfolio: React.FC = () => {
         name: newProject.name,
         description: newProject.description,
         media: [],
-        order: currentMaxOrder + 1
+        order: currentMaxOrder + 1,
+        createdAt: new Date().toISOString()
       };
       
       setProjects(prevProjects => {
@@ -1795,81 +1829,76 @@ const Portfolio: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows centered larger grid)
-                          <div 
-                            className={isMobile 
-                              ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
-                              : "flex justify-center items-center"
-                            }
-                            onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
-                            style={{ cursor: isMobile ? 'pointer' : 'default' }}
-                          >
-                            <div className={isMobile ? 'w-full' : `w-full ${projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl lg:max-w-7xl' : 'max-w-6xl'}`}>
-                              <div className={isMobile 
-                                ? 'flex flex-wrap justify-center items-center gap-4' 
-                                : `grid ${projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'} gap-6 md:gap-8 justify-items-center`
-                              }>
-                                {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
+                          // Preview/Thumbnail view - smaller thumbnails that fit normal screen
+                          <div className="flex justify-center">
+                            <div className={`w-full max-w-5xl grid ${
+                              projects[selectedProjectIndex].media.length === 1 ? 'grid-cols-1' :
+                              projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' :
+                              projects[selectedProjectIndex].media.length === 3 ? 'grid-cols-2 md:grid-cols-3' :
+                              'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                            } gap-4 md:gap-6`}>
+                              {projects[selectedProjectIndex].media.map((media, index) => {
+                                // Load video duration on mount
+                                if (media.type === 'video' && !videoDurations[media.id]) {
+                                  setTimeout(() => loadVideoDuration(media.id, media.url), 0);
+                                }
+                                
+                                return (
                                   <div
                                     key={media.id}
-                                    className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
-                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
-                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
-                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
-                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-full' :
-                                      'w-full max-w-md'
-                                    }`}
+                                    onClick={() => setExpandedProjectId(projects[selectedProjectIndex].id)}
+                                    className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
                                   >
-                                <div className="relative overflow-hidden">
-                                  {media.type === 'video' ? (
-                                    <video
-                                      src={media.url}
-                                      controls={!isMobile}
-                                      className="w-full h-auto object-contain"
-                                      preload="metadata"
-                                      onClick={(e) => isMobile && e.preventDefault()}
-                                    />
-                                  ) : (
-                                    <img
-                                      src={media.url}
-                                      alt={media.title || 'Portfolio media'}
-                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                                      loading="eager"
-                                      decoding="async"
-                                    />
-                                  )}
-                                </div>
-                                {/* Desktop: Show title and description, Mobile: Show description only */}
-                                {(!isMobile && (media.title || media.description || isAdmin)) || (isMobile && (media.description || isAdmin)) ? (
-                                  <div className="p-4">
-                                    {/* Title - Desktop only */}
-                                    {!isMobile && (
-                                      <div className="flex items-center gap-2 mb-1">
-                                        {media.title ? (
-                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
-                                        ) : null}
-                                      </div>
-                                    )}
-                                    {/* Description - Desktop and Mobile */}
-                                    <div className="flex items-start gap-2">
-                                      {media.description ? (
-                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
-                                      ) : null}
+                                    <div className="relative w-full h-full">
+                                      {media.type === 'video' ? (
+                                        <>
+                                          {/* Video thumbnail */}
+                                          <video
+                                            src={media.url}
+                                            className="w-full h-full object-cover"
+                                            preload="metadata"
+                                            muted
+                                            playsInline
+                                            onLoadedMetadata={(e) => {
+                                              const video = e.currentTarget;
+                                              if (video.duration && !videoDurations[media.id]) {
+                                                setVideoDurations(prev => ({
+                                                  ...prev,
+                                                  [media.id]: video.duration
+                                                }));
+                                              }
+                                            }}
+                                          />
+                                          {/* Play button overlay - centered */}
+                                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                              <svg className="w-6 h-6 md:w-8 md:h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z"/>
+                                              </svg>
+                                            </div>
+                                          </div>
+                                          {/* Video duration - bottom right corner */}
+                                          {videoDurations[media.id] && (
+                                            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/80 text-white text-xs md:text-sm font-medium rounded">
+                                              {formatDuration(videoDurations[media.id])}
+                                            </div>
+                                          )}
+                                        </>
+                                      ) : (
+                                        /* Image thumbnail */
+                                        <img
+                                          src={media.url}
+                                          alt={media.title || 'Portfolio media'}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          loading="eager"
+                                          decoding="async"
+                                        />
+                                      )}
                                     </div>
                                   </div>
-                                ) : null}
-                              </div>
-                            ))}
-                              </div>
+                                );
+                              })}
                             </div>
-                            {isMobile && projects[selectedProjectIndex].media.length > 4 && (
-                              <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                                <div className="text-center px-4">
-                                  <p className="text-xs text-gray-500 mb-1">+{projects[selectedProjectIndex].media.length - 4} more</p>
-                                  <p className="text-xs text-gray-400">Tap to view all</p>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         )}
                         
@@ -1927,7 +1956,7 @@ const Portfolio: React.FC = () => {
                           </div>
                         )}
                         
-                        {isMobile && expandedProjectId === projects[selectedProjectIndex].id && (
+                        {expandedProjectId === projects[selectedProjectIndex].id && (
                           <button
                             onClick={() => setExpandedProjectId(null)}
                             className="mt-6 mx-auto block px-6 py-3 bg-[#121212] text-white font-display text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
