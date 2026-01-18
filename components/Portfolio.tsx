@@ -1831,11 +1831,11 @@ const Portfolio: React.FC = () => {
                         ) : (
                           // Preview/Thumbnail view - smaller thumbnails that fit normal screen
                           <div className="flex justify-center">
-                            <div className={`w-full max-w-5xl grid ${
-                              projects[selectedProjectIndex].media.length === 1 ? 'grid-cols-1' :
-                              projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' :
-                              projects[selectedProjectIndex].media.length === 3 ? 'grid-cols-2 md:grid-cols-3' :
-                              'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                            <div className={`w-full ${
+                              projects[selectedProjectIndex].media.length === 1 ? 'max-w-md grid grid-cols-1' :
+                              projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl grid grid-cols-2' :
+                              projects[selectedProjectIndex].media.length === 3 ? 'max-w-5xl grid grid-cols-2 md:grid-cols-3' :
+                              'max-w-5xl grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                             } gap-4 md:gap-6`}>
                               {projects[selectedProjectIndex].media.map((media, index) => {
                                 // Load video duration on mount
