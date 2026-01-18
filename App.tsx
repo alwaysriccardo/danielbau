@@ -54,8 +54,39 @@ const AppContent = () => {
     // Only continue after loading completes
     if (loading) return;
 
-    // Disable Lenis smooth scrolling - use native scrolling on both desktop and mobile
-    // Native scrolling is faster and more performant
+    // Check if desktop - enable smooth scrolling on desktop only, native on mobile
+    const isDesktop = window.innerWidth >= 768;
+    
+    let lenis: Lenis | null = null;
+    let rafId: number | undefined;
+    
+    if (isDesktop) {
+      // Initialize Lenis on desktop with optimized settings for responsive, fast scrolling
+      lenis = new Lenis({
+        duration: 1.2, // Slightly faster duration for more responsive feel
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Smooth easing
+        direction: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1.0, // Normal multiplier for responsive scrolling
+        touchMultiplier: 1.5, // Lower for mobile (though not used on desktop)
+        gestureDirection: 'vertical',
+        infinite: false,
+      });
+
+      // Force scroll to top immediately
+      lenis.scrollTo(0, { immediate: true });
+      
+      // Smooth RAF loop for lag-free scrolling
+      function raf(time: number) {
+        if (lenis) lenis.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+
+      rafId = requestAnimationFrame(raf);
+      
+      // Sync ScrollTrigger with Lenis for smooth animations
+      lenis.on('scroll', ScrollTrigger.update);
+    }
     
     // Optimize ScrollTrigger globally for smooth performance
     ScrollTrigger.config({
@@ -69,12 +100,18 @@ const AppContent = () => {
     const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
+        // Ensure scroll is still at top after refresh
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        }
         window.scrollTo(0, 0);
       });
     }, 300); // Brief delay for Hero parallax
       
     return () => {
       clearTimeout(refreshTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (lenis) lenis.destroy();
     };
   }, [loading]);
 
