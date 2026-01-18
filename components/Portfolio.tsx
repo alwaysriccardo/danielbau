@@ -1783,28 +1783,28 @@ const Portfolio: React.FC = () => {
                             onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
                             style={{ cursor: isMobile ? 'pointer' : 'default' }}
                           >
-                            <div className={isMobile ? 'w-full' : `w-full ${projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl lg:max-w-7xl' : 'max-w-6xl'}`}>
+                            <div className={isMobile ? 'w-full' : 'w-full max-w-7xl'}>
                               <div className={isMobile 
                                 ? 'flex flex-wrap justify-center items-center gap-4' 
-                                : `grid ${projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'} gap-6 md:gap-8 justify-items-center`
+                                : 'grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5 justify-items-center'
                               }>
                                 {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
                                   <div
                                     key={media.id}
                                     className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
-                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
-                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
-                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
-                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-full' :
-                                      'w-full max-w-md'
+                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[48%] max-w-[200px]' : 
+                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[48%] max-w-[200px]' : 
+                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%] max-w-[200px]' :
+                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[300px]' :
+                                      'w-[250px]'
                                     }`}
                                   >
-                                <div className="relative overflow-hidden">
+                                <div className="aspect-square relative overflow-hidden">
                                   {media.type === 'video' ? (
                                     <video
                                       src={media.url}
                                       controls={!isMobile}
-                                      className="w-full h-auto object-contain"
+                                      className="w-full h-full object-cover"
                                       preload="metadata"
                                       onClick={(e) => isMobile && e.preventDefault()}
                                     />
@@ -1812,7 +1812,7 @@ const Portfolio: React.FC = () => {
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
-                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                       decoding="async"
                                     />
