@@ -91,19 +91,33 @@ const Portfolio: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading projects:', error);
-      // Fallback to localStorage
+      
+      // Only fallback to localStorage if we don't already have projects loaded
+      // This prevents clearing projects when there's a temporary network error
+      const currentProjects = projectsRef.current;
+      if (currentProjects && currentProjects.length > 0) {
+        // Keep existing projects, don't clear them
+        return;
+      }
+      
+      // Fallback to localStorage only if we have no current projects
       const storedProjects = localStorage.getItem('danielbau_portfolio_projects');
       if (storedProjects) {
         try {
           const parsed = JSON.parse(storedProjects);
           const sorted = parsed.sort((a: PortfolioProject, b: PortfolioProject) => a.order - b.order);
           
-          // Compare before updating
-          const currentProjects = projectsRef.current;
-          const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
-          const sortedProjectsStr = JSON.stringify(sorted.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
-          
-          if (currentProjectsStr !== sortedProjectsStr) {
+          // Compare before updating (only if we have current projects to compare)
+          if (currentProjects && currentProjects.length > 0) {
+            const currentProjectsStr = JSON.stringify(currentProjects.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+            const sortedProjectsStr = JSON.stringify(sorted.map(p => ({ id: p.id, name: p.name, order: p.order, mediaCount: p.media.length, mediaIds: p.media.map(m => m.id) })));
+            
+            if (currentProjectsStr !== sortedProjectsStr) {
+              projectsRef.current = sorted;
+              setProjects(sorted);
+            }
+          } else {
+            // No current projects, load from localStorage
             projectsRef.current = sorted;
             setProjects(sorted);
           }
@@ -365,65 +379,92 @@ const Portfolio: React.FC = () => {
     }
 
     const project = projects.find(p => p.id === selectedProjectId);
-    if (!project) return;
-
-    const newMedia: PortfolioMedia[] = [];
-
-    // Process all files
-    for (const file of uploadFiles) {
-      const reader = new FileReader();
-      
-      await new Promise<void>((resolve, reject) => {
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          newMedia.push({
-            id: `${Date.now()}-${Math.random()}`,
-            url: base64String,
-            type: file.type.startsWith('video/') ? 'video' : 'image',
-            title: uploadTitle.trim() || undefined,
-            description: uploadDescription.trim() || undefined,
-            uploadedAt: new Date().toISOString()
-          });
-          resolve();
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    if (!project) {
+      alert('Folder not found. Please refresh and try again.');
+      return;
     }
 
-    // Update project with new media via API
-    // Format media for Supabase (convert uploadedAt to uploaded_at)
-    const formattedNewMedia = newMedia.map(m => ({
-      id: m.id,
-      url: m.url,
-      type: m.type,
-      title: m.title,
-      description: m.description,
-      uploaded_at: m.uploadedAt
-    }));
+    try {
+      const newMedia: PortfolioMedia[] = [];
 
-    const updatedMedia = [...project.media.map(m => ({
-      ...m,
-      uploaded_at: m.uploadedAt
-    })), ...formattedNewMedia];
+      // Process all files with error handling
+      for (const file of uploadFiles) {
+        // Check file size (50MB limit)
+        const maxSize = 50 * 1024 * 1024;
+        if (file.size > maxSize) {
+          alert(`${file.name} is too large. Maximum file size is 50MB.`);
+          return;
+        }
 
-    const success = await portfolioAPI.updateProject(selectedProjectId, {
-      ...project,
-      media: updatedMedia
-    });
-
-    if (success) {
-      // Reload projects to get latest from API
-      await loadProjects();
-      setUploadFiles([]);
-      setUploadTitle('');
-      setUploadDescription('');
-      setShowUpload(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        const reader = new FileReader();
+        
+        await new Promise<void>((resolve, reject) => {
+          reader.onloadend = () => {
+            try {
+              if (!reader.result || typeof reader.result !== 'string') {
+                reject(new Error(`Failed to read ${file.name}`));
+                return;
+              }
+              
+              const base64String = reader.result;
+              newMedia.push({
+                id: `${Date.now()}-${Math.random()}`,
+                url: base64String,
+                type: file.type.startsWith('video/') ? 'video' : 'image',
+                title: uploadTitle.trim() || undefined,
+                description: uploadDescription.trim() || undefined,
+                uploadedAt: new Date().toISOString()
+              });
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => {
+            reject(new Error(`Error reading ${file.name}`));
+          };
+          reader.readAsDataURL(file);
+        });
       }
-    } else {
-      alert('Failed to add media. Please try again.');
+
+      // Update project with new media via API
+      // Format media for Supabase (convert uploadedAt to uploaded_at)
+      const formattedNewMedia = newMedia.map(m => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        uploaded_at: m.uploadedAt
+      }));
+
+      const updatedMedia = [...project.media.map(m => ({
+        ...m,
+        uploaded_at: m.uploadedAt || (m as any).uploaded_at || new Date().toISOString()
+      })), ...formattedNewMedia];
+
+      const success = await portfolioAPI.updateProject(selectedProjectId, {
+        ...project,
+        media: updatedMedia
+      });
+
+      if (success) {
+        // Reload projects to get latest from API
+        await loadProjects();
+        setUploadFiles([]);
+        setUploadTitle('');
+        setUploadDescription('');
+        setShowUpload(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } else {
+        alert('Failed to add media. The file might be too large or there was a network error. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error adding media:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to add media: ${errorMessage}. Please try again.`);
     }
   };
 
@@ -471,8 +512,25 @@ const Portfolio: React.FC = () => {
     });
 
     if (success) {
-      // Reload projects to get latest from API
-      await loadProjects();
+      // Update local state immediately for instant UI feedback (especially for admin)
+      setProjects(prevProjects => {
+        const updated = prevProjects.map(p => 
+          p.id === projectId 
+            ? { 
+                ...p, 
+                media: p.media.filter(m => m.id !== mediaId)
+              }
+            : p
+        );
+        projectsRef.current = updated;
+        return updated;
+      });
+      
+      // Then sync with server in the background
+      loadProjects().catch(err => {
+        console.error('Error syncing with server after delete:', err);
+        // If sync fails, we still have the local update, so it's okay
+      });
     } else {
       alert('Failed to delete media. Please try again.');
     }
