@@ -1501,8 +1501,30 @@ const Portfolio: React.FC = () => {
                                           : 'bg-black/0 opacity-0 pointer-events-none')
                                       : 'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
                                   }`}
-                                  onClick={(e) => e.stopPropagation()}
-                                  onTouchStart={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    // On mobile, if buttons are visible and we tap the overlay (not buttons), hide buttons
+                                    // Buttons have stopPropagation so their clicks won't reach here
+                                    if (isMobile && activeMediaId === media.id) {
+                                      setActiveMediaId(null);
+                                      if (activeMediaTimeoutRef.current) {
+                                        clearTimeout(activeMediaTimeoutRef.current);
+                                        activeMediaTimeoutRef.current = null;
+                                      }
+                                    }
+                                    e.stopPropagation();
+                                  }}
+                                  onTouchStart={(e) => {
+                                    // On mobile, if buttons are visible and we tap the overlay (not buttons), hide buttons
+                                    // Buttons have stopPropagation so their clicks won't reach here
+                                    if (isMobile && activeMediaId === media.id) {
+                                      setActiveMediaId(null);
+                                      if (activeMediaTimeoutRef.current) {
+                                        clearTimeout(activeMediaTimeoutRef.current);
+                                        activeMediaTimeoutRef.current = null;
+                                      }
+                                    }
+                                    e.stopPropagation();
+                                  }}
                                 >
                                   <button
                                     onClick={(e) => {
