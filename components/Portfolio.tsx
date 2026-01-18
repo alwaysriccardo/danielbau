@@ -1719,29 +1719,39 @@ const Portfolio: React.FC = () => {
                     {/* Project Gallery - Simple grid view */}
                     {projects[selectedProjectIndex].media.length > 0 ? (
                       <>
-                      <div className="flex justify-center items-center w-full py-8">
+                      <div className="flex justify-center items-center w-full min-h-[60vh] py-8">
                         <div className="w-full max-w-6xl mx-auto px-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 justify-items-center">
+                          <div className="flex flex-wrap justify-center items-start gap-6 md:gap-8">
                             {projects[selectedProjectIndex].media.map((media, index) => (
                               <div
                                 key={media.id}
-                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-[400px]"
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto max-w-full sm:max-w-[400px]"
                               >
-                                <div className="aspect-square relative overflow-hidden">
+                                <div className="relative overflow-hidden w-full bg-gray-100" style={{ minHeight: '200px' }}>
                                   {media.type === 'video' ? (
                                     <video
                                       src={media.url}
                                       controls={!isMobile}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-auto max-h-[600px] object-contain block"
                                       preload="metadata"
                                     />
                                   ) : (
                                     <img
                                       src={media.url}
                                       alt={media.title || 'Portfolio media'}
-                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                      className="w-full h-auto max-h-[600px] object-contain block transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                       decoding="async"
+                                      onLoad={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.opacity = '1';
+                                      }}
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        console.error('Failed to load image');
+                                      }}
+                                      style={{ opacity: 0, transition: 'opacity 0.3s' }}
                                     />
                                   )}
                                 </div>
