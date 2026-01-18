@@ -111,10 +111,10 @@ const Testimonials: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Compact Header */}
         <div className="text-center mb-6 md:mb-8">
-          <h2 className="font-display text-xl md:text-2xl mb-1 text-gray-700">
+          <h2 className="font-display text-xl md:text-2xl mb-2 text-gray-800 tracking-tight">
             {t.testimonials.header}
           </h2>
-          <div className="h-px w-12 bg-gray-300 mx-auto"></div>
+          <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto"></div>
         </div>
 
         {/* Carousel Container */}
@@ -122,7 +122,7 @@ const Testimonials: React.FC = () => {
           {/* Left Arrow */}
           <button
             onClick={prevTestimonial}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-10 p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-all shadow-lg hover:scale-110"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-10 p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-all duration-300 shadow-xl hover:scale-110 hover:shadow-2xl active:scale-95"
             aria-label="Previous testimonial"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -133,21 +133,32 @@ const Testimonials: React.FC = () => {
           {/* Testimonial Card */}
           <div
             ref={testimonialRef}
-            className="testimonial-item relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 md:p-12 shadow-2xl border border-gray-200/50 backdrop-blur-sm"
+            className="testimonial-item relative bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/60 overflow-hidden group"
           >
-            {/* Decorative Quote Icon */}
-            <div className="absolute top-4 left-4 text-gray-200 text-6xl md:text-8xl font-serif leading-none">
+            {/* Subtle pattern overlay - lightweight CSS */}
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+              style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, #000 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }}
+            />
+            
+            {/* Decorative Quote Icon - with subtle animation */}
+            <div className="absolute top-4 left-4 text-gray-200/40 text-6xl md:text-8xl font-serif leading-none group-hover:text-gray-300/50 transition-colors duration-500">
               "
             </div>
 
             {/* Stars */}
-            <div className="flex gap-1 mb-6 justify-center">
+            <div className="flex gap-1.5 mb-6 justify-center relative z-10">
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
-                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
+                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 drop-shadow-sm"
                   fill="currentColor"
                   viewBox="0 0 20 20"
+                  style={{
+                    filter: 'drop-shadow(0 1px 2px rgba(250, 204, 21, 0.3))'
+                  }}
                 >
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
@@ -155,27 +166,27 @@ const Testimonials: React.FC = () => {
             </div>
 
             {/* Testimonial Text */}
-            <p className="text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed mb-6 italic relative z-10 text-center px-4">
+            <p className="text-base md:text-lg lg:text-xl text-gray-800 leading-relaxed mb-6 italic relative z-10 text-center px-4 font-light">
               "{testimonials[currentIndex].text}"
             </p>
 
             {/* Language Badge */}
-            <div className="flex justify-center">
-              <span className="inline-block px-4 py-2 bg-gray-100 text-gray-600 text-xs md:text-sm font-semibold rounded-full">
+            <div className="flex justify-center relative z-10">
+              <span className="inline-block px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 text-xs md:text-sm font-semibold rounded-full border border-gray-200/50 shadow-sm">
                 {testimonials[currentIndex].language}
               </span>
             </div>
 
             {/* Indicator Dots */}
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center gap-2 mt-6 relative z-10">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`h-2 rounded-full transition-all ${
+                  className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentIndex
-                      ? 'w-8 bg-[#121212]'
-                      : 'w-2 bg-gray-300 hover:bg-gray-400'
+                      ? 'w-8 bg-[#121212] shadow-md'
+                      : 'w-2 bg-gray-300 hover:bg-gray-400 hover:w-3'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -186,7 +197,7 @@ const Testimonials: React.FC = () => {
           {/* Right Arrow */}
           <button
             onClick={nextTestimonial}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-10 p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-all shadow-lg hover:scale-110"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-10 p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-all duration-300 shadow-xl hover:scale-110 hover:shadow-2xl active:scale-95"
             aria-label="Next testimonial"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
