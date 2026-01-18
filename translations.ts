@@ -82,7 +82,7 @@ export const TRANSLATIONS = {
       subheader: "Präsentation unserer abgeschlossenen Projekte und Handwerkskunst"
     },
     testimonials: {
-      header: "Referenzen"
+      header: "Unsere Kunden"
     }
   },
   en: {
@@ -158,7 +158,7 @@ export const TRANSLATIONS = {
       subheader: "Showcasing our completed projects and craftsmanship"
     },
     testimonials: {
-      header: "References"
+      header: "Our Clients"
     }
   },
   fr: {
@@ -234,7 +234,7 @@ export const TRANSLATIONS = {
       subheader: "Présentation de nos projets terminés et de notre savoir-faire"
     },
     testimonials: {
-      header: "Références"
+      header: "Nos Clients"
     }
   },
   it: {
@@ -310,7 +310,7 @@ export const TRANSLATIONS = {
       subheader: "Mostra dei nostri progetti completati e della nostra maestria"
     },
     testimonials: {
-      header: "Referenze"
+      header: "I Nostri Clienti"
     }
   }
 };
