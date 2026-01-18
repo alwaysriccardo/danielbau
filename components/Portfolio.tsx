@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useState, useEffect, useRef } from 'react';
 import { portfolioAPI } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface PortfolioMedia {
   id: string;
@@ -886,36 +882,8 @@ const Portfolio: React.FC = () => {
 
   // Auto-advance carousel disabled - users can navigate manually
   // This prevents the visual refresh bug
-
-  useLayoutEffect(() => {
-    if (!sectionRef.current) return;
-    
-    const ctx = gsap.context(() => {
-      const items = sectionRef.current?.querySelectorAll('.portfolio-project');
-      if (items && items.length > 0) {
-        // Set GPU acceleration for all items
-        gsap.set(items, { force3D: true, transform: 'translate3d(0,0,0)' });
-        
-        gsap.from(items, {
-          y: 50,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out',
-          force3D: true, // GPU acceleration
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-            invalidateOnRefresh: false, // Reduce recalculations
-            refreshPriority: -1 // Lower priority
-          }
-        });
-      }
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [projects]);
+  
+  // Animation removed for instant portfolio display
 
   return (
     <section 
