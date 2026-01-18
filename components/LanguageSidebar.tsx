@@ -57,7 +57,7 @@ const LanguageSidebar: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="fixed right-6 top-20 md:top-24 z-[9999] flex flex-col items-end gap-2"
+      className="fixed right-6 top-28 md:top-32 z-[9999] flex flex-col items-end gap-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
