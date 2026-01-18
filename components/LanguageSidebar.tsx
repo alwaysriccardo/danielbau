@@ -4,9 +4,11 @@ import { Language } from '../translations';
 
 const LanguageSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
   const { language, setLanguage } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMobileRef = useRef(false);
 
   const languages: { code: Language; label: string }[] = [
     { code: 'de', label: 'DE' },
@@ -33,6 +35,37 @@ const LanguageSidebar: React.FC = () => {
     };
   }, []);
 
+  // Make button stop following on mobile after second section
+  useEffect(() => {
+    const checkMobile = () => {
+      isMobileRef.current = window.innerWidth < 768;
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    if (!isMobileRef.current) return; // Only apply on mobile
+
+    const handleScroll = () => {
+      if (!isMobileRef.current) return;
+      
+      // Find the second section (services section, id="services")
+      const servicesSection = document.getElementById('services');
+      if (!servicesSection) return;
+
+      const rect = servicesSection.getBoundingClientRect();
+      // If services section bottom has passed the viewport top, we've scrolled past it
+      setIsSticky(rect.bottom <= 0);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Check initial position
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -54,12 +87,30 @@ const LanguageSidebar: React.FC = () => {
     }, 150);
   };
 
+  // On mobile, use absolute positioning when past services section
+  const getPositionStyle = () => {
+    if (isMobileRef.current && isSticky) {
+      const servicesSection = document.getElementById('services');
+      if (servicesSection) {
+        const rect = servicesSection.getBoundingClientRect();
+        const servicesBottom = rect.bottom + window.scrollY;
+        return {
+          position: 'absolute' as const,
+          top: `${servicesBottom - 80}px`,
+          right: '1.5rem'
+        };
+      }
+    }
+    return undefined;
+  };
+
   return (
     <div 
       ref={containerRef}
-      className="fixed right-6 top-28 md:top-32 z-[9999] flex flex-col items-end gap-2"
+      className={`${isMobileRef.current && isSticky ? '' : 'fixed right-6 top-28 md:top-32'} z-[9999] flex flex-col items-end gap-2`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={getPositionStyle()}
     >
       {/* Active Language Pill - Now clickable */}
       <button
