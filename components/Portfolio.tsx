@@ -53,6 +53,7 @@ const Portfolio: React.FC = () => {
   const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
   const [currentMediaIndices, setCurrentMediaIndices] = useState<Record<string, number>>({});
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
+  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<PortfolioProject[]>([]);
@@ -1571,7 +1572,7 @@ const Portfolio: React.FC = () => {
                 ))}
               </div>
             ) : (
-              // Public view: Clean, simple, professional design
+              // Public view: Show selected project with gallery (mobile: swipe + tap to expand)
               <div 
                 className="portfolio-project relative"
                 onTouchStart={handleTouchStart}
@@ -1580,27 +1581,30 @@ const Portfolio: React.FC = () => {
               >
                 {projects[selectedProjectIndex] && (
                   <>
-                    {/* Project Navigation - Minimal & Clean */}
+                    {/* Project Navigation Arrows - Desktop & Mobile */}
                     {projects.length > 1 && (
-                      <div className="flex items-center justify-between mb-8 md:mb-12 max-w-6xl mx-auto px-4">
+                      <div className="flex items-center justify-center gap-4 md:gap-8 mb-6 md:mb-8 relative" style={{ zIndex: 9999 }}>
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             setSelectedProjectIndex((prev) => (prev > 0 ? prev - 1 : projects.length - 1));
                           }}
-                          className="p-2 text-gray-600 hover:text-[#121212] transition-colors"
+                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform relative"
+                          style={{ zIndex: 10000, pointerEvents: 'auto' }}
                           aria-label="Previous project"
                           type="button"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
                             <path d="M15 18l-6-6 6-6"/>
                           </svg>
                         </button>
                         
-                        <span className="text-sm text-gray-500 font-medium">
-                          {selectedProjectIndex + 1} / {projects.length}
-                        </span>
+                        <div className="text-center relative" style={{ zIndex: 9999 }}>
+                          <span className="text-xs md:text-sm text-gray-500">
+                            {selectedProjectIndex + 1} / {projects.length}
+                          </span>
+                        </div>
                         
                         <button
                           onClick={(e) => {
@@ -1608,26 +1612,27 @@ const Portfolio: React.FC = () => {
                             e.stopPropagation();
                             setSelectedProjectIndex((prev) => (prev < projects.length - 1 ? prev + 1 : 0));
                           }}
-                          className="p-2 text-gray-600 hover:text-[#121212] transition-colors"
+                          className="p-3 md:p-4 bg-[#121212] text-white rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:scale-110 transition-transform relative"
+                          style={{ zIndex: 10000, pointerEvents: 'auto' }}
                           aria-label="Next project"
                           type="button"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
                             <path d="M9 18l6-6-6-6"/>
                           </svg>
                         </button>
                       </div>
                     )}
 
-                    {/* Project Header - Clean Typography */}
-                    <div className="mb-8 md:mb-12 text-center max-w-4xl mx-auto px-4">
+                    {/* Project Header */}
+                    <div className="mb-6 md:mb-8 text-center">
                       {editingProjectNameInline === projects[selectedProjectIndex].id ? (
                         <div className="flex items-center justify-center gap-2 mb-4">
                           <input
                             type="text"
                             value={inlineProjectNameValue}
                             onChange={(e) => setInlineProjectNameValue(e.target.value)}
-                            className="font-display text-2xl md:text-4xl text-gray-800 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] text-center"
+                            className="font-display text-2xl md:text-5xl text-gray-800 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#121212] text-center"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
@@ -1655,14 +1660,14 @@ const Portfolio: React.FC = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center gap-2 mb-6">
-                          <h2 className="font-display text-3xl md:text-5xl text-gray-900 font-normal">
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                          <h3 className="font-display text-2xl md:text-5xl text-gray-800">
                             {projects[selectedProjectIndex].name}
-                          </h2>
+                          </h3>
                           {isAdmin && (
                             <button
                               onClick={() => handleStartEditProjectName(projects[selectedProjectIndex].id, projects[selectedProjectIndex].name)}
-                              className="p-1 text-gray-400 hover:text-[#121212] transition-colors"
+                              className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
                               title="Edit folder name"
                             >
                               <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1672,17 +1677,16 @@ const Portfolio: React.FC = () => {
                           )}
                         </div>
                       )}
-                      
-                      {/* Description - Clean & Minimal */}
-                      {projects[selectedProjectIndex].description && (
-                        <div className="flex items-center justify-center gap-2">
+                      {/* Desktop: Show description in header */}
+                      {!isMobile && (
+                        <div className="flex items-center justify-center gap-2 max-w-2xl mx-auto px-4">
                           {editingDescriptionInline === projects[selectedProjectIndex].id ? (
-                            <div className="flex items-start gap-2 w-full max-w-2xl">
+                            <div className="flex items-start gap-2 w-full">
                               <textarea
                                 value={inlineDescriptionValue}
                                 onChange={(e) => setInlineDescriptionValue(e.target.value)}
                                 rows={3}
-                                className="flex-1 px-4 py-2 text-base border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
                                 placeholder="Folder description"
                               />
                               <div className="flex flex-col gap-1">
@@ -1703,99 +1707,238 @@ const Portfolio: React.FC = () => {
                               </div>
                             </div>
                           ) : (
-                            <p className="text-base md:text-lg text-gray-600 font-light leading-relaxed max-w-3xl mx-auto">
-                              {projects[selectedProjectIndex].description}
-                            </p>
-                          )}
-                          {isAdmin && !editingDescriptionInline && (
-                            <button
-                              onClick={() => handleStartEditDescription(projects[selectedProjectIndex].id, projects[selectedProjectIndex].description || '')}
-                              className="p-1 text-gray-400 hover:text-[#121212] transition-colors"
-                              title="Edit description"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
+                            <>
+                              {projects[selectedProjectIndex].description ? (
+                                <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 max-w-3xl mx-auto text-center px-4 py-3 border-l-2 border-gray-300 pl-6">
+                                  {projects[selectedProjectIndex].description}
+                                </p>
+                              ) : (
+                                <p className="text-base md:text-lg text-gray-400 italic flex-1 text-center">No description</p>
+                              )}
+                              {isAdmin && (
+                                <button
+                                  onClick={() => handleStartEditDescription(projects[selectedProjectIndex].id, projects[selectedProjectIndex].description || '')}
+                                  className="p-1 text-gray-500 hover:text-[#121212] transition-colors"
+                                  title="Edit description"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
+                      
+                      {/* Mobile: Swipe indicator (swipe still works in addition to arrows) */}
+                      {isMobile && projects.length > 1 && (
+                        <p className="text-xs text-gray-400 mt-2">Swipe left/right or use arrows to switch projects</p>
+                      )}
                     </div>
 
-                    {/* Media Grid - Simple & Professional */}
+                    {/* Project Gallery - Mobile: thumbnails grid, tap to see full media */}
+                    {/* Desktop: full gallery grid */}
                     {projects[selectedProjectIndex].media.length > 0 ? (
-                      <div className="max-w-7xl mx-auto px-4">
-                        <div className={`grid gap-4 md:gap-6 ${
-                          projects[selectedProjectIndex].media.length === 1 
-                            ? 'grid-cols-1 max-w-4xl mx-auto' 
-                            : projects[selectedProjectIndex].media.length === 2
-                            ? 'grid-cols-1 md:grid-cols-2'
-                            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                        }`}>
-                          {projects[selectedProjectIndex].media.map((media) => (
-                            <div
-                              key={media.id}
-                              className="group relative bg-white overflow-hidden cursor-pointer"
-                              onClick={() => {
-                                // Open media directly - images in new tab, videos with controls
-                                if (media.type === 'image') {
-                                  window.open(media.url, '_blank');
-                                } else {
-                                  // For videos, open in new tab
-                                  const videoWindow = window.open('', '_blank');
-                                  if (videoWindow) {
-                                    videoWindow.document.write(`
-                                      <html>
-                                        <head><title>${media.title || 'Video'}</title></head>
-                                        <body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;">
-                                          <video controls autoplay style="max-width:100%;max-height:100%;" src="${media.url}"></video>
-                                        </body>
-                                      </html>
-                                    `);
-                                  }
-                                }
-                              }}
-                            >
-                              <div className="relative overflow-hidden bg-gray-100">
-                                {media.type === 'video' ? (
-                                  <video
-                                    src={media.url}
-                                    controls
-                                    className="w-full h-auto object-contain"
-                                    preload="metadata"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                ) : (
-                                  <img
-                                    src={media.url}
-                                    alt={media.title || 'Portfolio media'}
-                                    className="w-full h-auto object-contain transition-opacity duration-300 group-hover:opacity-90"
-                                    loading="eager"
-                                    decoding="async"
-                                  />
-                                )}
-                              </div>
-                              {(media.title || media.description) && (
-                                <div className="p-4 md:p-5 bg-white">
-                                  {media.title && (
-                                    <h3 className="font-semibold text-gray-900 mb-1 text-base md:text-lg">
-                                      {media.title}
-                                    </h3>
-                                  )}
-                                  {media.description && (
-                                    <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-                                      {media.description}
-                                    </p>
+                      <>
+                        {expandedProjectId === projects[selectedProjectIndex].id ? (
+                          // Expanded view: Show all media in gallery (centered and bigger on desktop)
+                          <div className="flex justify-center">
+                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full ${
+                              projects[selectedProjectIndex].media.length === 2 
+                                ? 'max-w-5xl lg:max-w-7xl' 
+                                : 'lg:grid-cols-3 max-w-6xl'
+                            }`}>
+                            {projects[selectedProjectIndex].media.map((media, index) => (
+                              <div
+                                key={media.id}
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                <div className="relative overflow-hidden">
+                                  {media.type === 'video' ? (
+                                    <video
+                                      src={media.url}
+                                      controls
+                                      className="w-full h-auto object-contain"
+                                      preload="metadata"
+                                    />
+                                  ) : (
+                                    <img
+                                      src={media.url}
+                                      alt={media.title || 'Portfolio media'}
+                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                                      loading="eager"
+                                      decoding="async"
+                                    />
                                   )}
                                 </div>
-                              )}
+                                {(media.title || media.description || isAdmin) && (
+                                  <div className="p-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {media.title ? (
+                                        <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                      ) : (
+                                        <h4 className="font-bold text-gray-400 italic flex-1 text-sm">No title</h4>
+                                      )}
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                      {media.description ? (
+                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      ) : (
+                                        <p className="text-sm text-gray-400 italic flex-1">No description</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
+                          </div>
+                        ) : (
+                          // Preview/Thumbnail view (mobile shows grid, tap to expand; desktop shows centered larger grid)
+                          <div 
+                            className={isMobile 
+                              ? `flex flex-wrap justify-center items-center gap-4 ${projects[selectedProjectIndex].media.length <= 2 ? 'gap-6' : ''}` 
+                              : "flex justify-center items-center"
+                            }
+                            onClick={() => isMobile && setExpandedProjectId(projects[selectedProjectIndex].id)}
+                            style={{ cursor: isMobile ? 'pointer' : 'default' }}
+                          >
+                            <div className={isMobile ? 'w-full' : `w-full ${projects[selectedProjectIndex].media.length === 2 ? 'max-w-5xl lg:max-w-7xl' : 'max-w-6xl'}`}>
+                              <div className={isMobile 
+                                ? 'flex flex-wrap justify-center items-center gap-4' 
+                                : `grid ${projects[selectedProjectIndex].media.length === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'} gap-6 md:gap-8 justify-items-center`
+                              }>
+                                {projects[selectedProjectIndex].media.slice(0, isMobile ? 4 : undefined).map((media, index) => (
+                                  <div
+                                    key={media.id}
+                                    className={`group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                      isMobile && projects[selectedProjectIndex].media.length === 1 ? 'w-[90%] max-w-lg' : 
+                                      isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-[80%] max-w-md' : 
+                                      isMobile && projects[selectedProjectIndex].media.length >= 3 ? 'w-[48%]' :
+                                      !isMobile && projects[selectedProjectIndex].media.length === 2 ? 'w-full' :
+                                      'w-full max-w-md'
+                                    }`}
+                                  >
+                                <div className="relative overflow-hidden">
+                                  {media.type === 'video' ? (
+                                    <video
+                                      src={media.url}
+                                      controls={!isMobile}
+                                      className="w-full h-auto object-contain"
+                                      preload="metadata"
+                                      onClick={(e) => isMobile && e.preventDefault()}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={media.url}
+                                      alt={media.title || 'Portfolio media'}
+                                      className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                                      loading="eager"
+                                      decoding="async"
+                                    />
+                                  )}
+                                </div>
+                                {/* Desktop: Show title and description, Mobile: Show description only */}
+                                {(!isMobile && (media.title || media.description || isAdmin)) || (isMobile && (media.description || isAdmin)) ? (
+                                  <div className="p-4">
+                                    {/* Title - Desktop only */}
+                                    {!isMobile && (
+                                      <div className="flex items-center gap-2 mb-1">
+                                        {media.title ? (
+                                          <h4 className="font-bold text-gray-800 flex-1">{media.title}</h4>
+                                        ) : null}
+                                      </div>
+                                    )}
+                                    {/* Description - Desktop and Mobile */}
+                                    <div className="flex items-start gap-2">
+                                      {media.description ? (
+                                        <p className="text-sm text-gray-600 flex-1">{media.description}</p>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                              </div>
+                            </div>
+                            {isMobile && projects[selectedProjectIndex].media.length > 4 && (
+                              <div className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center px-4">
+                                  <p className="text-xs text-gray-500 mb-1">+{projects[selectedProjectIndex].media.length - 4} more</p>
+                                  <p className="text-xs text-gray-400">Tap to view all</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Mobile: Show project description under photos */}
+                        {isMobile && (
+                          <div className="mt-6 px-4">
+                            {editingDescriptionInline === projects[selectedProjectIndex].id ? (
+                              <div className="flex items-start gap-2">
+                                <textarea
+                                  value={inlineDescriptionValue}
+                                  onChange={(e) => setInlineDescriptionValue(e.target.value)}
+                                  rows={3}
+                                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#121212] resize-none"
+                                  placeholder="Folder description"
+                                />
+                                <div className="flex flex-col gap-1">
+                                  <button
+                                    onClick={() => handleSaveInlineDescription(projects[selectedProjectIndex].id)}
+                                    className="px-3 py-1 bg-[#121212] text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                                    title="Save"
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    onClick={handleCancelInlineDescription}
+                                    className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500 transition-colors"
+                                    title="Cancel"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-start gap-2">
+                                {projects[selectedProjectIndex].description ? (
+                                  <p className="text-base md:text-lg text-gray-700 font-light italic leading-relaxed flex-1 px-4 py-3 border-l-2 border-gray-300 pl-6">
+                                    {projects[selectedProjectIndex].description}
+                                  </p>
+                                ) : (
+                                  <p className="text-base md:text-lg text-gray-400 italic flex-1">No description</p>
+                                )}
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleStartEditDescription(projects[selectedProjectIndex].id, projects[selectedProjectIndex].description || '')}
+                                    className="p-1 text-gray-500 hover:text-[#121212] transition-colors flex-shrink-0"
+                                    title="Edit description"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {isMobile && expandedProjectId === projects[selectedProjectIndex].id && (
+                          <button
+                            onClick={() => setExpandedProjectId(null)}
+                            className="mt-6 mx-auto block px-6 py-3 bg-[#121212] text-white font-display text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                          >
+                            Close Gallery
+                          </button>
+                        )}
+                      </>
                     ) : (
-                      <div className="min-h-[300px] flex items-center justify-center text-gray-400">
-                        <p className="text-base">No media in this project yet</p>
+                      <div className="min-h-[200px] flex items-center justify-center text-gray-400">
+                        No media in this project yet
                       </div>
                     )}
                   </>
