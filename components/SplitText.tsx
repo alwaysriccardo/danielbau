@@ -38,12 +38,12 @@ const SplitText: React.FC<SplitTextProps> = ({ children, className = '', tag: Ta
   
   // Simple CSS-based reveal instead
   useLayoutEffect(() => {
-    const wordElements = elementRef.current?.querySelectorAll('.word-inner');
-    if (wordElements) {
+      const wordElements = elementRef.current?.querySelectorAll('.word-inner');
+      if (wordElements) {
       wordElements.forEach((el) => {
         (el as HTMLElement).style.transform = 'translateY(0%)';
-      });
-    }
+        });
+      }
   }, [children]);
 
   return (
