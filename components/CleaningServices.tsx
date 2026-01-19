@@ -105,10 +105,10 @@ const CleaningServices: React.FC = () => {
             yoyo: true,
             ease: 'sine.inOut',
             delay: bubble.delay,
-            force3D: true,
-            transformOrigin: 'center center',
-            paused: true,
-            lazy: false
+            force3D: true, // GPU acceleration
+            transformOrigin: 'center center', // Optimize transform origin
+            paused: true, // Start paused
+            lazy: false // Disable lazy rendering for smoother animation
           });
           bubbleAnimations.push(anim);
         }

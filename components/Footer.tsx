@@ -13,91 +13,59 @@ const Footer: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Control footer visibility based on scroll position
+  // Fix scroll chaining on mobile - allow page scroll when footer is at top
   useEffect(() => {
     if (!footerRef.current) return;
     
     const footer = footerRef.current;
     const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    // Show/hide footer based on scroll position
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Show footer only when user has scrolled to the very bottom
-      // Use a threshold to account for rounding and smooth transitions
-      const threshold = 50;
-      const isAtBottom = scrollTop + windowHeight >= documentHeight - threshold;
-      
-      if (isAtBottom) {
-        footer.style.opacity = '1';
-        footer.style.visibility = 'visible';
-        footer.style.pointerEvents = 'auto';
-      } else {
-        footer.style.opacity = '0';
-        footer.style.visibility = 'hidden';
-        footer.style.pointerEvents = 'none';
-      }
+    if (!isMobile) return; // Only needed on mobile
+    
+    // Detect when user tries to scroll up from top of footer
+    let touchStartY = 0;
+    let touchStartScrollTop = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartScrollTop = footer.scrollTop;
     };
     
-    // Initial check
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Mobile-specific scroll chaining handlers
-    if (isMobile) {
-      // Detect when user tries to scroll up from top of footer
-      let touchStartY = 0;
-      let touchStartScrollTop = 0;
-      
-      const handleTouchStart = (e: TouchEvent) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartScrollTop = footer.scrollTop;
-      };
-      
-      const handleTouchMove = (e: TouchEvent) => {
-        // Only prevent scroll up when at the very top of footer (0-1 scroll)
-        // Don't interfere with scroll down at all
-        if (footer.scrollTop <= 1 && touchStartScrollTop <= 1) {
-          const touchY = e.touches[0].clientY;
-          const deltaY = touchStartY - touchY; // Positive = scrolling up
-          
-          if (deltaY > 10) { // Only if significant upward swipe
-            // User is scrolling up from absolute top - scroll the page instead
-            e.preventDefault();
-            window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
-          }
-        }
-        // Allow normal scroll down in footer - don't prevent it
-      };
-      
-      const handleWheel = (e: WheelEvent) => {
-        // Only prevent scroll up when at the very top of footer (0 scroll)
-        // Don't interfere with scroll down at all
-        if (footer.scrollTop <= 1 && e.deltaY < 0) {
-          // Only allow page scroll up when footer is at absolute top
+    const handleTouchMove = (e: TouchEvent) => {
+      // Only prevent scroll up when at the very top of footer (0-1 scroll)
+      // Don't interfere with scroll down at all
+      if (footer.scrollTop <= 1 && touchStartScrollTop <= 1) {
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchY; // Positive = scrolling up
+        
+        if (deltaY > 10) { // Only if significant upward swipe
+          // User is scrolling up from absolute top - scroll the page instead
           e.preventDefault();
-          window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+          window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
         }
-        // Allow normal scroll down in footer - don't prevent it
-      };
-      
-      footer.addEventListener('touchstart', handleTouchStart, { passive: true });
-      footer.addEventListener('touchmove', handleTouchMove, { passive: false });
-      footer.addEventListener('wheel', handleWheel, { passive: false });
-      
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        footer.removeEventListener('touchstart', handleTouchStart);
-        footer.removeEventListener('touchmove', handleTouchMove);
-        footer.removeEventListener('wheel', handleWheel);
-      };
-    }
+      }
+      // Allow normal scroll down in footer - don't prevent it
+    };
+    
+    const handleWheel = (e: WheelEvent) => {
+      // Only prevent scroll up when at the very top of footer (0 scroll)
+      // Don't interfere with scroll down at all
+      if (footer.scrollTop <= 1 && e.deltaY < 0) {
+        // Only allow page scroll up when footer is at absolute top
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+      // Allow normal scroll down in footer - don't prevent it
+    };
+    
+    footer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    footer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    footer.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      footer.removeEventListener('touchstart', handleTouchStart);
+      footer.removeEventListener('touchmove', handleTouchMove);
+      footer.removeEventListener('wheel', handleWheel);
     };
   }, []);
 
@@ -127,13 +95,8 @@ const Footer: React.FC = () => {
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehaviorY: 'auto',
-        scrollBehavior: 'auto',
-        // Ensure footer only shows when scrolled to bottom
-        pointerEvents: 'none',
-        opacity: 0,
-        visibility: 'hidden',
-        transition: 'opacity 0.3s ease-in-out, visibility 0.3s ease-in-out'
+        overscrollBehaviorY: 'auto', // Allow scroll chaining - user can scroll page when footer is at top
+        scrollBehavior: 'auto'
       }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
