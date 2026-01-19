@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-bg: #E3E1DC;
+  --c-dark: #121212;
+  --c-accent: #374336;
+  --font-display: 'Syncopate', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-dark);
+  font-family: var(--font-body);
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Prevent flash of content before preloader */
+body:not(.loaded) {
+  overflow: hidden !important;
+  background-color: #000;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+body.loaded {
+  background-color: var(--c-bg);
+  transition: none;
+  position: static;
+  width: auto;
+  height: auto;
+}
+
+html, body {
+  scroll-behavior: auto;
+}
+
+html {
+  scroll-padding-top: 0;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+
+/* Lenis Recommended Styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Performance Optimizations */
+.card-inner {
+  will-change: transform, opacity;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.hero-text-line,
+.hero-fade {
+  will-change: transform, opacity;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+}
+
+img, video {
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+}
+
+[data-lenis-prevent] {
+  will-change: scroll-position;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@supports (-webkit-appearance: none) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@-moz-document url-prefix() {
+  body {
+    font-smoothing: antialiased;
+  }
+}
+
+@supports (-ms-ime-align: auto) {
+  body {
+    -ms-font-feature-settings: "liga" 1;
+  }
+}
+
+.preloader-container,
+.hero-text-line,
+.hero-fade,
+.card-inner {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+iframe {
+  pointer-events: auto !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
