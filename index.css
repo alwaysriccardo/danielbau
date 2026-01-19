@@ -37,10 +37,6 @@ body.loaded {
   height: auto;
 }
 
-html, body {
-  scroll-behavior: auto;
-}
-
 html {
   scroll-padding-top: 0;
 }
@@ -122,17 +118,28 @@ iframe {
   }
 }
 
-/* Instant scrolling - ScrollTrigger handles smoothness via scrub values */
-/* This prevents conflicts between native smooth scroll and ScrollTrigger animations */
+/* Optimized smooth scrolling for desktop - works perfectly with ScrollTrigger */
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   scroll-padding-top: 0;
 }
 
-/* Prevent overly fast scrolling on desktop */
+/* Desktop-specific optimizations */
 @media (min-width: 769px) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     overscroll-behavior-y: contain;
+    /* Prevent scroll chaining issues */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize for smooth scrolling performance */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 

@@ -47,19 +47,19 @@ const Hero: React.FC = () => {
           });
           
           gsap.to(imageRef.current, {
-            yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
+            yPercent: isMobile ? 15 : 30,
             ease: 'none',
-            force3D: true, // GPU acceleration
+            force3D: true,
             scrollTrigger: {
               trigger: containerRef.current,
               start: 'top top',
               end: 'bottom top',
-              scrub: isMobile ? 2.5 : 5, // Much higher scrub on desktop to prevent visual bugs during fast scrolling
-              invalidateOnRefresh: false, // Disable to reduce recalculations
-              refreshPriority: -1, // Lower priority to reduce impact
-              pin: false, // Ensure no pinning that could cause shifts
-              fastScrollEnd: true, // Better handling of fast scrolling
-              anticipatePin: 1 // Anticipate fast scrolling
+              scrub: isMobile ? 2.5 : 2, // Optimized scrub for desktop - responsive but smooth
+              invalidateOnRefresh: false,
+              refreshPriority: -1,
+              pin: false,
+              fastScrollEnd: true,
+              anticipatePin: isMobile ? 0 : 1
             }
           });
         };

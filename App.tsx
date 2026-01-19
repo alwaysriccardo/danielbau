@@ -52,18 +52,20 @@ const AppContent = () => {
     // Only initialize ScrollTrigger after loading completes
     if (loading) return;
     
-    // Optimize ScrollTrigger to work perfectly with native smooth scrolling
-    // This creates a unified scrolling experience - one smooth scroll system
+    // Desktop-optimized ScrollTrigger configuration
+    // Works perfectly with native smooth scrolling
+    const isDesktop = window.innerWidth >= 769;
+    
     ScrollTrigger.config({
       autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
       ignoreMobileResize: true,
       refreshPriority: -1,
       limitCallbacks: true,
-      syncInterval: 16, // Sync with native smooth scrolling at 60fps
-      anticipatePin: 1 // Anticipate fast scrolling to prevent visual bugs
+      syncInterval: isDesktop ? 8 : 16, // Faster sync on desktop for smoother animations
+      anticipatePin: isDesktop ? 1 : 0 // Anticipate fast scrolling on desktop
     });
     
-    // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
+    // Refresh ScrollTrigger after initialization
     const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
