@@ -71,64 +71,25 @@ const ServiceStack: React.FC = () => {
 
       // Wait for DOM to be fully ready - optimized
       const initScrollTriggers = () => {
-        // Track which card is currently active (sticky at top)
-        let activeCardIndex = 0;
-        
-        const updateZIndex = () => {
-          cardsRef.current.forEach((c, idx) => {
-            if (c) {
-              // Active card gets highest z-index, others get progressively lower
-              gsap.set(c, { zIndex: idx === activeCardIndex ? 1000 : idx + 1 });
-            }
-          });
-        };
-        
         cardsRef.current.forEach((card, i) => {
-          if (!card) return;
-          
           const nextCard = cardsRef.current[i + 1];
-          const inner = card.querySelector('.card-inner') as HTMLElement;
-          
-          if (inner) {
-            // Ensure GPU acceleration
-            gsap.set(inner, { 
-              force3D: true, 
-              transform: 'translate3d(0,0,0)',
-              willChange: 'transform, opacity'
-            });
+          if (nextCard && card) {
+            const inner = card.querySelector('.card-inner') as HTMLElement;
             
-            // Create ScrollTrigger to detect when this card is active (sticky at top)
-            ScrollTrigger.create({
-              trigger: card,
-              start: "top 10vh",
-              end: "bottom 10vh",
-              onEnter: () => {
-                activeCardIndex = i;
-                updateZIndex();
-              },
-              onLeave: () => {
-                if (i < cardsRef.current.length - 1) {
-                  activeCardIndex = i + 1;
-                  updateZIndex();
-                }
-              },
-              onEnterBack: () => {
-                activeCardIndex = i;
-                updateZIndex();
-              },
-              onLeaveBack: () => {
-                if (i > 0) {
-                  activeCardIndex = i - 1;
-                  updateZIndex();
-                }
-              }
-            });
-            
-            if (nextCard) {
-              // Animate previous card when next card approaches
-              const fadeAnimation = gsap.to(inner, {
+            if (inner) {
+              // Ensure GPU acceleration and initial state
+              gsap.set(inner, { 
+                force3D: true, 
+                transform: 'translate3d(0,0,0)',
+                willChange: 'transform, opacity',
+                opacity: 1,
+                scale: 1
+              });
+              
+              // Animate the entire card inner to completely fade out when next card appears
+              gsap.to(inner, {
                 scale: 0.9,
-                opacity: 0.4,
+                opacity: 0,
                 ease: "none",
                 force3D: true,
                 scrollTrigger: {
@@ -140,42 +101,19 @@ const ServiceStack: React.FC = () => {
                   refreshPriority: -1,
                   markers: false,
                   anticipatePin: 1,
-                  onStart: () => {
-                    // Fade animation starts - immediately update z-index so next card is on top
-                    gsap.set(nextCard, { zIndex: 1000 });
-                    gsap.set(card, { zIndex: i + 1 });
-                    activeCardIndex = i + 1;
-                  },
-                  onEnter: () => {
-                    // Next card is entering - ensure it's on top
-                    gsap.set(nextCard, { zIndex: 1000 });
-                    gsap.set(card, { zIndex: i + 1 });
-                    activeCardIndex = i + 1;
-                  },
-                  onLeave: () => {
-                    // Transition complete - next card is now fully active
-                    activeCardIndex = i + 1;
-                    updateZIndex();
-                  },
-                  onEnterBack: () => {
-                    // Scrolling back - current card becomes active again, reset z-index
-                    gsap.set(card, { zIndex: 1000 });
-                    gsap.set(nextCard, { zIndex: i + 2 });
-                    activeCardIndex = i;
-                  },
-                  onLeaveBack: () => {
-                    // Scrolled back past transition - current card fully active
-                    activeCardIndex = i;
-                    updateZIndex();
+                  onUpdate: (self) => {
+                    // Disable pointer events when card is mostly hidden
+                    if (self.progress > 0.3) {
+                      inner.style.pointerEvents = 'none';
+                    } else {
+                      inner.style.pointerEvents = 'auto';
+                    }
                   }
                 }
               });
             }
           }
         });
-        
-        // Set initial z-index values - first card is active
-        updateZIndex();
 
         // ScrollTrigger will auto-refresh, no manual refresh needed
       };
@@ -250,7 +188,6 @@ const ServiceStack: React.FC = () => {
                 cardsRef.current[index] = el;
               }}
               className="sticky top-[10vh] h-[80vh] md:h-[80vh] min-h-[600px] w-full flex items-center justify-center mb-[5vh]"
-              style={{ zIndex: index + 1 }}
             >
               <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group">
                 
