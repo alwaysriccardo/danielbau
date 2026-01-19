@@ -49,20 +49,37 @@ const Navigation: React.FC = () => {
       setIsOverDarkBg(isOverDark);
     };
 
-    // Check on mount and scroll
+    // Check on mount
     checkBackground();
     
-    // Use requestAnimationFrame for smooth updates
+    // Throttle scroll events for better performance
+    let ticking = false;
     const handleScroll = () => {
-      requestAnimationFrame(checkBackground);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          checkBackground();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    // Throttle resize events
+    let resizeTimeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        checkBackground();
+      }, 150);
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', checkBackground, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', checkBackground);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 

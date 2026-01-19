@@ -78,7 +78,11 @@ const ServiceStack: React.FC = () => {
             
             if (inner) {
               // Ensure GPU acceleration
-              gsap.set(inner, { force3D: true, transform: 'translate3d(0,0,0)' });
+              gsap.set(inner, { 
+                force3D: true, 
+                transform: 'translate3d(0,0,0)',
+                willChange: 'transform, opacity'
+              });
               
               gsap.to(inner, {
                 scale: 0.9,
@@ -89,10 +93,11 @@ const ServiceStack: React.FC = () => {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 4, // Higher scrub for better performance - less frequent updates = 60fps
+                  scrub: 5, // Higher scrub for better performance
                   invalidateOnRefresh: false,
                   refreshPriority: -1,
-                  markers: false
+                  markers: false,
+                  anticipatePin: 1
                 }
               });
             }
@@ -123,7 +128,7 @@ const ServiceStack: React.FC = () => {
         rafId = requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
-      }, 150);
+      }, 200); // Increased debounce time
     };
 
     window.addEventListener('resize', handleResize, { passive: true });

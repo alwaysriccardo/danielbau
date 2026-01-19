@@ -23,7 +23,7 @@ const CleaningServices: React.FC = () => {
   const [bubbles] = useState<Bubble[]>(() => {
     // Create rainbow bubbles - reduced count for performance
     const newBubbles: Bubble[] = [];
-    for (let i = 0; i < 6; i++) { // Reduced from 10 to 6 for better performance
+    for (let i = 0; i < 4; i++) { // Reduced from 6 to 4 for better performance
       newBubbles.push({
         id: i,
         x: Math.random() * 100,
@@ -93,22 +93,22 @@ const CleaningServices: React.FC = () => {
       bubbles.forEach((bubble) => {
         const bubbleEl = document.getElementById(`bubble-${bubble.id}`);
         if (bubbleEl) {
-          const moveY = 40 + Math.random() * 80; // Reduced movement range
-          const moveX = -15 + Math.random() * 30; // Reduced movement range
+          const moveY = 30 + Math.random() * 60; // Further reduced movement range
+          const moveX = -10 + Math.random() * 20; // Further reduced movement range
           const anim = gsap.to(bubbleEl, {
             y: `-=${moveY}`,
             x: `+=${moveX}`,
-            opacity: 0.5 + Math.random() * 0.3, // Reduced opacity variation
-            scale: 1 + Math.random() * 0.1, // Reduced scale variation for better performance
-            duration: 5 + Math.random() * 2, // Longer duration for smoother motion (less frequent updates)
+            opacity: 0.4 + Math.random() * 0.2, // Reduced opacity variation
+            scale: 1 + Math.random() * 0.05, // Further reduced scale variation
+            duration: 6 + Math.random() * 3, // Longer duration for smoother motion
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut',
             delay: bubble.delay,
-            force3D: true, // GPU acceleration
-            transformOrigin: 'center center', // Optimize transform origin
-            paused: true, // Start paused
-            lazy: false // Disable lazy rendering for smoother animation
+            force3D: true,
+            transformOrigin: 'center center',
+            paused: true,
+            lazy: false
           });
           bubbleAnimations.push(anim);
         }
@@ -126,7 +126,7 @@ const CleaningServices: React.FC = () => {
               }
             });
           },
-          { threshold: 0.1, rootMargin: '200px' } // Start/stop slightly before entering viewport
+          { threshold: 0.1, rootMargin: '300px' } // Increased rootMargin
         );
         
         observer.observe(sectionRef.current);

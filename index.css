@@ -16,6 +16,10 @@ body {
   font-family: var(--font-body);
   margin: 0;
   overflow-x: hidden;
+  /* Performance optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Prevent flash of content before preloader */
@@ -39,27 +43,36 @@ body.loaded {
 
 html {
   scroll-padding-top: 0;
+  /* Smooth scrolling performance */
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .font-display { font-family: var(--font-display); }
 .font-body { font-family: var(--font-body); }
 
-/* Performance Optimizations */
-.card-inner {
+/* Performance Optimizations - GPU acceleration */
+.card-inner,
+.hero-text-line,
+.hero-fade,
+.sticky-element {
   transform: translate3d(0,0,0);
   backface-visibility: hidden;
   perspective: 1000px;
-}
-
-.hero-text-line,
-.hero-fade {
-  transform: translate3d(0,0,0);
-  backface-visibility: hidden;
+  will-change: transform;
 }
 
 img, video {
   transform: translate3d(0,0,0);
   backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Optimize fixed elements */
+nav,
+.fixed-element {
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 
@@ -124,6 +137,27 @@ html {
 
 body {
   overscroll-behavior-y: contain;
+}
+
+/* Optimize scrolling performance */
+@media (min-width: 768px) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
 }
 
 /* Respect user preferences for reduced motion */

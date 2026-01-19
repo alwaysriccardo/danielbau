@@ -52,20 +52,23 @@ const AppContent = () => {
     // Only initialize ScrollTrigger after loading completes
     if (loading) return;
     
-    // Optimize ScrollTrigger for maximum performance - instant scrolling, 60fps animations
+    // Optimize ScrollTrigger for maximum performance
     ScrollTrigger.config({
       autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
       ignoreMobileResize: true,
       refreshPriority: -1,
-      limitCallbacks: true
+      limitCallbacks: true,
+      // Add these for better performance
+      anticipatePin: 1,
+      syncInterval: 0.1
     });
     
-    // Refresh ScrollTrigger after initialization
+    // Batch refresh after initialization
     const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
       });
-    }, 300);
+    }, 500);
       
     return () => {
       clearTimeout(refreshTimeout);

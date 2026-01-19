@@ -43,7 +43,8 @@ const Hero: React.FC = () => {
           gsap.set(imageRef.current, { 
             force3D: true, 
             transform: 'translate3d(0,0,0)',
-            yPercent: 0 // Ensure starting position
+            yPercent: 0,
+            willChange: 'transform'
           });
           
           gsap.to(imageRef.current, {
@@ -54,10 +55,11 @@ const Hero: React.FC = () => {
               trigger: containerRef.current,
               start: 'top top',
               end: 'bottom top',
-              scrub: isMobile ? 3 : 4, // Higher scrub for better performance - less frequent updates
+              scrub: isMobile ? 3 : 5, // Higher scrub = less frequent updates = better performance
               invalidateOnRefresh: false,
               refreshPriority: -1,
-              pin: false
+              pin: false,
+              anticipatePin: 1
             }
           });
         };
@@ -81,6 +83,7 @@ const Hero: React.FC = () => {
         alt="Hero Background" 
         loading="eager"
         decoding="async"
+        style={{ willChange: 'transform' }}
       />
       
       <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference">
