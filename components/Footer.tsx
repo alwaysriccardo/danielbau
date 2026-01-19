@@ -22,49 +22,87 @@ const Footer: React.FC = () => {
     
     if (!isMobile) return; // Only needed on mobile
     
+    // Helper to check if target is an interactive element
+    const isInteractiveElement = (target: EventTarget | null): boolean => {
+      if (!target || !(target instanceof Element)) return false;
+      const tagName = target.tagName.toLowerCase();
+      const isInput = tagName === 'input' || tagName === 'textarea' || tagName === 'button' || tagName === 'select';
+      const isLink = tagName === 'a' || target.closest('a');
+      const isIframe = tagName === 'iframe' || target.closest('iframe');
+      const isForm = tagName === 'form' || target.closest('form');
+      return isInput || isLink || isIframe || isForm;
+    };
+    
     // Detect when user tries to scroll up from top of footer
     let touchStartY = 0;
     let touchStartScrollTop = 0;
+    let touchTarget: EventTarget | null = null;
+    let isScrolling = false;
     
     const handleTouchStart = (e: TouchEvent) => {
+      touchTarget = e.target;
       touchStartY = e.touches[0].clientY;
       touchStartScrollTop = footer.scrollTop;
+      isScrolling = false;
+      
+      // Don't interfere with interactive elements
+      if (isInteractiveElement(touchTarget)) {
+        return;
+      }
     };
     
     const handleTouchMove = (e: TouchEvent) => {
-      // Only prevent scroll up when at the very top of footer (0-1 scroll)
-      // Don't interfere with scroll down at all
-      if (footer.scrollTop <= 1 && touchStartScrollTop <= 1) {
+      // Always allow scrolling on interactive elements
+      if (isInteractiveElement(e.target)) {
+        return;
+      }
+      
+      // Check if we're at the very top of footer
+      const currentScrollTop = footer.scrollTop;
+      const isAtTop = currentScrollTop <= 5; // Small threshold for better detection
+      const wasAtTop = touchStartScrollTop <= 5;
+      
+      if (isAtTop && wasAtTop) {
         const touchY = e.touches[0].clientY;
         const deltaY = touchStartY - touchY; // Positive = scrolling up
         
-        if (deltaY > 10) { // Only if significant upward swipe
-          // User is scrolling up from absolute top - scroll the page instead
+        // Only prevent if scrolling up significantly and not already scrolling
+        if (deltaY > 15 && !isScrolling) {
+          isScrolling = true;
+          // Scroll the page instead of the footer
           e.preventDefault();
-          window.scrollBy({ top: -deltaY * 2, behavior: 'auto' });
+          window.scrollBy({ top: -deltaY * 1.5, behavior: 'auto' });
         }
       }
-      // Allow normal scroll down in footer - don't prevent it
+    };
+    
+    const handleTouchEnd = () => {
+      isScrolling = false;
+      touchTarget = null;
     };
     
     const handleWheel = (e: WheelEvent) => {
-      // Only prevent scroll up when at the very top of footer (0 scroll)
-      // Don't interfere with scroll down at all
-      if (footer.scrollTop <= 1 && e.deltaY < 0) {
-        // Only allow page scroll up when footer is at absolute top
+      // Don't interfere with interactive elements
+      if (isInteractiveElement(e.target)) {
+        return;
+      }
+      
+      // Only prevent scroll up when at the very top of footer
+      if (footer.scrollTop <= 5 && e.deltaY < 0) {
         e.preventDefault();
         window.scrollBy({ top: e.deltaY, behavior: 'auto' });
       }
-      // Allow normal scroll down in footer - don't prevent it
     };
     
     footer.addEventListener('touchstart', handleTouchStart, { passive: true });
     footer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    footer.addEventListener('touchend', handleTouchEnd, { passive: true });
     footer.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
       footer.removeEventListener('touchstart', handleTouchStart);
       footer.removeEventListener('touchmove', handleTouchMove);
+      footer.removeEventListener('touchend', handleTouchEnd);
       footer.removeEventListener('wheel', handleWheel);
     };
   }, []);
@@ -96,7 +134,8 @@ const Footer: React.FC = () => {
         minHeight: '100dvh',
         WebkitOverflowScrolling: 'touch',
         overscrollBehaviorY: 'auto', // Allow scroll chaining - user can scroll page when footer is at top
-        scrollBehavior: 'auto'
+        scrollBehavior: 'auto',
+        touchAction: 'pan-y' // Allow vertical panning for scrolling
       }}
     >
       <div ref={contentRef} className="relative z-10 text-center w-full max-w-6xl px-4 md:px-6 py-8 md:pt-12 md:pb-12 flex flex-col justify-center min-h-screen md:min-h-0">
