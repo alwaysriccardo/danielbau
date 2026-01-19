@@ -52,13 +52,14 @@ const AppContent = () => {
     // Only initialize ScrollTrigger after loading completes
     if (loading) return;
     
-    // Optimize ScrollTrigger globally for smooth performance with native smooth scrolling
+    // Optimize ScrollTrigger to work perfectly with native smooth scrolling
+    // This creates a unified scrolling experience - one smooth scroll system
     ScrollTrigger.config({
       autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
-      ignoreMobileResize: true, // Ignore mobile resize for better performance
-      refreshPriority: -1, // Lower refresh priority
-      limitCallbacks: true, // Limit callback frequency
-      syncInterval: 16 // Sync with native smooth scrolling (60fps)
+      ignoreMobileResize: true,
+      refreshPriority: -1,
+      limitCallbacks: true,
+      syncInterval: 16 // Sync with native smooth scrolling at 60fps
     });
     
     // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize

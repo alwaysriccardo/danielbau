@@ -92,7 +92,6 @@ const ServiceStack: React.FC = () => {
                   scrub: 3.5, // Increased scrub for smoother scrolling with native smooth scroll
                   invalidateOnRefresh: false, // Disable to reduce recalculations
                   refreshPriority: -1, // Lower priority
-                  limitCallbacks: true, // Limit callback frequency
                   fastScrollEnd: true, // Better handling of fast scrolling
                   markers: false
                 }

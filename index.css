@@ -48,8 +48,6 @@ html {
 .font-display { font-family: var(--font-display); }
 .font-body { font-family: var(--font-body); }
 
-/* Native smooth scrolling - controlled and performant */
-
 /* Performance Optimizations */
 .card-inner {
   will-change: transform, opacity;
@@ -124,31 +122,16 @@ iframe {
   }
 }
 
-/* Native smooth scrolling with controlled speed */
+/* Unified smooth scrolling - works perfectly with ScrollTrigger */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 0;
-  /* Control scroll momentum - makes scrolling feel more controlled */
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Prevent overly fast scrolling on desktop */
 @media (min-width: 769px) {
-  html {
-    /* Native smooth scroll with reasonable speed */
-    scroll-behavior: smooth;
-  }
-  
-  /* Add slight momentum damping for better control */
   body {
     overscroll-behavior-y: contain;
-  }
-}
-
-/* Reduce scroll speed on mobile for better control */
-@media (max-width: 768px) {
-  html {
-    scroll-behavior: smooth;
   }
 }
 

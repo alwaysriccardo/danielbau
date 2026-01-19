@@ -150,8 +150,8 @@ const Footer: React.FC = () => {
                 }
               }
             `}</style>
-            {t.footer.offer}
-          </a>
+          {t.footer.offer}
+        </a>
 
           {/* Phone Number */}
           <div ref={phoneRef} className="mt-4 md:mt-6">
