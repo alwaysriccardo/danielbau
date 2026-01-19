@@ -110,29 +110,10 @@ const Navigation: React.FC = () => {
               e.preventDefault();
               const footer = document.getElementById('contact');
               if (footer) {
-                // Scroll to absolute maximum to ensure footer is fully visible
-                const maxScroll = Math.max(
-                  document.body.scrollHeight,
-                  document.body.offsetHeight,
-                  document.documentElement.clientHeight,
-                  document.documentElement.scrollHeight,
-                  document.documentElement.offsetHeight
-                );
+                // Use scrollTo for better compatibility with fixed elements
                 window.scrollTo({
-                  top: maxScroll,
+                  top: document.documentElement.scrollHeight,
                   behavior: 'auto'
-                });
-                // Ensure footer is fully visible after a brief delay
-                requestAnimationFrame(() => {
-                  requestAnimationFrame(() => {
-                    window.scrollTo({
-                      top: Math.max(
-                        document.body.scrollHeight,
-                        document.documentElement.scrollHeight
-                      ),
-                      behavior: 'auto'
-                    });
-                  });
                 });
               }
             }}
@@ -205,29 +186,9 @@ const Navigation: React.FC = () => {
             e.preventDefault();
             toggleMenu();
             setTimeout(() => {
-              // Scroll to absolute maximum to ensure footer is fully visible
-              const maxScroll = Math.max(
-                document.body.scrollHeight,
-                document.body.offsetHeight,
-                document.documentElement.clientHeight,
-                document.documentElement.scrollHeight,
-                document.documentElement.offsetHeight
-              );
               window.scrollTo({
-                top: maxScroll,
+                top: document.documentElement.scrollHeight,
                 behavior: 'auto'
-              });
-              // Ensure footer is fully visible after a brief delay
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  window.scrollTo({
-                    top: Math.max(
-                      document.body.scrollHeight,
-                      document.documentElement.scrollHeight
-                    ),
-                    behavior: 'auto'
-                  });
-                });
               });
             }, 300); // Wait for menu to close
           }}
