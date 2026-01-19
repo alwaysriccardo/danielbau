@@ -54,10 +54,11 @@ const Hero: React.FC = () => {
               trigger: containerRef.current,
               start: 'top top',
               end: 'bottom top',
-              scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling
+              scrub: isMobile ? 2.5 : 3.5, // Increased scrub on desktop for smoother scrolling with native smooth scroll
               invalidateOnRefresh: false, // Disable to reduce recalculations
               refreshPriority: -1, // Lower priority to reduce impact
-              pin: false // Ensure no pinning that could cause shifts
+              pin: false, // Ensure no pinning that could cause shifts
+              fastScrollEnd: true // Better handling of fast scrolling
             }
           });
         };
