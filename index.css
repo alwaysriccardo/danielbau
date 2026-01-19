@@ -122,9 +122,10 @@ iframe {
   }
 }
 
-/* Unified smooth scrolling - works perfectly with ScrollTrigger */
+/* Instant scrolling - ScrollTrigger handles smoothness via scrub values */
+/* This prevents conflicts between native smooth scroll and ScrollTrigger animations */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 0;
 }
 

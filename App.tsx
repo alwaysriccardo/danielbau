@@ -59,7 +59,8 @@ const AppContent = () => {
       ignoreMobileResize: true,
       refreshPriority: -1,
       limitCallbacks: true,
-      syncInterval: 16 // Sync with native smooth scrolling at 60fps
+      syncInterval: 16, // Sync with native smooth scrolling at 60fps
+      anticipatePin: 1 // Anticipate fast scrolling to prevent visual bugs
     });
     
     // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize

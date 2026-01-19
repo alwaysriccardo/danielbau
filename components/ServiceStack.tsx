@@ -89,10 +89,11 @@ const ServiceStack: React.FC = () => {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 3.5, // Increased scrub for smoother scrolling with native smooth scroll
+                  scrub: 5, // Much higher scrub to prevent visual bugs during fast scrolling
                   invalidateOnRefresh: false, // Disable to reduce recalculations
                   refreshPriority: -1, // Lower priority
                   fastScrollEnd: true, // Better handling of fast scrolling
+                  anticipatePin: 1, // Anticipate fast scrolling
                   markers: false
                 }
               });
