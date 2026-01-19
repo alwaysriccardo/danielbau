@@ -13,6 +13,50 @@ const Footer: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Ensure footer is fully visible when scrolled to
+  useEffect(() => {
+    const ensureFooterVisible = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight
+      );
+      
+      // If we're near the bottom (within 100px), ensure we're at the absolute maximum
+      if (scrollTop + windowHeight >= documentHeight - 100) {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: documentHeight - windowHeight,
+            behavior: 'auto'
+          });
+        });
+      }
+    };
+
+    // Check on mount and after a short delay
+    ensureFooterVisible();
+    const timeout = setTimeout(ensureFooterVisible, 100);
+    
+    // Also check on scroll events near the bottom
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(ensureFooterVisible, 50);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(scrollTimeout);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   // Fix scroll chaining on mobile - allow page scroll when footer is at top
   useEffect(() => {
     if (!footerRef.current) return;

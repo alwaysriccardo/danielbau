@@ -199,9 +199,29 @@ const ServiceStack: React.FC = () => {
                     href="#contact"
                     onClick={(e) => {
                       e.preventDefault();
+                      // Scroll to absolute maximum to ensure footer is fully visible
+                      const maxScroll = Math.max(
+                        document.body.scrollHeight,
+                        document.body.offsetHeight,
+                        document.documentElement.clientHeight,
+                        document.documentElement.scrollHeight,
+                        document.documentElement.offsetHeight
+                      );
                       window.scrollTo({
-                        top: document.documentElement.scrollHeight,
+                        top: maxScroll,
                         behavior: 'auto'
+                      });
+                      // Ensure footer is fully visible after a brief delay
+                      requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                          window.scrollTo({
+                            top: Math.max(
+                              document.body.scrollHeight,
+                              document.documentElement.scrollHeight
+                            ),
+                            behavior: 'auto'
+                          });
+                        });
                       });
                     }}
                     className="view-project-btn text-left uppercase tracking-widest text-xs border-b border-white/30 pb-2 w-max hover:text-white transition-all duration-300 inline-block"
