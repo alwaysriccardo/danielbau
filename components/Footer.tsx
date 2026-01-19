@@ -119,21 +119,22 @@ const Footer: React.FC = () => {
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              color: '#ffffff',
-              textShadow: '0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)',
-              animation: 'pulseGlow 2s ease-in-out infinite'
+              color: '#ffffff'
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget;
+              const isMobile = window.innerWidth < 768;
               el.style.transform = 'scale(1.05)';
               el.style.letterSpacing = '0.1em';
-              el.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.4)';
+              if (isMobile) {
+                el.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.4)';
+              }
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget;
               el.style.transform = 'scale(1)';
               el.style.letterSpacing = '0';
-              el.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)';
+              el.style.textShadow = '';
             }}
             onClick={(e) => {
               e.preventDefault();
@@ -147,6 +148,18 @@ const Footer: React.FC = () => {
                 }
                 50% {
                   text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3), 0 0 45px rgba(255, 255, 255, 0.2);
+                }
+              }
+              @media (min-width: 768px) {
+                .shine-button {
+                  animation: none !important;
+                  text-shadow: none !important;
+                }
+              }
+              @media (max-width: 767px) {
+                .shine-button {
+                  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
+                  animation: pulseGlow 2s ease-in-out infinite;
                 }
               }
             `}</style>
