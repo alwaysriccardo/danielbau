@@ -62,10 +62,10 @@ const Hero: React.FC = () => {
           });
         };
 
-        // Delay parallax initialization to prevent conflicts with Lenis
+        // Delay parallax initialization to ensure layout is stable
         setTimeout(() => {
           initParallax();
-        }, 300); // Wait for Lenis to be ready
+        }, 300);
       }
     }, containerRef);
 

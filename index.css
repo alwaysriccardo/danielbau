@@ -48,26 +48,7 @@ html {
 .font-display { font-family: var(--font-display); }
 .font-body { font-family: var(--font-body); }
 
-/* Lenis Recommended Styles */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
+/* Native smooth scrolling - controlled and performant */
 
 /* Performance Optimizations */
 .card-inner {
@@ -89,9 +70,6 @@ img, video {
   backface-visibility: hidden;
 }
 
-[data-lenis-prevent] {
-  will-change: scroll-position;
-}
 
 * {
   -webkit-font-smoothing: antialiased;
@@ -146,10 +124,35 @@ iframe {
   }
 }
 
+/* Native smooth scrolling with controlled speed */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 0;
+  /* Control scroll momentum - makes scrolling feel more controlled */
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Prevent overly fast scrolling on desktop */
+@media (min-width: 769px) {
+  html {
+    /* Native smooth scroll with reasonable speed */
+    scroll-behavior: smooth;
+  }
+  
+  /* Add slight momentum damping for better control */
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Reduce scroll speed on mobile for better control */
+@media (max-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Respect user preferences for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
