@@ -104,9 +104,12 @@ const AppContent = () => {
           {/* Switzerland Flag */}
           <div className="w-16 h-16 md:w-20 md:h-20 mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full">
-              <rect x="0" y="0" width="100" height="100" fill="white" />
-              <rect x="0" y="40" width="100" height="20" fill="#FF0000" />
-              <rect x="40" y="0" width="20" height="100" fill="#FF0000" />
+              {/* Red background */}
+              <rect x="0" y="0" width="100" height="100" fill="#FF0000" />
+              {/* White cross - vertical arm */}
+              <rect x="40" y="20" width="20" height="60" fill="white" />
+              {/* White cross - horizontal arm */}
+              <rect x="20" y="40" width="60" height="20" fill="white" />
             </svg>
           </div>
           <div className="h-16 w-px bg-black/20"></div>
