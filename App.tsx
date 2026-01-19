@@ -8,7 +8,6 @@ import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
-import Portfolio from './components/Portfolio';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
@@ -120,7 +119,6 @@ const AppContent = () => {
         <Intro />
         <ServiceStack />
         <CleaningServices />
-        <Portfolio />
         <Testimonials />
         
         {/* Final Text Section */}

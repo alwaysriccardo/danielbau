@@ -5,7 +5,6 @@ export const TRANSLATIONS = {
     nav: {
       services: "Leistungen",
       about: "Über Uns",
-      portfolio: "Portfolio",
       contact: "Kontakt",
       menu: "MENÜ"
     },
@@ -77,10 +76,6 @@ export const TRANSLATIONS = {
       send: "Senden",
       sending: "Wird gesendet..."
     },
-    portfolio: {
-      header: "PORTFOLIO",
-      subheader: "Präsentation unserer abgeschlossenen Projekte und Handwerkskunst"
-    },
     testimonials: {
       header: "Unsere Kunden"
     }
@@ -89,7 +84,6 @@ export const TRANSLATIONS = {
     nav: {
       services: "Services",
       about: "About Us",
-      portfolio: "Portfolio",
       contact: "Contact",
       menu: "MENU"
     },
@@ -153,10 +147,6 @@ export const TRANSLATIONS = {
       offer: "QUOTE",
       copyright: "© 2026 DANIELBAU SWITZERLAND"
     },
-    portfolio: {
-      header: "PORTFOLIO",
-      subheader: "Showcasing our completed projects and craftsmanship"
-    },
     testimonials: {
       header: "Our Clients"
     }
@@ -165,7 +155,6 @@ export const TRANSLATIONS = {
     nav: {
       services: "Services",
       about: "À propos",
-      portfolio: "Portfolio",
       contact: "Contact",
       menu: "MENU"
     },
@@ -229,10 +218,6 @@ export const TRANSLATIONS = {
       offer: "DEVIS",
       copyright: "© 2026 DANIELBAU SUISSE"
     },
-    portfolio: {
-      header: "PORTFOLIO",
-      subheader: "Présentation de nos projets terminés et de notre savoir-faire"
-    },
     testimonials: {
       header: "Nos Clients"
     }
@@ -241,7 +226,6 @@ export const TRANSLATIONS = {
     nav: {
       services: "Servizi",
       about: "Chi Siamo",
-      portfolio: "Portfolio",
       contact: "Contatto",
       menu: "MENU"
     },
@@ -304,10 +288,6 @@ export const TRANSLATIONS = {
       ready: "Pronto per il cambiamento?",
       offer: "PREVENTIVO",
       copyright: "© 2026 DANIELBAU SVIZZERA"
-    },
-    portfolio: {
-      header: "PORTFOLIO",
-      subheader: "Mostra dei nostri progetti completati e della nostra maestria"
     },
     testimonials: {
       header: "I Nostri Clienti"
