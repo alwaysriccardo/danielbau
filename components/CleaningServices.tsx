@@ -161,8 +161,7 @@ const CleaningServices: React.FC = () => {
               width: `${bubble.size}px`,
               height: `${bubble.size}px`,
               background: `radial-gradient(circle, hsla(${bubble.hue}, 70%, 60%, 0.6), hsla(${bubble.hue}, 70%, 50%, 0.3))`,
-              boxShadow: `0 0 ${bubble.size}px hsla(${bubble.hue}, 70%, 60%, 0.5)`,
-              willChange: 'transform, opacity'
+              boxShadow: `0 0 ${bubble.size}px hsla(${bubble.hue}, 70%, 60%, 0.5)`
             }}
           />
         ))}

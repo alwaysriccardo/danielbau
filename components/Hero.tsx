@@ -47,25 +47,25 @@ const Hero: React.FC = () => {
           });
           
           gsap.to(imageRef.current, {
-            yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
+            yPercent: isMobile ? 15 : 30,
             ease: 'none',
-            force3D: true, // GPU acceleration
+            force3D: true,
             scrollTrigger: {
               trigger: containerRef.current,
               start: 'top top',
               end: 'bottom top',
-              scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling
-              invalidateOnRefresh: false, // Disable to reduce recalculations
-              refreshPriority: -1, // Lower priority to reduce impact
-              pin: false // Ensure no pinning that could cause shifts
+              scrub: isMobile ? 3 : 4, // Higher scrub for better performance - less frequent updates
+              invalidateOnRefresh: false,
+              refreshPriority: -1,
+              pin: false
             }
           });
         };
 
-        // Delay parallax initialization to prevent conflicts with Lenis
+        // Delay parallax initialization to ensure layout is stable
         setTimeout(() => {
           initParallax();
-        }, 300); // Wait for Lenis to be ready
+        }, 300);
       }
     }, containerRef);
 
@@ -81,29 +81,25 @@ const Hero: React.FC = () => {
         alt="Hero Background" 
         loading="eager"
         decoding="async"
-        style={{ willChange: 'transform' }}
       />
       
-      <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference" style={{ willChange: 'transform' }}>
+      <div ref={textContainerRef} className="relative z-10 text-center text-white mix-blend-difference">
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
           <span className="hero-text-line block translate-y-full" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
-            textStroke: '1px rgba(255,255,255,0.3)',
-            willChange: 'transform'
+            textStroke: '1px rgba(255,255,255,0.3)'
           }}>{t.hero.line1}</span>
         </h1>
         <h1 className="font-display text-[12vw] leading-none overflow-hidden">
           <span className="hero-text-line block translate-y-full" style={{ 
             WebkitTextStroke: '1px rgba(255,255,255,0.3)',
-            textStroke: '1px rgba(255,255,255,0.3)',
-            willChange: 'transform'
+            textStroke: '1px rgba(255,255,255,0.3)'
           }}>{t.hero.line2}</span>
         </h1>
         
         <p className="hero-fade mt-8 text-sm uppercase tracking-[0.5em] opacity-0 mix-blend-difference" style={{
           WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
-          textStroke: '0.5px rgba(255,255,255,0.2)',
-          willChange: 'opacity'
+          textStroke: '0.5px rgba(255,255,255,0.2)'
         }}>
           {t.hero.subtitle}
         </p>

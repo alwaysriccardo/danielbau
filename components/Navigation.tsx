@@ -96,7 +96,7 @@ const Navigation: React.FC = () => {
                 // Use scrollTo for better compatibility with fixed elements
                 window.scrollTo({
                   top: document.documentElement.scrollHeight,
-                  behavior: 'smooth'
+                  behavior: 'auto'
                 });
               }
             }}
@@ -171,7 +171,7 @@ const Navigation: React.FC = () => {
             setTimeout(() => {
               window.scrollTo({
                 top: document.documentElement.scrollHeight,
-                behavior: 'smooth'
+                behavior: 'auto'
               });
             }, 300); // Wait for menu to close
           }}

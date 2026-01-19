@@ -84,15 +84,14 @@ const ServiceStack: React.FC = () => {
                 scale: 0.9,
                 opacity: 0.4,
                 ease: "none",
-                force3D: true, // GPU acceleration
+                force3D: true,
                 scrollTrigger: {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: 2.5, // Increased scrub for better performance (less frequent updates)
-                  invalidateOnRefresh: false, // Disable to reduce recalculations
-                  refreshPriority: -1, // Lower priority
-                  limitCallbacks: true, // Limit callback frequency
+                  scrub: 4, // Higher scrub for better performance - less frequent updates = 60fps
+                  invalidateOnRefresh: false,
+                  refreshPriority: -1,
                   markers: false
                 }
               });
@@ -100,10 +99,7 @@ const ServiceStack: React.FC = () => {
           }
         });
 
-        // Batch ScrollTrigger refresh for better performance
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+        // ScrollTrigger will auto-refresh, no manual refresh needed
       };
 
       // Single initialization
@@ -176,9 +172,8 @@ const ServiceStack: React.FC = () => {
                 cardsRef.current[index] = el;
               }}
               className="sticky top-[10vh] h-[80vh] md:h-[80vh] min-h-[600px] w-full flex items-center justify-center mb-[5vh]"
-              style={{ willChange: 'transform' }}
             >
-              <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group" style={{ willChange: 'transform, opacity' }}>
+              <div className="card-inner w-[90%] h-full bg-[#1a1a1a] border border-white/10 relative overflow-hidden grid md:grid-cols-[1fr_1.2fr] grid-cols-1 shadow-2xl group">
                 
                 <div className="p-8 md:p-16 flex flex-col justify-between bg-[#1a1a1a] z-10 relative min-h-0">
                   <div>
@@ -201,7 +196,7 @@ const ServiceStack: React.FC = () => {
                       e.preventDefault();
                       window.scrollTo({
                         top: document.documentElement.scrollHeight,
-                        behavior: 'smooth'
+                        behavior: 'auto'
                       });
                     }}
                     className="view-project-btn text-left uppercase tracking-widest text-xs border-b border-white/30 pb-2 w-max hover:text-white transition-all duration-300 inline-block"

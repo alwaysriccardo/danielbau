@@ -46,7 +46,6 @@ html {
 
 /* Performance Optimizations */
 .card-inner {
-  will-change: transform, opacity;
   transform: translate3d(0,0,0);
   backface-visibility: hidden;
   perspective: 1000px;
@@ -54,7 +53,6 @@ html {
 
 .hero-text-line,
 .hero-fade {
-  will-change: transform, opacity;
   transform: translate3d(0,0,0);
   backface-visibility: hidden;
 }
@@ -118,29 +116,14 @@ iframe {
   }
 }
 
-/* Lenis Recommended Styles */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
-
+/* Instant scrolling - no lag, maximum performance */
 html {
+  scroll-behavior: auto;
   scroll-padding-top: 0;
+}
+
+body {
+  overscroll-behavior-y: contain;
 }
 
 /* Respect user preferences for reduced motion */
