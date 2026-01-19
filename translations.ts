@@ -78,6 +78,11 @@ export const TRANSLATIONS = {
     },
     testimonials: {
       header: "Unsere Kunden"
+    },
+    portfolio: {
+      subheader: "PORTFOLIO",
+      header: "Unsere Arbeiten",
+      description: "Aktuelle Projekte und abgeschlossene Arbeiten"
     }
   },
   en: {
@@ -149,6 +154,11 @@ export const TRANSLATIONS = {
     },
     testimonials: {
       header: "Our Clients"
+    },
+    portfolio: {
+      subheader: "PORTFOLIO",
+      header: "Our Work",
+      description: "Recent projects and completed work"
     }
   },
   fr: {
@@ -220,6 +230,11 @@ export const TRANSLATIONS = {
     },
     testimonials: {
       header: "Nos Clients"
+    },
+    portfolio: {
+      subheader: "PORTFOLIO",
+      header: "Nos Réalisations",
+      description: "Projets récents et travaux terminés"
     }
   },
   it: {
@@ -291,6 +306,11 @@ export const TRANSLATIONS = {
     },
     testimonials: {
       header: "I Nostri Clienti"
+    },
+    portfolio: {
+      subheader: "PORTFOLIO",
+      header: "I Nostri Lavori",
+      description: "Progetti recenti e lavori completati"
     }
   }
 };

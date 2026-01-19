@@ -8,6 +8,7 @@ import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
 import CleaningServices from './components/CleaningServices';
 import Testimonials from './components/Testimonials';
+import Portfolio from './components/Portfolio';
 import Footer from './components/Footer';
 import LanguageSidebar from './components/LanguageSidebar';
 import ContactButtons from './components/ContactButtons';
@@ -92,6 +93,7 @@ const AppContent = () => {
         <ServiceStack />
         <CleaningServices />
         <Testimonials />
+        <Portfolio />
         
         {/* Final Text Section */}
         <section className="pt-12 md:pt-16 pb-8 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">

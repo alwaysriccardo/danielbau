@@ -140,17 +140,9 @@ const Navigation: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       <div 
-        className={`fixed inset-0 bg-[#121212] z-[55] flex flex-col justify-center items-center gap-8 ${
+        className={`fixed inset-0 bg-[#121212] z-[55] flex flex-col justify-center items-center gap-8 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
           isMenuOpen ? 'translate-y-0' : '-translate-y-full'
         }`}
-        style={{
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          transform: isMenuOpen ? 'translate3d(0, 0, 0)' : 'translate3d(0, -100%, 0)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          WebkitTransform: isMenuOpen ? 'translate3d(0, 0, 0)' : 'translate3d(0, -100%, 0)'
-        }}
         aria-hidden={!isMenuOpen}
       >
         {/* Close Button (X) */}
