@@ -94,7 +94,7 @@ const AppContent = () => {
         <Testimonials />
         
         {/* Final Text Section */}
-        <section className="pt-12 md:pt-16 pb-40 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
+        <section className="pt-12 md:pt-16 pb-8 bg-[#E3E1DC] text-center flex flex-col items-center justify-center">
           <h2 className="font-display text-3xl md:text-5xl mb-8">
             {t.final.title}
           </h2>
@@ -105,8 +105,8 @@ const AppContent = () => {
           <div className="w-16 h-16 md:w-20 md:h-20 mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <rect x="0" y="0" width="100" height="100" fill="white" />
-              <rect x="0" y="40" width="100" height="20" fill="black" />
-              <rect x="40" y="0" width="20" height="100" fill="black" />
+              <rect x="0" y="40" width="100" height="20" fill="#FF0000" />
+              <rect x="40" y="0" width="20" height="100" fill="#FF0000" />
             </svg>
           </div>
           <div className="h-16 w-px bg-black/20"></div>
