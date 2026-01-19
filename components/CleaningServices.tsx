@@ -72,8 +72,7 @@ const CleaningServices: React.FC = () => {
             start: 'top 80%',
             toggleActions: 'play none none reverse',
             invalidateOnRefresh: false, // Reduce recalculations
-            refreshPriority: -1, // Lower priority for smoother scrolling
-            fastScrollEnd: true // Better handling of fast scrolling
+            refreshPriority: -1 // Lower priority for smoother scrolling
           }
         });
       }

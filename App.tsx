@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import Preloader from './components/Preloader';
@@ -49,31 +50,56 @@ const AppContent = () => {
   }, [loading]);
 
   useEffect(() => {
-    // Only initialize ScrollTrigger after loading completes
+    // Only initialize Lenis after loading completes
     if (loading) return;
+
+    // Initialize immediately - no delay to prevent white flash and shaking
+    const lenis = new Lenis({
+      duration: 1.0,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      smoothWheel: true,
+      smoothTouch: false, // Disable smooth touch for better mobile performance
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2.0, // Increased for better mobile responsiveness
+      gestureDirection: 'vertical',
+    });
+
+    // Force scroll to top immediately
+    lenis.scrollTo(0, { immediate: true });
     
-    // Desktop-optimized ScrollTrigger configuration
-    // Works perfectly with native smooth scrolling
-    const isDesktop = window.innerWidth >= 769;
+    // Smooth RAF loop for lag-free scrolling
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+
+    rafId = requestAnimationFrame(raf);
     
+    // Optimize ScrollTrigger globally for smooth performance
     ScrollTrigger.config({
       autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
-      ignoreMobileResize: true,
-      refreshPriority: -1,
-      limitCallbacks: true,
-      syncInterval: isDesktop ? 8 : 16, // Faster sync on desktop for smoother animations
-      anticipatePin: isDesktop ? 1 : 0 // Anticipate fast scrolling on desktop
+      ignoreMobileResize: true, // Ignore mobile resize for better performance
+      refreshPriority: -1, // Lower refresh priority
+      limitCallbacks: true // Limit callback frequency
     });
     
-    // Refresh ScrollTrigger after initialization
+    // Refresh ScrollTrigger after a brief delay to allow Hero parallax to initialize
+    // But don't block scrolling
     const refreshTimeout = setTimeout(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
+        // Ensure scroll is still at top after refresh
+        lenis.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
       });
-    }, 300);
+    }, 300); // Brief delay for Hero parallax, but don't block user scrolling
       
     return () => {
       clearTimeout(refreshTimeout);
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
     };
   }, [loading]);
 

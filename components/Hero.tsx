@@ -47,27 +47,25 @@ const Hero: React.FC = () => {
           });
           
           gsap.to(imageRef.current, {
-            yPercent: isMobile ? 15 : 30,
+            yPercent: isMobile ? 15 : 30, // Reduced parallax intensity on mobile for smoother performance
             ease: 'none',
-            force3D: true,
+            force3D: true, // GPU acceleration
             scrollTrigger: {
               trigger: containerRef.current,
               start: 'top top',
               end: 'bottom top',
-              scrub: isMobile ? 2.5 : 2, // Optimized scrub for desktop - responsive but smooth
-              invalidateOnRefresh: false,
-              refreshPriority: -1,
-              pin: false,
-              fastScrollEnd: true,
-              anticipatePin: isMobile ? 0 : 1
+              scrub: isMobile ? 2.5 : 1.5, // Balanced scrub for smooth scrolling
+              invalidateOnRefresh: false, // Disable to reduce recalculations
+              refreshPriority: -1, // Lower priority to reduce impact
+              pin: false // Ensure no pinning that could cause shifts
             }
           });
         };
 
-        // Delay parallax initialization to ensure layout is stable
+        // Delay parallax initialization to prevent conflicts with Lenis
         setTimeout(() => {
           initParallax();
-        }, 300);
+        }, 300); // Wait for Lenis to be ready
       }
     }, containerRef);
 

@@ -80,21 +80,19 @@ const ServiceStack: React.FC = () => {
               // Ensure GPU acceleration
               gsap.set(inner, { force3D: true, transform: 'translate3d(0,0,0)' });
               
-              const isDesktop = window.innerWidth >= 769;
               gsap.to(inner, {
                 scale: 0.9,
                 opacity: 0.4,
                 ease: "none",
-                force3D: true,
+                force3D: true, // GPU acceleration
                 scrollTrigger: {
                   trigger: nextCard,
                   start: "top bottom",
                   end: "top 10vh",
-                  scrub: isDesktop ? 2 : 2.5, // Optimized scrub for desktop
-                  invalidateOnRefresh: false,
-                  refreshPriority: -1,
-                  fastScrollEnd: true,
-                  anticipatePin: isDesktop ? 1 : 0,
+                  scrub: 2.5, // Increased scrub for better performance (less frequent updates)
+                  invalidateOnRefresh: false, // Disable to reduce recalculations
+                  refreshPriority: -1, // Lower priority
+                  limitCallbacks: true, // Limit callback frequency
                   markers: false
                 }
               });
