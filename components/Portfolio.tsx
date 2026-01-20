@@ -340,11 +340,12 @@ const Portfolio: React.FC = () => {
                   className="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg"
                 />
               ) : (
-                <div className="w-full max-w-4xl" style={{ paddingBottom: '56.25%' }}>
+                <div className="w-full max-w-4xl max-h-[70vh] flex items-center justify-center">
                   {selectedItem.embedHtml ? (
                     // Use Facebook embed if available (has sound support)
                     <div 
-                      className="absolute inset-0 w-full h-full rounded-lg overflow-hidden"
+                      className="w-full h-full min-h-[400px] rounded-lg overflow-hidden"
+                      style={{ maxHeight: '70vh' }}
                       dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }}
                     />
                   ) : selectedItem.fullSize ? (
@@ -352,7 +353,7 @@ const Portfolio: React.FC = () => {
                     <video
                       src={selectedItem.fullSize}
                       controls
-                      className="absolute inset-0 w-full h-full object-contain rounded-lg"
+                      className="w-full h-auto max-h-[70vh] rounded-lg object-contain"
                       playsInline
                       preload="metadata"
                       crossOrigin="anonymous"
@@ -360,7 +361,7 @@ const Portfolio: React.FC = () => {
                       Your browser does not support the video tag.
                     </video>
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black text-white rounded-lg">
+                    <div className="w-full h-[400px] flex items-center justify-center bg-black text-white rounded-lg">
                       <div className="text-center">
                         <p className="mb-4">Video playback not available</p>
                         <a
