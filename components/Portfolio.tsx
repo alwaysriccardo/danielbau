@@ -158,44 +158,45 @@ const Portfolio: React.FC = () => {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="group relative overflow-hidden bg-[#1a1a1a] aspect-square cursor-pointer"
+                className="group cursor-pointer"
                 onClick={() => openLightbox(item)}
               >
-                {item.type === 'photo' ? (
-                  <img
-                    src={item.thumbnail}
-                    alt={item.caption || 'Portfolio item'}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="relative w-full h-full">
+                <div className="relative overflow-hidden bg-[#1a1a1a] aspect-square mb-3">
+                  {item.type === 'photo' ? (
                     <img
                       src={item.thumbnail}
-                      alt={item.caption || 'Video thumbnail'}
+                      alt={item.caption || 'Portfolio item'}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                      <svg
-                        className="w-16 h-16 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  {item.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-sm">
-                      {item.caption.length > 100
-                        ? `${item.caption.substring(0, 100)}...`
-                        : item.caption}
+                  ) : (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.caption || 'Video thumbnail'}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
+                        <svg
+                          className="w-16 h-16 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
                     </div>
                   )}
                 </div>
+                {/* Caption below thumbnail */}
+                {item.caption && (
+                  <div className="text-sm text-gray-700 line-clamp-2 group-hover:text-[#121212] transition-colors">
+                    {item.caption.length > 120
+                      ? `${item.caption.substring(0, 120)}...`
+                      : item.caption}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -210,7 +211,7 @@ const Portfolio: React.FC = () => {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 z-[101] p-2"
+            className="absolute top-24 right-6 md:top-28 md:right-8 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
             aria-label="Close"
           >
             <svg
