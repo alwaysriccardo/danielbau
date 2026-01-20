@@ -81,8 +81,9 @@ export default async function handler(
     try {
       // Using type=uploaded ensures we only get photos uploaded to the page (not profile/cover)
       // Note: 'name' field is deprecated, using 'message' or 'description' instead
+      // Request large picture size for high-quality thumbnails
       const photosResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${pageId}/photos?fields=id,picture,source,created_time,message,link&limit=50&type=uploaded&access_token=${accessToken}`
+        `https://graph.facebook.com/v18.0/${pageId}/photos?fields=id,picture.type(large),source,created_time,message,link&limit=50&type=uploaded&access_token=${accessToken}`
       );
       
       const photosData = await photosResponse.json();
@@ -94,10 +95,12 @@ export default async function handler(
         const photos: FacebookPhoto[] = photosData.data || [];
         
         photos.forEach((photo) => {
+          // Use source (full size) for thumbnail if available, otherwise use large picture
+          const highQualityThumbnail = photo.source || photo.picture;
           portfolioItems.push({
             id: photo.id,
             type: 'photo',
-            thumbnail: photo.picture,
+            thumbnail: highQualityThumbnail,
             fullSize: photo.source || photo.picture,
             url: photo.link || `https://www.facebook.com/photo/?fbid=${photo.id}`,
             createdAt: photo.created_time,
@@ -111,8 +114,9 @@ export default async function handler(
 
     // Fetch videos
     try {
+      // Request large picture size for high-quality video thumbnails
       const videosResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,embed_html,created_time,message,description,link&limit=50&access_token=${accessToken}`
+        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture.type(large),source,embed_html,created_time,message,description,link&limit=50&access_token=${accessToken}`
       );
       
       const videosData = await videosResponse.json();

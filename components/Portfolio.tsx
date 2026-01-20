@@ -186,11 +186,11 @@ const Portfolio: React.FC = () => {
             </div>
           </div>
 
-          {/* Horizontal Carousel */}
+          {/* Horizontal Carousel - Shows 3 items on mobile */}
           <div className="relative">
             <div 
               ref={carouselRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth"
+              className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth"
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
@@ -200,7 +200,7 @@ const Portfolio: React.FC = () => {
               {filteredItems.map((item, index) => (
                 <div
                   key={item.id}
-                  className="group relative flex-shrink-0 w-[90vw] sm:w-[45vw] lg:w-[30vw] aspect-square bg-[#1a1a1a] cursor-pointer snap-center"
+                  className="group relative flex-shrink-0 w-[calc(33.33%-0.67rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] lg:w-[calc(33.33%-1.33rem)] aspect-square bg-[#1a1a1a] cursor-pointer snap-center rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
                   onClick={() => openLightbox(item, index)}
                 >
                   {item.type === 'photo' ? (
@@ -220,7 +220,7 @@ const Portfolio: React.FC = () => {
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
                         <svg
-                          className="w-16 h-16 text-white"
+                          className="w-12 h-12 md:w-16 md:h-16 text-white"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -229,11 +229,11 @@ const Portfolio: React.FC = () => {
                       </div>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     {item.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-sm">
-                        {item.caption.length > 100
-                          ? `${item.caption.substring(0, 100)}...`
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-white text-xs md:text-sm">
+                        {item.caption.length > 80
+                          ? `${item.caption.substring(0, 80)}...`
                           : item.caption}
                       </div>
                     )}
