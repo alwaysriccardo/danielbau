@@ -26,6 +26,7 @@ interface FacebookVideo {
   id: string;
   picture: string;
   source?: string;
+  embed_html?: string;
   created_time: string;
   message?: string; // Replaces deprecated 'name' field
   description?: string;
@@ -111,7 +112,7 @@ export default async function handler(
     // Fetch videos
     try {
       const videosResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,created_time,message,description,link&limit=50&access_token=${accessToken}`
+        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,embed_html,created_time,message,description,link&limit=50&access_token=${accessToken}`
       );
       
       const videosData = await videosResponse.json();
@@ -135,6 +136,7 @@ export default async function handler(
             type: 'video',
             thumbnail: video.picture,
             fullSize: video.source,
+            embedHtml: video.embed_html, // Store embed HTML if available
             url: video.link || `https://www.facebook.com/video.php?v=${video.id}`,
             createdAt: video.created_time,
             caption: video.message || video.description, // Use 'message' instead of deprecated 'name'

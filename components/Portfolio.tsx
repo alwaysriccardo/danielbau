@@ -58,16 +58,36 @@ const Portfolio: React.FC = () => {
     document.body.style.overflow = '';
   };
 
-  // Close lightbox on escape key
+  // Keyboard navigation for lightbox
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && selectedItem) {
+    const handleKeyboard = (e: KeyboardEvent) => {
+      if (!selectedItem) return;
+      
+      if (e.key === 'Escape') {
         closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        // Navigate to previous item
+        const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
+        if (currentIndex > 0) {
+          setSelectedItem(filteredItems[currentIndex - 1]);
+        } else {
+          // Loop to last item
+          setSelectedItem(filteredItems[filteredItems.length - 1]);
+        }
+      } else if (e.key === 'ArrowRight') {
+        // Navigate to next item
+        const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
+        if (currentIndex < filteredItems.length - 1) {
+          setSelectedItem(filteredItems[currentIndex + 1]);
+        } else {
+          // Loop to first item
+          setSelectedItem(filteredItems[0]);
+        }
       }
     };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [selectedItem]);
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [selectedItem, filteredItems]);
 
   if (loading) {
     return (
@@ -208,9 +228,10 @@ const Portfolio: React.FC = () => {
           className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
+          {/* Close Button - moved down and left */}
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 z-[101] p-2"
+            className="absolute top-20 left-6 md:top-24 md:left-8 text-white hover:text-gray-300 z-[101] p-2 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
             aria-label="Close"
           >
             <svg
@@ -227,6 +248,62 @@ const Portfolio: React.FC = () => {
               />
             </svg>
           </button>
+
+          {/* Left Arrow - Previous Item */}
+          {filteredItems.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
+                const prevIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
+                setSelectedItem(filteredItems[prevIndex]);
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
+              aria-label="Previous"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+          )}
+
+          {/* Right Arrow - Next Item */}
+          {filteredItems.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
+                const nextIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
+                setSelectedItem(filteredItems[nextIndex]);
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
+              aria-label="Next"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          )}
           
           <div
             className="max-w-7xl max-h-[90vh] w-full"
@@ -240,25 +317,37 @@ const Portfolio: React.FC = () => {
               />
             ) : (
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                {selectedItem.fullSize ? (
+                {selectedItem.embedHtml ? (
+                  // Use Facebook embed if available (has sound support)
+                  <div 
+                    className="absolute inset-0 w-full h-full"
+                    dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }}
+                  />
+                ) : selectedItem.fullSize ? (
+                  // Fallback to direct video source
                   <video
                     src={selectedItem.fullSize}
                     controls
                     className="absolute inset-0 w-full h-full object-contain"
-                    autoPlay
+                    playsInline
+                    preload="metadata"
+                    crossOrigin="anonymous"
                   >
                     Your browser does not support the video tag.
                   </video>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-black text-white">
-                    <a
-                      href={selectedItem.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-lg underline hover:text-blue-400"
-                    >
-                      Watch on Facebook →
-                    </a>
+                    <div className="text-center">
+                      <p className="mb-4">Video playback not available</p>
+                      <a
+                        href={selectedItem.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-lg underline hover:text-blue-400"
+                      >
+                        Watch on Facebook →
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>

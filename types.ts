@@ -19,6 +19,7 @@ export interface PortfolioItem {
   type: 'photo' | 'video';
   thumbnail: string;
   fullSize?: string;
+  embedHtml?: string; // For Facebook video embeds
   url: string;
   createdAt: string;
   caption?: string;
