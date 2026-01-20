@@ -62,14 +62,20 @@ const Portfolio: React.FC = () => {
   };
 
   const navigateCarousel = (direction: 'prev' | 'next') => {
+    const currentFiltered = filter === 'all' 
+      ? items 
+      : items.filter(item => item.type === filter);
+    
+    if (currentFiltered.length === 0) return;
+    
     if (direction === 'prev') {
-      const newIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
+      const newIndex = currentIndex > 0 ? currentIndex - 1 : currentFiltered.length - 1;
       setCurrentIndex(newIndex);
-      setSelectedItem(filteredItems[newIndex]);
+      setSelectedItem(currentFiltered[newIndex]);
     } else {
-      const newIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
+      const newIndex = currentIndex < currentFiltered.length - 1 ? currentIndex + 1 : 0;
       setCurrentIndex(newIndex);
-      setSelectedItem(filteredItems[newIndex]);
+      setSelectedItem(currentFiltered[newIndex]);
     }
   };
 
@@ -82,24 +88,28 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     if (!selectedItem) return;
     
+    const currentFiltered = filter === 'all' 
+      ? items 
+      : items.filter(item => item.type === filter);
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeLightbox();
-      } else if (e.key === 'ArrowLeft' && filteredItems.length > 1) {
+      } else if (e.key === 'ArrowLeft' && currentFiltered.length > 1) {
         e.preventDefault();
-        const newIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
+        const newIndex = currentIndex > 0 ? currentIndex - 1 : currentFiltered.length - 1;
         setCurrentIndex(newIndex);
-        setSelectedItem(filteredItems[newIndex]);
-      } else if (e.key === 'ArrowRight' && filteredItems.length > 1) {
+        setSelectedItem(currentFiltered[newIndex]);
+      } else if (e.key === 'ArrowRight' && currentFiltered.length > 1) {
         e.preventDefault();
-        const newIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
+        const newIndex = currentIndex < currentFiltered.length - 1 ? currentIndex + 1 : 0;
         setCurrentIndex(newIndex);
-        setSelectedItem(filteredItems[newIndex]);
+        setSelectedItem(currentFiltered[newIndex]);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedItem, currentIndex, filteredItems]);
+  }, [selectedItem, currentIndex, filter, items]);
 
   if (loading) {
     return (
@@ -256,9 +266,13 @@ const Portfolio: React.FC = () => {
         <div
           className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         >
           <button
-            onClick={closeLightbox}
+            onClick={(e) => {
+              e.stopPropagation();
+              closeLightbox();
+            }}
             className="absolute top-24 right-4 md:top-28 md:right-8 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
             aria-label="Close"
           >
@@ -278,7 +292,7 @@ const Portfolio: React.FC = () => {
           </button>
           
           <div
-            className="max-w-7xl max-h-[90vh] w-full relative"
+            className="max-w-7xl max-h-[90vh] w-full relative flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Navigation Arrows */}
@@ -331,56 +345,74 @@ const Portfolio: React.FC = () => {
               </>
             )}
 
-            {selectedItem.type === 'photo' ? (
-              <img
-                src={selectedItem.fullSize || selectedItem.thumbnail}
-                alt={selectedItem.caption || 'Portfolio image'}
-                className="max-w-full max-h-[90vh] mx-auto object-contain"
-              />
-            ) : (
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                {selectedItem.embedHtml ? (
-                  // Use Facebook embed if available (has sound support)
-                  <div 
-                    className="absolute inset-0 w-full h-full"
-                    dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }}
-                  />
-                ) : selectedItem.fullSize ? (
-                  // Fallback to direct video source
-                  <video
-                    src={selectedItem.fullSize}
-                    controls
-                    className="absolute inset-0 w-full h-full object-contain"
-                    playsInline
-                    preload="metadata"
-                    crossOrigin="anonymous"
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black text-white">
-                    <div className="text-center">
-                      <p className="mb-4">Video playback not available</p>
-                      <a
-                        href={selectedItem.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-lg underline hover:text-blue-400"
-                      >
-                        Watch on Facebook →
-                      </a>
+            {/* Media Content */}
+            <div key={selectedItem.id} className="w-full flex-shrink-0">
+              {selectedItem.type === 'photo' ? (
+                <img
+                  key={`photo-${selectedItem.id}`}
+                  src={selectedItem.fullSize || selectedItem.thumbnail}
+                  alt={selectedItem.caption || 'Portfolio image'}
+                  className="max-w-full max-h-[75vh] mx-auto object-contain w-auto h-auto"
+                  onError={(e) => {
+                    // Fallback to thumbnail if fullSize fails
+                    const img = e.target as HTMLImageElement;
+                    if (img.src !== selectedItem.thumbnail) {
+                      img.src = selectedItem.thumbnail;
+                    }
+                  }}
+                />
+              ) : (
+                <div key={`video-${selectedItem.id}`} className="relative w-full max-w-5xl mx-auto" style={{ paddingBottom: '56.25%' }}>
+                  {selectedItem.embedHtml ? (
+                    // Use Facebook embed if available (has sound support)
+                    <div 
+                      key={`embed-${selectedItem.id}`}
+                      className="absolute inset-0 w-full h-full"
+                      dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }}
+                    />
+                  ) : selectedItem.fullSize ? (
+                    // Fallback to direct video source
+                    <video
+                      key={`video-source-${selectedItem.id}`}
+                      src={selectedItem.fullSize}
+                      controls
+                      className="absolute inset-0 w-full h-full object-contain"
+                      playsInline
+                      preload="metadata"
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.error('Video load error:', e);
+                      }}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black text-white">
+                      <div className="text-center">
+                        <p className="mb-4">Video playback not available</p>
+                        <a
+                          href={selectedItem.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-lg underline hover:text-blue-400"
+                        >
+                          Watch on Facebook →
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
             
+            {/* Caption */}
             {selectedItem.caption && (
-              <div className="mt-4 text-white text-center max-w-3xl mx-auto">
+              <div className="mt-4 text-white text-center max-w-3xl mx-auto px-4">
                 <p className="text-lg">{selectedItem.caption}</p>
               </div>
             )}
             
+            {/* Facebook Link */}
             <div className="mt-4 text-center">
               <a
                 href={selectedItem.url}
