@@ -73,27 +73,6 @@ const Portfolio: React.FC = () => {
     }
   };
 
-  // Process Facebook embed HTML to make it responsive
-  const processEmbedHtml = (html: string) => {
-    if (!html) return html;
-    
-    // Remove fixed width and height attributes from iframes
-    let processed = html.replace(/width="[^"]*"/gi, '');
-    processed = processed.replace(/height="[^"]*"/gi, '');
-    processed = processed.replace(/width='[^']*'/gi, '');
-    processed = processed.replace(/height='[^']*'/gi, '');
-    
-    // Remove fixed width/height from style attributes
-    processed = processed.replace(/style="[^"]*width:\s*[^;]*;?[^"]*"/gi, (match) => {
-      return match.replace(/width:\s*[^;]*;?/gi, '');
-    });
-    processed = processed.replace(/style="[^"]*height:\s*[^;]*;?[^"]*"/gi, (match) => {
-      return match.replace(/height:\s*[^;]*;?/gi, '');
-    });
-    
-    return processed;
-  };
-
   const closeLightbox = () => {
     setSelectedItem(null);
     document.body.style.overflow = '';
@@ -122,86 +101,6 @@ const Portfolio: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedItem, currentIndex, filteredItems]);
 
-  // Make Facebook embeds responsive after they're inserted
-  useEffect(() => {
-    if (selectedItem?.type === 'video' && selectedItem.embedHtml) {
-      // Use setTimeout to ensure DOM is updated
-      const timer = setTimeout(() => {
-        const container = document.querySelector('.facebook-video-embed-container');
-        if (container) {
-          // Find and fix all iframes - preserve aspect ratio
-          const iframes = container.querySelectorAll('iframe');
-          iframes.forEach((iframe) => {
-            // Remove fixed dimensions
-            iframe.removeAttribute('width');
-            iframe.removeAttribute('height');
-            
-            // Set responsive styles
-            iframe.style.width = 'auto';
-            iframe.style.maxWidth = '100%';
-            iframe.style.height = 'auto';
-            iframe.style.maxHeight = '70vh';
-            iframe.style.display = 'block';
-            iframe.style.border = 'none';
-            iframe.style.margin = '0 auto';
-            
-            // Try to get natural dimensions from iframe
-            const checkDimensions = () => {
-              try {
-                // For portrait videos, limit width more
-                const computedStyle = window.getComputedStyle(iframe);
-                const currentWidth = iframe.offsetWidth;
-                const currentHeight = iframe.offsetHeight;
-                
-                if (currentWidth && currentHeight) {
-                  const aspectRatio = currentWidth / currentHeight;
-                  // Portrait video (9:16 or similar)
-                  if (aspectRatio < 0.7) {
-                    iframe.style.maxWidth = 'min(400px, 50vw)';
-                    iframe.style.maxHeight = '70vh';
-                  } else {
-                    // Landscape video - use full width
-                    iframe.style.maxWidth = '100%';
-                    iframe.style.maxHeight = '70vh';
-                  }
-                }
-              } catch (e) {
-                // Ignore errors
-              }
-            };
-            
-            // Check dimensions after load
-            if (iframe.contentWindow) {
-              iframe.onload = checkDimensions;
-            }
-            checkDimensions();
-          });
-          
-          // Fix all wrapper divs - use flexbox for centering, preserve aspect ratio
-          const allDivs = container.querySelectorAll('div');
-          allDivs.forEach((div) => {
-            // Remove fixed dimensions
-            if (div.style.width && div.style.width.includes('px')) {
-              div.style.width = 'auto';
-            }
-            if (div.style.height && div.style.height.includes('px')) {
-              div.style.height = 'auto';
-            }
-            
-            div.style.maxWidth = '100%';
-            div.style.maxHeight = '70vh';
-            div.style.position = 'relative';
-            div.style.display = 'flex';
-            div.style.alignItems = 'center';
-            div.style.justifyContent = 'center';
-            div.style.margin = '0 auto';
-          });
-        }
-      }, 400);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [selectedItem]);
 
   if (loading) {
     return (
@@ -433,98 +332,52 @@ const Portfolio: React.FC = () => {
               </>
             )}
 
-            {/* Media Content */}
+            {/* Media Content - Simple and Reliable */}
             <div className="w-full flex-shrink-0 flex items-center justify-center px-4">
               {selectedItem.type === 'photo' ? (
                 <img
                   src={selectedItem.fullSize || selectedItem.thumbnail}
                   alt={selectedItem.caption || 'Portfolio image'}
-                  className="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg"
+                  className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-lg"
                 />
               ) : (
-                <div className="w-full flex items-center justify-center" style={{ maxWidth: 'min(90vw, 1200px)' }}>
-                  {selectedItem.embedHtml ? (
-                    // Use Facebook embed if available (has sound support)
-                    <div 
-                      className="w-full rounded-lg overflow-visible flex items-center justify-center"
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        maxWidth: '100%',
-                        maxHeight: '70vh',
-                        minHeight: '200px'
-                      }}
-                    >
-                      <style>{`
-                        .facebook-video-embed-container {
-                          position: relative !important;
-                          width: auto !important;
-                          max-width: 100% !important;
-                          max-height: 70vh !important;
-                          height: auto !important;
-                          display: flex !important;
-                          align-items: center !important;
-                          justify-content: center !important;
-                          margin: 0 auto !important;
-                        }
-                        .facebook-video-embed-container iframe {
-                          width: auto !important;
-          max-width: 100% !important;
-          max-height: 70vh !important;
-          height: auto !important;
-          border: none !important;
-          display: block !important;
-          margin: 0 auto !important;
-        }
-        .facebook-video-embed-container > div {
-          width: auto !important;
-          max-width: 100% !important;
-          max-height: 70vh !important;
-          height: auto !important;
-          position: relative !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          margin: 0 auto !important;
-        }
-        .facebook-video-embed-container > div > iframe {
-          width: auto !important;
-          max-width: 100% !important;
-          max-height: 70vh !important;
-          height: auto !important;
-          display: block !important;
-          margin: 0 auto !important;
-        }
-                      `}</style>
-                      <div 
-                        className="facebook-video-embed-container"
-                        dangerouslySetInnerHTML={{ __html: processEmbedHtml(selectedItem.embedHtml) }} 
-                      />
-                    </div>
-                  ) : selectedItem.fullSize ? (
-                    // Fallback to direct video source
+                // For videos, show a simple player or link to Facebook
+                <div className="w-full max-w-4xl">
+                  {selectedItem.fullSize ? (
+                    // Direct video source - simple and reliable
                     <video
                       src={selectedItem.fullSize}
                       controls
-                      className="w-full h-auto max-h-[70vh] rounded-lg object-contain"
-                      style={{ maxWidth: '100%' }}
+                      className="w-full h-auto max-h-[75vh] rounded-lg"
+                      style={{ 
+                        maxWidth: '100%',
+                        display: 'block',
+                        margin: '0 auto'
+                      }}
                       playsInline
                       preload="metadata"
-                      crossOrigin="anonymous"
                     >
                       Your browser does not support the video tag.
                     </video>
                   ) : (
-                    <div className="w-full h-[400px] flex items-center justify-center bg-black text-white rounded-lg">
-                      <div className="text-center">
-                        <p className="mb-4">Video playback not available</p>
+                    // Fallback: show thumbnail with link to Facebook
+                    <div className="relative w-full max-w-4xl mx-auto">
+                      <img
+                        src={selectedItem.thumbnail}
+                        alt={selectedItem.caption || 'Video thumbnail'}
+                        className="w-full h-auto max-h-[75vh] object-contain rounded-lg"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
                         <a
                           href={selectedItem.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-lg underline hover:text-blue-400"
+                          className="px-8 py-4 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
                         >
-                          Watch on Facebook →
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                          Watch on Facebook
                         </a>
                       </div>
                     </div>
