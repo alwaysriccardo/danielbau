@@ -18,7 +18,7 @@ interface FacebookPhoto {
   picture: string;
   source?: string;
   created_time: string;
-  name?: string;
+  message?: string; // Replaces deprecated 'name' field
   link?: string;
 }
 
@@ -27,7 +27,7 @@ interface FacebookVideo {
   picture: string;
   source?: string;
   created_time: string;
-  name?: string;
+  message?: string; // Replaces deprecated 'name' field
   description?: string;
   link?: string;
 }
@@ -79,8 +79,9 @@ export default async function handler(
     // Fetch photos (only uploaded photos from posts, excludes profile/cover photos)
     try {
       // Using type=uploaded ensures we only get photos uploaded to the page (not profile/cover)
+      // Note: 'name' field is deprecated, using 'message' or 'description' instead
       const photosResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${pageId}/photos?fields=id,picture,source,created_time,name,link&limit=50&type=uploaded&access_token=${accessToken}`
+        `https://graph.facebook.com/v18.0/${pageId}/photos?fields=id,picture,source,created_time,message,link&limit=50&type=uploaded&access_token=${accessToken}`
       );
       
       const photosData = await photosResponse.json();
@@ -99,7 +100,7 @@ export default async function handler(
             fullSize: photo.source || photo.picture,
             url: photo.link || `https://www.facebook.com/photo/?fbid=${photo.id}`,
             createdAt: photo.created_time,
-            caption: photo.name,
+            caption: photo.message, // Use 'message' instead of deprecated 'name'
           });
         });
       }
@@ -110,7 +111,7 @@ export default async function handler(
     // Fetch videos
     try {
       const videosResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,created_time,name,description,link&limit=50&access_token=${accessToken}`
+        `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,created_time,message,description,link&limit=50&access_token=${accessToken}`
       );
       
       const videosData = await videosResponse.json();
@@ -136,7 +137,7 @@ export default async function handler(
             fullSize: video.source,
             url: video.link || `https://www.facebook.com/video.php?v=${video.id}`,
             createdAt: video.created_time,
-            caption: video.name || video.description,
+            caption: video.message || video.description, // Use 'message' instead of deprecated 'name'
           });
         });
       }
