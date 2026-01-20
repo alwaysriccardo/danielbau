@@ -129,37 +129,75 @@ const Portfolio: React.FC = () => {
       const timer = setTimeout(() => {
         const container = document.querySelector('.facebook-video-embed-container');
         if (container) {
-          // Find and fix all iframes
+          // Find and fix all iframes - preserve aspect ratio
           const iframes = container.querySelectorAll('iframe');
           iframes.forEach((iframe) => {
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.position = 'absolute';
-            iframe.style.top = '0';
-            iframe.style.left = '0';
-            iframe.style.border = 'none';
+            // Remove fixed dimensions
             iframe.removeAttribute('width');
             iframe.removeAttribute('height');
+            
+            // Set responsive styles
+            iframe.style.width = 'auto';
+            iframe.style.maxWidth = '100%';
+            iframe.style.height = 'auto';
+            iframe.style.maxHeight = '70vh';
+            iframe.style.display = 'block';
+            iframe.style.border = 'none';
+            iframe.style.margin = '0 auto';
+            
+            // Try to get natural dimensions from iframe
+            const checkDimensions = () => {
+              try {
+                // For portrait videos, limit width more
+                const computedStyle = window.getComputedStyle(iframe);
+                const currentWidth = iframe.offsetWidth;
+                const currentHeight = iframe.offsetHeight;
+                
+                if (currentWidth && currentHeight) {
+                  const aspectRatio = currentWidth / currentHeight;
+                  // Portrait video (9:16 or similar)
+                  if (aspectRatio < 0.7) {
+                    iframe.style.maxWidth = 'min(400px, 50vw)';
+                    iframe.style.maxHeight = '70vh';
+                  } else {
+                    // Landscape video - use full width
+                    iframe.style.maxWidth = '100%';
+                    iframe.style.maxHeight = '70vh';
+                  }
+                }
+              } catch (e) {
+                // Ignore errors
+              }
+            };
+            
+            // Check dimensions after load
+            if (iframe.contentWindow) {
+              iframe.onload = checkDimensions;
+            }
+            checkDimensions();
           });
           
-          // Fix all wrapper divs
+          // Fix all wrapper divs - use flexbox for centering, preserve aspect ratio
           const allDivs = container.querySelectorAll('div');
           allDivs.forEach((div) => {
-            div.style.width = '100%';
-            div.style.height = '100%';
-            div.style.position = 'absolute';
-            div.style.top = '0';
-            div.style.left = '0';
-            // Remove inline width/height styles
-            if (div.style.width && div.style.width !== '100%') {
-              div.style.width = '100%';
+            // Remove fixed dimensions
+            if (div.style.width && div.style.width.includes('px')) {
+              div.style.width = 'auto';
             }
-            if (div.style.height && div.style.height !== '100%') {
-              div.style.height = '100%';
+            if (div.style.height && div.style.height.includes('px')) {
+              div.style.height = 'auto';
             }
+            
+            div.style.maxWidth = '100%';
+            div.style.maxHeight = '70vh';
+            div.style.position = 'relative';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            div.style.margin = '0 auto';
           });
         }
-      }, 300);
+      }, 400);
       
       return () => clearTimeout(timer);
     }
@@ -408,39 +446,55 @@ const Portfolio: React.FC = () => {
                   {selectedItem.embedHtml ? (
                     // Use Facebook embed if available (has sound support)
                     <div 
-                      className="w-full rounded-lg overflow-hidden"
+                      className="w-full rounded-lg overflow-visible flex items-center justify-center"
                       style={{
                         position: 'relative',
                         width: '100%',
                         maxWidth: '100%',
-                        paddingBottom: '56.25%', // 16:9 aspect ratio
-                        height: 0,
-                        maxHeight: '70vh'
+                        maxHeight: '70vh',
+                        minHeight: '200px'
                       }}
                     >
                       <style>{`
                         .facebook-video-embed-container {
-                          position: absolute !important;
-                          top: 0 !important;
-                          left: 0 !important;
-                          width: 100% !important;
-                          height: 100% !important;
+                          position: relative !important;
+                          width: auto !important;
+                          max-width: 100% !important;
+                          max-height: 70vh !important;
+                          height: auto !important;
+                          display: flex !important;
+                          align-items: center !important;
+                          justify-content: center !important;
+                          margin: 0 auto !important;
                         }
                         .facebook-video-embed-container iframe {
-                          width: 100% !important;
-                          height: 100% !important;
-                          border: none !important;
-                          position: absolute !important;
-                          top: 0 !important;
-                          left: 0 !important;
-                        }
-                        .facebook-video-embed-container > div {
-                          width: 100% !important;
-                          height: 100% !important;
-                          position: absolute !important;
-                          top: 0 !important;
-                          left: 0 !important;
-                        }
+                          width: auto !important;
+          max-width: 100% !important;
+          max-height: 70vh !important;
+          height: auto !important;
+          border: none !important;
+          display: block !important;
+          margin: 0 auto !important;
+        }
+        .facebook-video-embed-container > div {
+          width: auto !important;
+          max-width: 100% !important;
+          max-height: 70vh !important;
+          height: auto !important;
+          position: relative !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin: 0 auto !important;
+        }
+        .facebook-video-embed-container > div > iframe {
+          width: auto !important;
+          max-width: 100% !important;
+          max-height: 70vh !important;
+          height: auto !important;
+          display: block !important;
+          margin: 0 auto !important;
+        }
                       `}</style>
                       <div 
                         className="facebook-video-embed-container"
