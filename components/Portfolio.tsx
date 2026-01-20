@@ -9,7 +9,9 @@ const Portfolio: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [filter, setFilter] = useState<'all' | 'photo' | 'video'>('all');
+  const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -48,9 +50,27 @@ const Portfolio: React.FC = () => {
     ? items 
     : items.filter(item => item.type === filter);
 
-  const openLightbox = (item: PortfolioItem) => {
+  const openLightbox = (item: PortfolioItem, index?: number) => {
     setSelectedItem(item);
+    if (index !== undefined) {
+      setCurrentIndex(index);
+    } else {
+      const itemIndex = filteredItems.findIndex(i => i.id === item.id);
+      setCurrentIndex(itemIndex >= 0 ? itemIndex : 0);
+    }
     document.body.style.overflow = 'hidden';
+  };
+
+  const navigateCarousel = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      const newIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
+      setCurrentIndex(newIndex);
+      setSelectedItem(filteredItems[newIndex]);
+    } else {
+      const newIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
+      setCurrentIndex(newIndex);
+      setSelectedItem(filteredItems[newIndex]);
+    }
   };
 
   const closeLightbox = () => {
@@ -58,36 +78,28 @@ const Portfolio: React.FC = () => {
     document.body.style.overflow = '';
   };
 
-  // Keyboard navigation for lightbox
+  // Close lightbox on escape key and navigate with arrow keys
   useEffect(() => {
-    const handleKeyboard = (e: KeyboardEvent) => {
-      if (!selectedItem) return;
-      
+    if (!selectedItem) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeLightbox();
-      } else if (e.key === 'ArrowLeft') {
-        // Navigate to previous item
-        const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
-        if (currentIndex > 0) {
-          setSelectedItem(filteredItems[currentIndex - 1]);
-        } else {
-          // Loop to last item
-          setSelectedItem(filteredItems[filteredItems.length - 1]);
-        }
-      } else if (e.key === 'ArrowRight') {
-        // Navigate to next item
-        const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
-        if (currentIndex < filteredItems.length - 1) {
-          setSelectedItem(filteredItems[currentIndex + 1]);
-        } else {
-          // Loop to first item
-          setSelectedItem(filteredItems[0]);
-        }
+      } else if (e.key === 'ArrowLeft' && filteredItems.length > 1) {
+        e.preventDefault();
+        const newIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
+        setCurrentIndex(newIndex);
+        setSelectedItem(filteredItems[newIndex]);
+      } else if (e.key === 'ArrowRight' && filteredItems.length > 1) {
+        e.preventDefault();
+        const newIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
+        setCurrentIndex(newIndex);
+        setSelectedItem(filteredItems[newIndex]);
       }
     };
-    window.addEventListener('keydown', handleKeyboard);
-    return () => window.removeEventListener('keydown', handleKeyboard);
-  }, [selectedItem, filteredItems]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedItem, currentIndex, filteredItems]);
 
   if (loading) {
     return (
@@ -173,51 +185,68 @@ const Portfolio: React.FC = () => {
             </div>
           </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="group relative overflow-hidden bg-[#1a1a1a] aspect-square cursor-pointer"
-                onClick={() => openLightbox(item)}
-              >
-                {item.type === 'photo' ? (
-                  <img
-                    src={item.thumbnail}
-                    alt={item.caption || 'Portfolio item'}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="relative w-full h-full">
+          {/* Horizontal Carousel */}
+          <div className="relative">
+            <div 
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
+              {filteredItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="group relative flex-shrink-0 w-[90vw] sm:w-[45vw] lg:w-[30vw] aspect-square bg-[#1a1a1a] cursor-pointer snap-center"
+                  onClick={() => openLightbox(item, index)}
+                >
+                  {item.type === 'photo' ? (
                     <img
                       src={item.thumbnail}
-                      alt={item.caption || 'Video thumbnail'}
+                      alt={item.caption || 'Portfolio item'}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                      <svg
-                        className="w-16 h-16 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  {item.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-sm">
-                      {item.caption.length > 100
-                        ? `${item.caption.substring(0, 100)}...`
-                        : item.caption}
+                  ) : (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.caption || 'Video thumbnail'}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
+                        <svg
+                          className="w-16 h-16 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
                     </div>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.caption && (
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-sm">
+                        {item.caption.length > 100
+                          ? `${item.caption.substring(0, 100)}...`
+                          : item.caption}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            {/* Scrollbar hide styles */}
+            <style>{`
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
           </div>
         </div>
       </section>
@@ -228,10 +257,9 @@ const Portfolio: React.FC = () => {
           className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
-          {/* Close Button - moved down and left */}
           <button
             onClick={closeLightbox}
-            className="absolute top-20 left-6 md:top-24 md:left-8 text-white hover:text-gray-300 z-[101] p-2 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
+            className="absolute top-24 right-4 md:top-28 md:right-8 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
             aria-label="Close"
           >
             <svg
@@ -248,67 +276,61 @@ const Portfolio: React.FC = () => {
               />
             </svg>
           </button>
-
-          {/* Left Arrow - Previous Item */}
-          {filteredItems.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
-                const prevIndex = currentIndex > 0 ? currentIndex - 1 : filteredItems.length - 1;
-                setSelectedItem(filteredItems[prevIndex]);
-              }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
-              aria-label="Previous"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-          )}
-
-          {/* Right Arrow - Next Item */}
-          {filteredItems.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const currentIndex = filteredItems.findIndex(item => item.id === selectedItem.id);
-                const nextIndex = currentIndex < filteredItems.length - 1 ? currentIndex + 1 : 0;
-                setSelectedItem(filteredItems[nextIndex]);
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
-              aria-label="Next"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          )}
           
           <div
-            className="max-w-7xl max-h-[90vh] w-full"
+            className="max-w-7xl max-h-[90vh] w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Navigation Arrows */}
+            {filteredItems.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateCarousel('prev');
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-[102] p-4 bg-black/50 rounded-full backdrop-blur-sm text-white hover:bg-black/70 transition-all"
+                  aria-label="Previous"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateCarousel('next');
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-[102] p-4 bg-black/50 rounded-full backdrop-blur-sm text-white hover:bg-black/70 transition-all"
+                  aria-label="Next"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
+
             {selectedItem.type === 'photo' ? (
               <img
                 src={selectedItem.fullSize || selectedItem.thumbnail}
