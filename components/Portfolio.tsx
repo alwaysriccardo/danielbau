@@ -211,7 +211,7 @@ const Portfolio: React.FC = () => {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-24 right-6 md:top-28 md:right-8 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
+            className="absolute top-40 right-6 md:top-44 md:right-8 text-white hover:text-gray-300 z-[101] p-3 bg-black/50 rounded-full backdrop-blur-sm transition-all hover:bg-black/70"
             aria-label="Close"
           >
             <svg
