@@ -83,8 +83,12 @@ export default async function handler(
         `https://graph.facebook.com/v18.0/${pageId}/photos?fields=id,picture,source,created_time,name,link&limit=50&type=uploaded&access_token=${accessToken}`
       );
       
-      if (photosResponse.ok) {
-        const photosData = await photosResponse.json();
+      const photosData = await photosResponse.json();
+      
+      if (!photosResponse.ok) {
+        console.error('Photos API Error:', photosData);
+        // Don't throw, just log - continue to try videos
+      } else {
         const photos: FacebookPhoto[] = photosData.data || [];
         
         photos.forEach((photo) => {
@@ -109,8 +113,19 @@ export default async function handler(
         `https://graph.facebook.com/v18.0/${pageId}/videos?fields=id,picture,source,created_time,name,description,link&limit=50&access_token=${accessToken}`
       );
       
-      if (videosResponse.ok) {
-        const videosData = await videosResponse.json();
+      const videosData = await videosResponse.json();
+      
+      if (!videosResponse.ok) {
+        console.error('Videos API Error:', videosData);
+        // Return error details if both fail
+        if (portfolioItems.length === 0) {
+          return res.status(500).json({ 
+            error: 'Failed to fetch portfolio data',
+            details: videosData.error?.message || 'Unknown error',
+            facebookError: videosData.error
+          });
+        }
+      } else {
         const videos: FacebookVideo[] = videosData.data || [];
         
         videos.forEach((video) => {
@@ -127,6 +142,12 @@ export default async function handler(
       }
     } catch (error) {
       console.error('Error fetching videos:', error);
+      if (portfolioItems.length === 0) {
+        return res.status(500).json({ 
+          error: 'Failed to fetch portfolio data',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
     }
 
     // Sort by creation date (newest first)

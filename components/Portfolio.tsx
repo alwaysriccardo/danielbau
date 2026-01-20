@@ -19,12 +19,20 @@ const Portfolio: React.FC = () => {
         
         const response = await fetch('/api/facebook-portfolio');
         
+        const data = await response.json();
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch portfolio');
+          // Show detailed error message
+          const errorMsg = data.details || data.error || 'Failed to fetch portfolio';
+          throw new Error(errorMsg);
         }
         
-        const data = await response.json();
-        setItems(data);
+        // Check if data is an array (success) or error object
+        if (Array.isArray(data)) {
+          setItems(data);
+        } else {
+          throw new Error(data.error || 'Invalid response from API');
+        }
       } catch (err) {
         console.error('Error fetching portfolio:', err);
         setError(err instanceof Error ? err.message : 'Failed to load portfolio');

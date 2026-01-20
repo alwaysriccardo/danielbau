@@ -74,7 +74,8 @@ export const TRANSLATIONS = {
       emailPlaceholder: "E-Mail",
       messagePlaceholder: "Nachricht",
       send: "Senden",
-      sending: "Wird gesendet..."
+      sending: "Wird gesendet...",
+      privacyPolicy: "Datenschutzerklärung"
     },
     testimonials: {
       header: "Unsere Kunden"
@@ -150,7 +151,8 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Ready for change?",
       offer: "QUOTE",
-      copyright: "© 2026 DANIELBAU SWITZERLAND"
+      copyright: "© 2026 DANIELBAU SWITZERLAND",
+      privacyPolicy: "Privacy Policy"
     },
     testimonials: {
       header: "Our Clients"
@@ -226,7 +228,8 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Prêt pour le changement ?",
       offer: "DEVIS",
-      copyright: "© 2026 DANIELBAU SUISSE"
+      copyright: "© 2026 DANIELBAU SUISSE",
+      privacyPolicy: "Politique de Confidentialité"
     },
     testimonials: {
       header: "Nos Clients"
@@ -302,7 +305,8 @@ export const TRANSLATIONS = {
     footer: {
       ready: "Pronto per il cambiamento?",
       offer: "PREVENTIVO",
-      copyright: "© 2026 DANIELBAU SVIZZERA"
+      copyright: "© 2026 DANIELBAU SVIZZERA",
+      privacyPolicy: "Informativa sulla Privacy"
     },
     testimonials: {
       header: "I Nostri Clienti"

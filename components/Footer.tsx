@@ -278,6 +278,21 @@ const Footer: React.FC = () => {
           {t.footer.copyright}
         </div>
 
+        {/* Privacy Policy Link */}
+        <div className="mt-4 text-[10px] text-gray-600">
+          <a 
+            href="#privacy" 
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.hash = '#privacy';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="hover:text-white transition-colors underline"
+          >
+            {t.footer.privacyPolicy || 'Privacy Policy'}
+          </a>
+        </div>
+
         {/* Colossians 3:23 - Almost invisible but visible */}
         <div className="mt-4 md:mt-8 text-[8px] text-gray-800/30 font-light italic">
           Colossians 3:23
