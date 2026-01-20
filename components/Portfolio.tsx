@@ -73,6 +73,27 @@ const Portfolio: React.FC = () => {
     }
   };
 
+  // Process Facebook embed HTML to make it responsive
+  const processEmbedHtml = (html: string) => {
+    if (!html) return html;
+    
+    // Remove fixed width and height attributes from iframes
+    let processed = html.replace(/width="[^"]*"/gi, '');
+    processed = processed.replace(/height="[^"]*"/gi, '');
+    processed = processed.replace(/width='[^']*'/gi, '');
+    processed = processed.replace(/height='[^']*'/gi, '');
+    
+    // Remove fixed width/height from style attributes
+    processed = processed.replace(/style="[^"]*width:\s*[^;]*;?[^"]*"/gi, (match) => {
+      return match.replace(/width:\s*[^;]*;?/gi, '');
+    });
+    processed = processed.replace(/style="[^"]*height:\s*[^;]*;?[^"]*"/gi, (match) => {
+      return match.replace(/height:\s*[^;]*;?/gi, '');
+    });
+    
+    return processed;
+  };
+
   const closeLightbox = () => {
     setSelectedItem(null);
     document.body.style.overflow = '';
@@ -106,32 +127,39 @@ const Portfolio: React.FC = () => {
     if (selectedItem?.type === 'video' && selectedItem.embedHtml) {
       // Use setTimeout to ensure DOM is updated
       const timer = setTimeout(() => {
-        const wrapper = document.querySelector('.facebook-video-wrapper');
-        if (wrapper) {
-          const iframes = wrapper.querySelectorAll('iframe');
+        const container = document.querySelector('.facebook-video-embed-container');
+        if (container) {
+          // Find and fix all iframes
+          const iframes = container.querySelectorAll('iframe');
           iframes.forEach((iframe) => {
             iframe.style.width = '100%';
             iframe.style.height = '100%';
             iframe.style.position = 'absolute';
             iframe.style.top = '0';
             iframe.style.left = '0';
-            iframe.setAttribute('width', '100%');
-            iframe.setAttribute('height', '100%');
+            iframe.style.border = 'none';
+            iframe.removeAttribute('width');
+            iframe.removeAttribute('height');
           });
           
-          // Fix any wrapper divs inside
-          const innerDivs = wrapper.querySelectorAll('div');
-          innerDivs.forEach((div) => {
-            if (div.querySelector('iframe')) {
+          // Fix all wrapper divs
+          const allDivs = container.querySelectorAll('div');
+          allDivs.forEach((div) => {
+            div.style.width = '100%';
+            div.style.height = '100%';
+            div.style.position = 'absolute';
+            div.style.top = '0';
+            div.style.left = '0';
+            // Remove inline width/height styles
+            if (div.style.width && div.style.width !== '100%') {
               div.style.width = '100%';
+            }
+            if (div.style.height && div.style.height !== '100%') {
               div.style.height = '100%';
-              div.style.position = 'absolute';
-              div.style.top = '0';
-              div.style.left = '0';
             }
           });
         }
-      }, 200);
+      }, 300);
       
       return () => clearTimeout(timer);
     }
@@ -368,7 +396,7 @@ const Portfolio: React.FC = () => {
             )}
 
             {/* Media Content */}
-            <div className="w-full flex-shrink-0 flex items-center justify-center">
+            <div className="w-full flex-shrink-0 flex items-center justify-center px-4">
               {selectedItem.type === 'photo' ? (
                 <img
                   src={selectedItem.fullSize || selectedItem.thumbnail}
@@ -376,12 +404,29 @@ const Portfolio: React.FC = () => {
                   className="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg"
                 />
               ) : (
-                <div className="w-full max-w-4xl flex items-center justify-center">
+                <div className="w-full flex items-center justify-center" style={{ maxWidth: 'min(90vw, 1200px)' }}>
                   {selectedItem.embedHtml ? (
                     // Use Facebook embed if available (has sound support)
-                    <div className="w-full max-w-4xl">
+                    <div 
+                      className="w-full rounded-lg overflow-hidden"
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        maxWidth: '100%',
+                        paddingBottom: '56.25%', // 16:9 aspect ratio
+                        height: 0,
+                        maxHeight: '70vh'
+                      }}
+                    >
                       <style>{`
-                        .facebook-video-embed iframe {
+                        .facebook-video-embed-container {
+                          position: absolute !important;
+                          top: 0 !important;
+                          left: 0 !important;
+                          width: 100% !important;
+                          height: 100% !important;
+                        }
+                        .facebook-video-embed-container iframe {
                           width: 100% !important;
                           height: 100% !important;
                           border: none !important;
@@ -389,7 +434,7 @@ const Portfolio: React.FC = () => {
                           top: 0 !important;
                           left: 0 !important;
                         }
-                        .facebook-video-embed > div {
+                        .facebook-video-embed-container > div {
                           width: 100% !important;
                           height: 100% !important;
                           position: absolute !important;
@@ -398,26 +443,9 @@ const Portfolio: React.FC = () => {
                         }
                       `}</style>
                       <div 
-                        className="facebook-video-embed rounded-lg overflow-hidden"
-                        style={{
-                          position: 'relative',
-                          width: '100%',
-                          aspectRatio: '16/9',
-                          maxHeight: '70vh',
-                          maxWidth: '100%'
-                        }}
-                      >
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%'
-                          }}
-                          dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }} 
-                        />
-                      </div>
+                        className="facebook-video-embed-container"
+                        dangerouslySetInnerHTML={{ __html: processEmbedHtml(selectedItem.embedHtml) }} 
+                      />
                     </div>
                   ) : selectedItem.fullSize ? (
                     // Fallback to direct video source
