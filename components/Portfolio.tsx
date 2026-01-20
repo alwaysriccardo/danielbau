@@ -101,6 +101,38 @@ const Portfolio: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedItem, currentIndex, filteredItems]);
 
+  // Make Facebook embeds responsive after they're inserted
+  useEffect(() => {
+    if (selectedItem?.type === 'video' && selectedItem.embedHtml) {
+      // Use setTimeout to ensure DOM is updated
+      const timer = setTimeout(() => {
+        const container = document.querySelector('.facebook-video-container');
+        if (container) {
+          const iframes = container.querySelectorAll('iframe');
+          iframes.forEach((iframe) => {
+            iframe.style.width = '100%';
+            iframe.style.maxWidth = '100%';
+            iframe.style.height = 'auto';
+            iframe.style.maxHeight = '70vh';
+            iframe.setAttribute('width', '100%');
+            iframe.removeAttribute('height'); // Let CSS handle height
+          });
+          
+          // Also fix any wrapper divs
+          const wrapperDivs = container.querySelectorAll('div');
+          wrapperDivs.forEach((div) => {
+            if (div.querySelector('iframe')) {
+              div.style.width = '100%';
+              div.style.maxWidth = '100%';
+            }
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [selectedItem]);
+
   if (loading) {
     return (
       <section ref={sectionRef} className="py-24 px-6 md:px-20 bg-[#E3E1DC]">
@@ -340,12 +372,30 @@ const Portfolio: React.FC = () => {
                   className="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg"
                 />
               ) : (
-                <div className="w-full max-w-4xl max-h-[70vh] flex items-center justify-center">
+                <div className="w-full max-w-4xl flex items-center justify-center">
+                  <style>{`
+                    .facebook-video-container {
+                      width: 100%;
+                      max-width: 100%;
+                      max-height: 70vh;
+                      position: relative;
+                    }
+                    .facebook-video-container iframe {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                      height: auto !important;
+                      max-height: 70vh !important;
+                      aspect-ratio: 16/9 !important;
+                    }
+                    .facebook-video-container > div {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                    }
+                  `}</style>
                   {selectedItem.embedHtml ? (
                     // Use Facebook embed if available (has sound support)
                     <div 
-                      className="w-full h-full min-h-[400px] rounded-lg overflow-hidden"
-                      style={{ maxHeight: '70vh' }}
+                      className="w-full rounded-lg overflow-hidden facebook-video-container"
                       dangerouslySetInnerHTML={{ __html: selectedItem.embedHtml }}
                     />
                   ) : selectedItem.fullSize ? (
@@ -354,6 +404,7 @@ const Portfolio: React.FC = () => {
                       src={selectedItem.fullSize}
                       controls
                       className="w-full h-auto max-h-[70vh] rounded-lg object-contain"
+                      style={{ maxWidth: '100%' }}
                       playsInline
                       preload="metadata"
                       crossOrigin="anonymous"
