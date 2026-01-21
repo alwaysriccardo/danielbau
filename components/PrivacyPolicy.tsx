@@ -26,7 +26,7 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.introduction?.title || 'Introduction'}
             </h2>
             <p className="leading-relaxed">
-              {t.privacy?.introduction?.text || 'DANIELBAU ("we", "our", "us") uses Facebook Graph API to display content from our Facebook business page on our website (www.dani-bau.ch).'}
+              {t.privacy?.introduction?.text || 'DANIELBAU ("we", "our", "us") is committed to protecting your privacy. This privacy policy explains how we handle information on our website (www.dani-bau.ch).'}
             </p>
           </div>
 
@@ -35,10 +35,9 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.dataCollection?.title || 'Data Collection'}
             </h2>
             <ul className="list-disc pl-6 space-y-2 leading-relaxed">
-              <li>{t.privacy?.dataCollection?.item1 || 'We fetch public photos and videos from our Facebook business page'}</li>
-              <li>{t.privacy?.dataCollection?.item2 || 'We do not collect any personal information from users'}</li>
-              <li>{t.privacy?.dataCollection?.item3 || 'We do not store any user data'}</li>
-              <li>{t.privacy?.dataCollection?.item4 || 'We only access our own business page\'s public content'}</li>
+              <li>{t.privacy?.dataCollection?.item1 || 'We do not collect any personal information from users'}</li>
+              <li>{t.privacy?.dataCollection?.item2 || 'We do not store any user data'}</li>
+              <li>{t.privacy?.dataCollection?.item3 || 'Contact form submissions are sent directly via email'}</li>
             </ul>
           </div>
 
@@ -47,10 +46,9 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.dataUsage?.title || 'How We Use Data'}
             </h2>
             <ul className="list-disc pl-6 space-y-2 leading-relaxed">
-              <li>{t.privacy?.dataUsage?.item1 || 'Photos and videos from our Facebook page are displayed in our website\'s portfolio section'}</li>
-              <li>{t.privacy?.dataUsage?.item2 || 'Content is cached for 1 hour to improve website performance'}</li>
-              <li>{t.privacy?.dataUsage?.item3 || 'No data is shared with third parties'}</li>
-              <li>{t.privacy?.dataUsage?.item4 || 'No data is used for advertising or marketing purposes'}</li>
+              <li>{t.privacy?.dataUsage?.item1 || 'Contact form submissions are used solely to respond to inquiries'}</li>
+              <li>{t.privacy?.dataUsage?.item2 || 'No data is shared with third parties'}</li>
+              <li>{t.privacy?.dataUsage?.item3 || 'No data is used for advertising or marketing purposes'}</li>
             </ul>
           </div>
 
@@ -59,9 +57,8 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.dataStorage?.title || 'Data Storage'}
             </h2>
             <ul className="list-disc pl-6 space-y-2 leading-relaxed">
-              <li>{t.privacy?.dataStorage?.item1 || 'Content is temporarily cached (1 hour) for performance'}</li>
-              <li>{t.privacy?.dataStorage?.item2 || 'No permanent storage of user data'}</li>
-              <li>{t.privacy?.dataStorage?.item3 || 'No database storage of Facebook content'}</li>
+              <li>{t.privacy?.dataStorage?.item1 || 'No permanent storage of user data'}</li>
+              <li>{t.privacy?.dataStorage?.item2 || 'Contact form submissions are sent via email and not stored on our servers'}</li>
             </ul>
           </div>
 
@@ -70,9 +67,8 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.userRights?.title || 'Your Rights'}
             </h2>
             <ul className="list-disc pl-6 space-y-2 leading-relaxed">
-              <li>{t.privacy?.userRights?.item1 || 'All displayed content is from our public Facebook page'}</li>
-              <li>{t.privacy?.userRights?.item2 || 'You can view our Facebook page directly on Facebook'}</li>
-              <li>{t.privacy?.userRights?.item3 || 'No personal data is collected, so no data deletion requests are needed'}</li>
+              <li>{t.privacy?.userRights?.item1 || 'No personal data is collected, so no data deletion requests are needed'}</li>
+              <li>{t.privacy?.userRights?.item2 || 'You can contact us at any time with privacy concerns'}</li>
             </ul>
           </div>
 
@@ -88,22 +84,6 @@ const PrivacyPolicy: React.FC = () => {
             </p>
           </div>
 
-          <div>
-            <h2 className="font-display text-2xl md:text-3xl mb-4 mt-8">
-              {t.privacy?.facebookIntegration?.title || 'Facebook Integration'}
-            </h2>
-            <p className="leading-relaxed">
-              {t.privacy?.facebookIntegration?.text || 'This website uses Facebook Graph API to display content from our Facebook page. By using Facebook\'s services, you are also subject to Facebook\'s Privacy Policy.'} {' '}
-              <a 
-                href="https://www.facebook.com/privacy/explanation" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-[#121212] underline hover:text-blue-600"
-              >
-                {t.privacy?.facebookIntegration?.link || 'View Facebook\'s Privacy Policy'}
-              </a>
-            </p>
-          </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-300 text-center">

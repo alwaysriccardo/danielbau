@@ -13,14 +13,3 @@ export interface NavLink {
   label: string;
   href: string;
 }
-
-export interface PortfolioItem {
-  id: string;
-  type: 'photo' | 'video';
-  thumbnail: string;
-  fullSize?: string;
-  embedHtml?: string; // For Facebook video embeds
-  url: string;
-  createdAt: string;
-  caption?: string;
-}
