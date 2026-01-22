@@ -5,6 +5,7 @@ export const TRANSLATIONS = {
     nav: {
       services: "Leistungen",
       about: "Über Uns",
+      portfolio: "Portfolio",
       contact: "Kontakt",
       menu: "MENÜ"
     },
@@ -89,6 +90,7 @@ export const TRANSLATIONS = {
     nav: {
       services: "Services",
       about: "About Us",
+      portfolio: "Portfolio",
       contact: "Contact",
       menu: "MENU"
     },
@@ -165,6 +167,7 @@ export const TRANSLATIONS = {
     nav: {
       services: "Services",
       about: "À propos",
+      portfolio: "Portfolio",
       contact: "Contact",
       menu: "MENU"
     },
@@ -241,6 +244,7 @@ export const TRANSLATIONS = {
     nav: {
       services: "Servizi",
       about: "Chi Siamo",
+      portfolio: "Portfolio",
       contact: "Contatto",
       menu: "MENU"
     },
