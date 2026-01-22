@@ -38,12 +38,31 @@ export default async function handler(
     media.sort((a, b) => a.order - b.order);
 
     // Add public URLs and map to frontend format
-    const mediaWithUrls = media.map(item => ({
-      ...item,
-      projectId, // Add projectId for frontend
-      key: item.r2Key, // Frontend compatibility
-      url: getPublicUrl(item.r2Key),
-      thumbnail: item.type === 'image' ? getPublicUrl(item.r2Key) : getPublicUrl(item.r2Key.replace(/\.(mp4|webm|mov)$/, '.jpg')),
+    // For videos, we might need presigned URLs to ensure proper Content-Type headers
+    const { generatePresignedGetUrl } = await import('./r2-utils.js');
+    
+    const mediaWithUrls = await Promise.all(media.map(async (item) => {
+      const baseUrl = getPublicUrl(item.r2Key);
+      
+      // For videos, try to get presigned URL for better MIME type support
+      // Fallback to public URL if presigned fails
+      let videoUrl = baseUrl;
+      if (item.type === 'video') {
+        try {
+          videoUrl = await generatePresignedGetUrl(item.r2Key, 3600);
+        } catch (error) {
+          console.warn('Failed to generate presigned URL for video, using public URL:', error);
+          videoUrl = baseUrl;
+        }
+      }
+      
+      return {
+        ...item,
+        projectId, // Add projectId for frontend
+        key: item.r2Key, // Frontend compatibility
+        url: item.type === 'video' ? videoUrl : baseUrl,
+        thumbnail: item.type === 'image' ? baseUrl : baseUrl.replace(/\.(mp4|webm|mov)$/, '.jpg'),
+      };
     }));
 
     return res.status(200).json(mediaWithUrls);

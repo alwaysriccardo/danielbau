@@ -344,14 +344,38 @@ const ProjectGallery: React.FC<{ project: PortfolioProject }> = ({ project }) =>
                 className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-lg"
               />
             ) : (
-              <video
-                src={selectedMedia.url}
-                controls
-                className="max-w-full max-h-[75vh] rounded-lg"
-                playsInline
-              >
-                Your browser does not support the video tag.
-              </video>
+              <div className="w-full max-w-4xl">
+                <video
+                  src={selectedMedia.url}
+                  controls
+                  className="max-w-full max-h-[75vh] rounded-lg"
+                  playsInline
+                  preload="metadata"
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    console.error('Video playback error:', e);
+                    console.error('Video URL:', selectedMedia.url);
+                  }}
+                >
+                  <source src={selectedMedia.url} type="video/mp4" />
+                  <source src={selectedMedia.url} type="video/webm" />
+                  <source src={selectedMedia.url} type="video/quicktime" />
+                  <source src={selectedMedia.url} type="video/x-msvideo" />
+                  Your browser does not support the video tag.
+                </video>
+                {selectedMedia.url && (
+                  <div className="mt-2 text-center">
+                    <a
+                      href={selectedMedia.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/70 hover:text-white text-sm underline"
+                    >
+                      Open video in new tab →
+                    </a>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
