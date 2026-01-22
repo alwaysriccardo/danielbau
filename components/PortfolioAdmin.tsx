@@ -131,30 +131,8 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
     <div className="fixed inset-0 z-[200] bg-[#E3E1DC] overflow-y-auto">
       <div className="max-w-7xl mx-auto p-6 md:p-12">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-display">Portfolio Admin</h1>
-          <div className="flex gap-4">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleLogout(e);
-              }}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              Logout
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onClose();
-              }}
-              className="px-4 py-2 bg-[#121212] text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Close
-            </button>
-          </div>
         </div>
 
         {/* Projects Management */}
@@ -179,6 +157,30 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
             onMediaChange={() => loadProjectMedia(selectedProject.id)}
           />
         )}
+
+        {/* Action Buttons - Placed at bottom for better accessibility */}
+        <div className="mt-12 pt-8 border-t border-gray-300 flex justify-end gap-4 pb-8">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleLogout(e);
+            }}
+            className="px-6 py-3 border border-gray-400 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+          >
+            Logout
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            className="px-6 py-3 bg-[#121212] text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -532,9 +534,31 @@ const MediaManager: React.FC<{
               {item.type === 'image' ? (
                 <img src={item.url} alt={`Media ${index + 1}`} className="w-full h-full object-cover" />
               ) : (
-                <div className="relative w-full h-full">
-                  <img src={item.thumbnail || item.url} alt={`Video ${index + 1}`} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                <div className="relative w-full h-full bg-gray-800">
+                  <video
+                    src={item.thumbnail || item.url}
+                    className="w-full h-full object-cover"
+                    preload="metadata"
+                    muted
+                    playsInline
+                    onError={(e) => {
+                      console.error('Video thumbnail error in admin:', e);
+                      console.error('Video URL:', item.thumbnail || item.url);
+                    }}
+                    onLoadedMetadata={(e) => {
+                      // Seek to first frame for thumbnail
+                      const video = e.currentTarget;
+                      video.currentTime = 0.1;
+                    }}
+                    onLoadedData={(e) => {
+                      // Ensure first frame is shown
+                      const video = e.currentTarget;
+                      if (video.currentTime < 0.1) {
+                        video.currentTime = 0.1;
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
                     <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
