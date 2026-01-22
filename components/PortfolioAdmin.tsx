@@ -216,8 +216,7 @@ const ProjectsManager: React.FC<{
       const data = await response.json();
 
       if (response.ok) {
-        const newProject = await response.json();
-        setProjects([...projects, newProject]);
+        setProjects([...projects, data]);
         setNewProjectName('');
         setError(null);
       } else {
