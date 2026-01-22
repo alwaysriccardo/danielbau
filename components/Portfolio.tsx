@@ -155,28 +155,23 @@ const Portfolio: React.FC = () => {
           )}
 
           {/* Project Thumbnails Grid */}
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth px-12">
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth px-12">
             {projects.map((project, index) => (
-              <div
+              <button
                 key={project.id}
-                className={`flex-shrink-0 w-[200px] aspect-square cursor-pointer snap-center transition-all ${
-                  index === selectedProjectIndex ? 'ring-4 ring-[#121212] scale-105' : 'opacity-60 hover:opacity-100'
-                }`}
                 onClick={() => setSelectedProjectIndex(index)}
+                className={`flex-shrink-0 px-6 py-3 bg-transparent border-2 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-all snap-center ${
+                  index === selectedProjectIndex 
+                    ? 'border-[#121212] bg-gray-100 font-semibold' 
+                    : 'border-gray-300'
+                }`}
               >
-                {project.coverImage ? (
-                  <img
-                    src={project.coverImage}
-                    alt={project.name || project.title}
-                    className="w-full h-full object-cover rounded-lg"
-                    loading={index < 3 ? 'eager' : 'lazy'}
-                  />
-                ) : (
-                  <button className="w-full h-full bg-transparent border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-                    <span className="text-gray-600 text-sm font-medium">{project.name || project.title}</span>
-                  </button>
-                )}
-              </div>
+                <span className={`text-sm whitespace-nowrap ${
+                  index === selectedProjectIndex ? 'text-[#121212]' : 'text-gray-600'
+                }`}>
+                  {project.name || project.title}
+                </span>
+              </button>
             ))}
           </div>
         </div>
