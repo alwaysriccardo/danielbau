@@ -263,6 +263,11 @@ const ProjectGallery: React.FC<{ project: PortfolioProject }> = ({ project }) =>
                     alt={`${project.name || project.title} - ${index + 1}`}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    onError={(e) => {
+                      console.error('Image load error:', e);
+                      console.error('Image URL:', item.url);
+                      console.error('Image key:', item.key || item.r2Key);
+                    }}
                   />
                 ) : (
                   <div className="relative w-full h-full bg-gray-800">

@@ -44,31 +44,28 @@ export default async function handler(
     const mediaWithUrls = await Promise.all(media.map(async (item) => {
       const baseUrl = getPublicUrl(item.r2Key);
       
-      // For videos, try to get presigned URL for better MIME type support
+      // Use presigned URLs for both images and videos to ensure correct MIME types
       // Fallback to public URL if presigned fails
-      let videoUrl = baseUrl;
+      let mediaUrl = baseUrl;
       let thumbnailUrl = baseUrl;
       
-      if (item.type === 'video') {
-        try {
-          // Use presigned URLs for both playback and thumbnails to ensure correct MIME types
-          videoUrl = await generatePresignedGetUrl(item.r2Key, 3600);
-          thumbnailUrl = await generatePresignedGetUrl(item.r2Key, 3600); // Same URL, used for thumbnail
-        } catch (error) {
-          console.warn('Failed to generate presigned URL for video, using public URL:', error);
-          videoUrl = baseUrl;
-          thumbnailUrl = baseUrl;
-        }
+      try {
+        // Generate presigned URLs for both images and videos
+        mediaUrl = await generatePresignedGetUrl(item.r2Key, 3600);
+        thumbnailUrl = await generatePresignedGetUrl(item.r2Key, 3600);
+      } catch (error) {
+        console.warn('Failed to generate presigned URL, using public URL:', error);
+        mediaUrl = baseUrl;
+        thumbnailUrl = baseUrl;
       }
       
       return {
         ...item,
         projectId, // Add projectId for frontend
         key: item.r2Key, // Frontend compatibility
-        url: item.type === 'video' ? videoUrl : baseUrl,
-        // For videos, use presigned URL for thumbnail (ensures correct MIME type)
-        // For images, use the image URL
-        thumbnail: item.type === 'video' ? thumbnailUrl : baseUrl,
+        url: mediaUrl,
+        // Use presigned URL for thumbnail (ensures correct MIME type for both images and videos)
+        thumbnail: thumbnailUrl,
       };
     }));
 

@@ -527,7 +527,16 @@ const MediaManager: React.FC<{
           <div key={item.id} className="relative group">
             <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
               {item.type === 'image' ? (
-                <img src={item.url} alt={`Media ${index + 1}`} className="w-full h-full object-cover" />
+                <img 
+                  src={item.url} 
+                  alt={`Media ${index + 1}`} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Image load error in admin:', e);
+                    console.error('Image URL:', item.url);
+                    console.error('Image key:', item.key || item.r2Key);
+                  }}
+                />
               ) : (
                 <div className="relative w-full h-full bg-gray-800">
                   <video
