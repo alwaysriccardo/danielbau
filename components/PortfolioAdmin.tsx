@@ -408,9 +408,10 @@ const MediaManager: React.FC<{
     const fileArray = Array.from(files);
     const results = { success: 0, failed: 0 };
     const errors: string[] = [];
+    const uploadedFiles: Array<{ key: string; type: string; fileName: string }> = [];
 
     try {
-      // Process all files, but continue even if one fails
+      // Step 1: Upload all files to R2 first (can be parallel, but we'll do sequential to avoid overwhelming)
       for (const file of fileArray) {
         try {
           // Get presigned URL
@@ -451,7 +452,27 @@ const MediaManager: React.FC<{
             throw new Error(`Failed to upload to R2: ${uploadResponse.statusText}`);
           }
 
-          // Create media metadata
+          // Store successful upload for metadata creation
+          uploadedFiles.push({
+            key,
+            type: file.type.startsWith('video/') ? 'video' : 'image',
+            fileName: file.name,
+          });
+        } catch (fileError) {
+          results.failed++;
+          const errorMessage = fileError instanceof Error ? fileError.message : 'Unknown error';
+          errors.push(`${file.name}: ${errorMessage}`);
+          console.error(`Error uploading ${file.name}:`, fileError);
+          // Continue with next file
+        }
+      }
+
+      // Step 2: Create metadata sequentially to avoid race conditions
+      for (const uploaded of uploadedFiles) {
+        try {
+          // Small delay to ensure KV writes don't conflict (though sequential should help)
+          await new Promise(resolve => setTimeout(resolve, 50));
+          
           const metadataResponse = await fetch('/api/portfolio-admin-media', {
             method: 'POST',
             headers: {
@@ -460,8 +481,8 @@ const MediaManager: React.FC<{
             },
             body: JSON.stringify({
               projectId: project.id,
-              key,
-              type: file.type.startsWith('video/') ? 'video' : 'image',
+              key: uploaded.key,
+              type: uploaded.type,
             }),
           });
 
@@ -471,11 +492,11 @@ const MediaManager: React.FC<{
           }
 
           results.success++;
-        } catch (fileError) {
+        } catch (metadataError) {
           results.failed++;
-          const errorMessage = fileError instanceof Error ? fileError.message : 'Unknown error';
-          errors.push(`${file.name}: ${errorMessage}`);
-          console.error(`Error uploading ${file.name}:`, fileError);
+          const errorMessage = metadataError instanceof Error ? metadataError.message : 'Unknown error';
+          errors.push(`${uploaded.fileName} (metadata): ${errorMessage}`);
+          console.error(`Error creating metadata for ${uploaded.fileName}:`, metadataError);
           // Continue with next file
         }
       }
