@@ -193,7 +193,8 @@ const ProjectGallery: React.FC<{ project: PortfolioProject }> = ({ project }) =>
     const fetchMedia = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/portfolio-media?projectId=${project.id}`);
+        // Add cache-busting parameter to ensure fresh data
+        const response = await fetch(`/api/portfolio-media?projectId=${project.id}&_t=${Date.now()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch media');
         }
