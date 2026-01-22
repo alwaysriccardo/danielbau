@@ -25,6 +25,24 @@ export default async function handler(
   }
 
   try {
+    // Verify environment variables are set
+    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+    const kvNamespaceId = process.env.CLOUDFLARE_KV_NAMESPACE_ID;
+
+    if (!accountId || !apiToken || !kvNamespaceId) {
+      const missing = [];
+      if (!accountId) missing.push('CLOUDFLARE_ACCOUNT_ID');
+      if (!apiToken) missing.push('CLOUDFLARE_API_TOKEN');
+      if (!kvNamespaceId) missing.push('CLOUDFLARE_KV_NAMESPACE_ID');
+      
+      return res.status(500).json({ 
+        error: 'KV credentials not configured',
+        details: `Missing environment variables: ${missing.join(', ')}`,
+        missing
+      });
+    }
+
     // Get projects from KV
     const projects = await getProjects();
 
@@ -50,15 +68,16 @@ export default async function handler(
   } catch (error) {
     console.error('Error fetching projects:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : undefined;
     
     // Log detailed error for debugging
     console.error('Error details:', {
       message: errorMessage,
-      stack: errorStack,
       hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
       hasApiToken: !!process.env.CLOUDFLARE_API_TOKEN,
       hasKvNamespace: !!process.env.CLOUDFLARE_KV_NAMESPACE_ID,
+      accountIdLength: process.env.CLOUDFLARE_ACCOUNT_ID?.length,
+      apiTokenLength: process.env.CLOUDFLARE_API_TOKEN?.length,
+      namespaceIdLength: process.env.CLOUDFLARE_KV_NAMESPACE_ID?.length,
     });
     
     return res.status(500).json({ 
