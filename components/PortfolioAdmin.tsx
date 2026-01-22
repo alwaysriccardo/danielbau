@@ -65,7 +65,8 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
   const loadProjectMedia = async (projectId: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/portfolio-media?projectId=${projectId}`);
+      // Add cache-busting to ensure fresh data after uploads
+      const response = await fetch(`/api/portfolio-media?projectId=${projectId}&_t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setMedia(data);
@@ -502,6 +503,10 @@ const MediaManager: React.FC<{
       }
 
       // Refresh media list to show uploaded files
+      // Add a delay to ensure KV writes are propagated (especially important for images)
+      if (uploadedFiles.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
       onMediaChange();
 
       // Show results
