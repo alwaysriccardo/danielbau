@@ -16,6 +16,7 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
   const [media, setMedia] = useState<PortfolioMedia[]>([]);
   const [loading, setLoading] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Check if already authenticated
   useEffect(() => {
@@ -54,7 +55,11 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsAuthenticated(false);
     setAdminToken(null);
     localStorage.removeItem('portfolio_admin_token');
@@ -136,13 +141,21 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
           <h1 className="text-3xl md:text-4xl font-display">Portfolio Admin</h1>
           <div className="flex gap-4">
             <button
-              onClick={handleLogout}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogout(e);
+              }}
               className="px-4 py-2 border rounded-lg hover:bg-gray-100 transition-colors"
             >
               Logout
             </button>
             <button
-              onClick={onClose}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
               className="px-4 py-2 bg-[#121212] text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Close
@@ -158,6 +171,8 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
           setSelectedProject={setSelectedProject}
           onProjectSelect={loadProjectMedia}
           adminToken={adminToken!}
+          error={error}
+          setError={setError}
         />
 
         {/* Media Management */}
@@ -183,7 +198,9 @@ const ProjectsManager: React.FC<{
   setSelectedProject: React.Dispatch<React.SetStateAction<PortfolioProject | null>>;
   onProjectSelect: (projectId: string) => void;
   adminToken: string;
-}> = ({ projects, setProjects, selectedProject, setSelectedProject, onProjectSelect, adminToken }) => {
+  error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+}> = ({ projects, setProjects, selectedProject, setSelectedProject, onProjectSelect, adminToken, error, setError }) => {
   const [newProjectName, setNewProjectName] = useState('');
   const [creating, setCreating] = useState(false);
 
@@ -192,6 +209,7 @@ const ProjectsManager: React.FC<{
 
     try {
       setCreating(true);
+      setError(null);
       const response = await fetch('/api/portfolio-admin-projects', {
         method: 'POST',
         headers: {
@@ -201,12 +219,20 @@ const ProjectsManager: React.FC<{
         body: JSON.stringify({ name: newProjectName }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         const newProject = await response.json();
         setProjects([...projects, newProject]);
         setNewProjectName('');
+        setError(null);
+      } else {
+        setError(data.error || data.details || 'Failed to create project');
+        console.error('Error creating project:', data);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create project';
+      setError(errorMessage);
       console.error('Error creating project:', error);
     } finally {
       setCreating(false);
@@ -261,22 +287,27 @@ const ProjectsManager: React.FC<{
       <h2 className="text-2xl font-bold mb-4">Projects</h2>
       
       {/* Create New Project */}
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          value={newProjectName}
-          onChange={(e) => setNewProjectName(e.target.value)}
-          placeholder="New project name"
-          className="flex-1 px-4 py-2 border rounded-lg"
-          onKeyPress={(e) => e.key === 'Enter' && handleCreateProject()}
-        />
-        <button
-          onClick={handleCreateProject}
-          disabled={creating || !newProjectName.trim()}
-          className="px-6 py-2 bg-[#121212] text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
-        >
-          Create
-        </button>
+      <div className="mb-6">
+        <div className="flex gap-4 mb-2">
+          <input
+            type="text"
+            value={newProjectName}
+            onChange={(e) => setNewProjectName(e.target.value)}
+            placeholder="New project name"
+            className="flex-1 px-4 py-2 border rounded-lg"
+            onKeyPress={(e) => e.key === 'Enter' && handleCreateProject()}
+          />
+          <button
+            onClick={handleCreateProject}
+            disabled={creating || !newProjectName.trim()}
+            className="px-6 py-2 bg-[#121212] text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            {creating ? 'Creating...' : 'Create'}
+          </button>
+        </div>
+        {error && (
+          <div className="text-red-600 text-sm mt-2">{error}</div>
+        )}
       </div>
 
       {/* Projects List */}
