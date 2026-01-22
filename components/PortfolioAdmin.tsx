@@ -77,6 +77,18 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
     }
   };
 
+  const refreshProjects = async () => {
+    try {
+      const response = await fetch('/api/portfolio-projects');
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(data);
+      }
+    } catch (error) {
+      console.error('Error refreshing projects:', error);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4">
@@ -154,7 +166,10 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
             media={media}
             setMedia={setMedia}
             adminToken={adminToken!}
-            onMediaChange={() => loadProjectMedia(selectedProject.id)}
+            onMediaChange={async () => {
+              await loadProjectMedia(selectedProject.id);
+              await refreshProjects(); // Refresh projects to update media count
+            }}
           />
         )}
 
@@ -481,6 +496,8 @@ const MediaManager: React.FC<{
       }
 
       // Refresh media list after all uploads
+      // Add a small delay to ensure KV writes are complete
+      await new Promise(resolve => setTimeout(resolve, 500));
       await onMediaChange();
 
       // Show results
