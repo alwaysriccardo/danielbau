@@ -172,9 +172,9 @@ const Portfolio: React.FC = () => {
                     loading={index < 3 ? 'eager' : 'lazy'}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">{project.name || project.title}</span>
-                  </div>
+                  <button className="w-full h-full bg-transparent border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                    <span className="text-gray-600 text-sm font-medium">{project.name || project.title}</span>
+                  </button>
                 )}
               </div>
             ))}
