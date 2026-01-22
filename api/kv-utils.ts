@@ -25,8 +25,35 @@ async function kvRequest(method: string, key: string, value?: string): Promise<s
   if (method === 'GET') {
     const response = await fetch(url, { method: 'GET', headers });
     if (response.status === 404) return null;
-    if (!response.ok) throw new Error(`KV GET failed: ${response.statusText}`);
-    return await response.text();
+    if (!response.ok) {
+      let errorText = '';
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          const errorJson = await response.json();
+          errorText = JSON.stringify(errorJson);
+        } catch {
+          errorText = await response.text();
+        }
+      } else {
+        errorText = await response.text();
+      }
+      console.error('KV GET error:', response.status, response.statusText, errorText);
+      throw new Error(`KV GET failed: ${response.statusText} - ${errorText}`);
+    }
+    const text = await response.text();
+    // Check if response is actually JSON error
+    if (text.trim().startsWith('{') && text.includes('"error"')) {
+      try {
+        const errorJson = JSON.parse(text);
+        if (errorJson.error) {
+          throw new Error(`KV API Error: ${errorJson.error.message || errorJson.error}`);
+        }
+      } catch (e) {
+        // Not a JSON error, continue
+      }
+    }
+    return text;
   }
 
   if (method === 'PUT') {
@@ -36,8 +63,25 @@ async function kvRequest(method: string, key: string, value?: string): Promise<s
       headers,
       body: value,
     });
-    if (!response.ok) throw new Error(`KV PUT failed: ${response.statusText}`);
-    return 'ok';
+    if (!response.ok) {
+      let errorText = '';
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          const errorJson = await response.json();
+          errorText = JSON.stringify(errorJson);
+        } catch {
+          errorText = await response.text();
+        }
+      } else {
+        errorText = await response.text();
+      }
+      console.error('KV PUT error:', response.status, response.statusText, errorText);
+      throw new Error(`KV PUT failed: ${response.statusText} - ${errorText}`);
+    }
+    // KV PUT returns empty body on success, or sometimes a JSON response
+    const responseText = await response.text();
+    return responseText || 'ok';
   }
 
   if (method === 'DELETE') {
@@ -56,7 +100,14 @@ export async function getProjects(): Promise<any[]> {
   try {
     const data = await kvRequest('GET', 'projects');
     if (!data) return [];
-    return JSON.parse(data);
+    // Handle empty string
+    if (data.trim() === '') return [];
+    try {
+      return JSON.parse(data);
+    } catch (parseError) {
+      console.error('JSON parse error for projects:', parseError, 'Data:', data);
+      return [];
+    }
   } catch (error) {
     console.error('Error getting projects from KV:', error);
     return [];
@@ -78,7 +129,14 @@ export async function getProjectMedia(projectId: string): Promise<any[]> {
   try {
     const data = await kvRequest('GET', `project:${projectId}:media`);
     if (!data) return [];
-    return JSON.parse(data);
+    // Handle empty string
+    if (data.trim() === '') return [];
+    try {
+      return JSON.parse(data);
+    } catch (parseError) {
+      console.error('JSON parse error for media:', parseError, 'Data:', data);
+      return [];
+    }
   } catch (error) {
     console.error('Error getting media from KV:', error);
     return [];
