@@ -13,7 +13,7 @@ interface VercelResponse {
   status: (code: number) => VercelResponse;
   json: (data: any) => void;
 }
-import { getPublicUrl } from './r2-utils';
+import { getPublicUrl } from './r2-utils.js';
 
 export default async function handler(
   req: VercelRequest,
@@ -31,7 +31,7 @@ export default async function handler(
 
   try {
     // Get media from KV
-    const { getProjectMedia } = await import('./kv-utils');
+    const { getProjectMedia } = await import('./kv-utils.js');
     const media = await getProjectMedia(projectId);
 
     // Sort by order

@@ -14,8 +14,8 @@ interface VercelResponse {
   json: (data: any) => void;
 }
 
-import { generatePresignedUploadUrl } from './r2-utils';
-import { verifyAdminToken } from './portfolio-admin-auth';
+import { generatePresignedUploadUrl } from './r2-utils.js';
+import { verifyAdminToken } from './portfolio-admin-auth.js';
 
 export default async function handler(
   req: VercelRequest,

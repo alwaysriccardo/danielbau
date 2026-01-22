@@ -14,9 +14,9 @@ interface VercelResponse {
   status: (code: number) => VercelResponse;
   json: (data: any) => void;
 }
-import { verifyAdminToken } from './portfolio-admin-auth';
-import { deleteObject } from './r2-utils';
-import { getProjectMedia, saveProjectMedia, getProjects, saveProjects } from './kv-utils';
+import { verifyAdminToken } from './portfolio-admin-auth.js';
+import { deleteObject } from './r2-utils.js';
+import { getProjectMedia, saveProjectMedia, getProjects, saveProjects } from './kv-utils.js';
 
 export default async function handler(
   req: VercelRequest,

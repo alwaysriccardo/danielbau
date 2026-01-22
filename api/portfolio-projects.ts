@@ -13,8 +13,8 @@ interface VercelResponse {
   status: (code: number) => VercelResponse;
   json: (data: any) => void;
 }
-import { getPublicUrl } from './r2-utils';
-import { getProjects } from './kv-utils';
+import { getPublicUrl } from './r2-utils.js';
+import { getProjects } from './kv-utils.js';
 
 export default async function handler(
   req: VercelRequest,
@@ -49,7 +49,7 @@ export default async function handler(
     // Map KV schema to frontend format
     const projectsWithUrls = await Promise.all(projects.map(async (project) => {
       // Get media count for this project
-      const { getProjectMedia } = await import('./kv-utils');
+      const { getProjectMedia } = await import('./kv-utils.js');
       const media = await getProjectMedia(project.id);
       
       return {
