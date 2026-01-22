@@ -35,43 +35,92 @@ export default async function handler(
 
   try {
     if (req.method === 'POST') {
-      // Create media metadata after upload
-      const { projectId, key, type } = req.body;
-      if (!projectId || !key || !type) {
-        return res.status(400).json({ error: 'projectId, key, and type are required' });
-      }
-
-      const projectMedia = await getProjectMedia(projectId);
+      const { projectId, key, type, media } = req.body;
       
-      // Generate unique ID with timestamp and random component to avoid collisions
-      const uniqueId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      
-      const newMedia = {
-        id: uniqueId,
-        type,
-        r2Key: key,
-        order: projectMedia.length,
-        createdAt: new Date().toISOString(),
-      };
-
-      projectMedia.push(newMedia);
-      await saveProjectMedia(projectId, projectMedia);
-
-      // Update project cover image if it's the first media
-      if (projectMedia.length === 1 && type === 'image') {
-        const projects = await getProjects();
-        const project = projects.find(p => p.id === projectId);
-        if (project) {
-          project.coverKey = key;
-          await saveProjects(projects);
+      // Support both single and batch creation
+      if (media && Array.isArray(media)) {
+        // Batch creation - process all at once to avoid race conditions
+        if (!projectId) {
+          return res.status(400).json({ error: 'projectId is required' });
         }
-      }
 
-      return res.status(201).json({
-        ...newMedia,
-        projectId,
-        key: newMedia.r2Key,
-      });
+        const projectMedia = await getProjectMedia(projectId);
+        const baseOrder = projectMedia.length;
+        
+        const newMediaItems = media.map((item: { key: string; type: string }, index: number) => {
+          const uniqueId = `media-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
+          return {
+            id: uniqueId,
+            type: item.type,
+            r2Key: item.key,
+            order: baseOrder + index,
+            createdAt: new Date().toISOString(),
+          };
+        });
+
+        projectMedia.push(...newMediaItems);
+        await saveProjectMedia(projectId, projectMedia);
+
+        // Update project cover image if this is the first media
+        if (projectMedia.length === newMediaItems.length) {
+          const firstImage = newMediaItems.find(m => m.type === 'image');
+          if (firstImage) {
+            const projects = await getProjects();
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+              project.coverKey = firstImage.r2Key;
+              await saveProjects(projects);
+            }
+          }
+        }
+
+        return res.status(201).json({
+          success: true,
+          count: newMediaItems.length,
+          media: newMediaItems.map(item => ({
+            ...item,
+            projectId,
+            key: item.r2Key,
+          })),
+        });
+      } else {
+        // Single creation (backward compatibility)
+        if (!projectId || !key || !type) {
+          return res.status(400).json({ error: 'projectId, key, and type are required' });
+        }
+
+        const projectMedia = await getProjectMedia(projectId);
+        
+        // Generate unique ID with timestamp and random component to avoid collisions
+        const uniqueId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        
+        const newMedia = {
+          id: uniqueId,
+          type,
+          r2Key: key,
+          order: projectMedia.length,
+          createdAt: new Date().toISOString(),
+        };
+
+        projectMedia.push(newMedia);
+        await saveProjectMedia(projectId, projectMedia);
+
+        // Update project cover image if it's the first media
+        if (projectMedia.length === 1 && type === 'image') {
+          const projects = await getProjects();
+          const project = projects.find(p => p.id === projectId);
+          if (project) {
+            project.coverKey = key;
+            await saveProjects(projects);
+          }
+        }
+
+        return res.status(201).json({
+          ...newMedia,
+          projectId,
+          key: newMedia.r2Key,
+        });
+      }
     }
 
     if (req.method === 'DELETE') {

@@ -77,18 +77,6 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
     }
   };
 
-  const refreshProjects = async () => {
-    try {
-      const response = await fetch('/api/portfolio-projects');
-      if (response.ok) {
-        const data = await response.json();
-        setProjects(data);
-      }
-    } catch (error) {
-      console.error('Error refreshing projects:', error);
-    }
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4">
@@ -166,10 +154,7 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
             media={media}
             setMedia={setMedia}
             adminToken={adminToken!}
-            onMediaChange={async () => {
-              await loadProjectMedia(selectedProject.id);
-              await refreshProjects(); // Refresh projects to update media count
-            }}
+            onMediaChange={() => loadProjectMedia(selectedProject.id)}
           />
         )}
 
@@ -424,8 +409,10 @@ const MediaManager: React.FC<{
     let successCount = 0;
     let failCount = 0;
     const errors: string[] = [];
+    const successfulUploads: Array<{ key: string; type: string }> = [];
 
     try {
+      // Step 1: Upload all files to R2 first
       for (const file of fileArray) {
         try {
           // Get presigned URL
@@ -466,27 +453,14 @@ const MediaManager: React.FC<{
             throw new Error(`Failed to upload to R2: ${uploadResponse.status}`);
           }
 
-          // Create media metadata
-          const metadataResponse = await fetch('/api/portfolio-admin-media', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${adminToken}`,
-            },
-            body: JSON.stringify({
-              projectId: project.id,
-              key,
-              type: file.type.startsWith('video/') ? 'video' : 'image',
-            }),
+          // Store successful upload for batch metadata creation
+          successfulUploads.push({
+            key,
+            type: file.type.startsWith('video/') ? 'video' : 'image',
           });
 
-          if (!metadataResponse.ok) {
-            const errorData = await metadataResponse.json().catch(() => ({ error: 'Failed to create metadata' }));
-            throw new Error(errorData.error || `Failed to create metadata: ${metadataResponse.status}`);
-          }
-
           successCount++;
-          console.log(`Successfully uploaded: ${file.name}`);
+          console.log(`Successfully uploaded to R2: ${file.name}`);
         } catch (fileError) {
           failCount++;
           const errorMessage = fileError instanceof Error ? fileError.message : 'Unknown error';
@@ -495,9 +469,35 @@ const MediaManager: React.FC<{
         }
       }
 
+      // Step 2: Create all metadata in a single batch request to avoid race conditions
+      if (successfulUploads.length > 0) {
+        try {
+          const batchResponse = await fetch('/api/portfolio-admin-media', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              projectId: project.id,
+              media: successfulUploads, // Send array of {key, type}
+            }),
+          });
+
+          if (!batchResponse.ok) {
+            const errorData = await batchResponse.json().catch(() => ({ error: 'Failed to create metadata' }));
+            throw new Error(errorData.error || `Failed to create metadata: ${batchResponse.status}`);
+          }
+
+          console.log(`Successfully created metadata for ${successfulUploads.length} file(s)`);
+        } catch (batchError) {
+          console.error('Error creating metadata batch:', batchError);
+          // Don't count this as a file failure since files were uploaded successfully
+          errors.push(`Metadata creation failed: ${batchError instanceof Error ? batchError.message : 'Unknown error'}`);
+        }
+      }
+
       // Refresh media list after all uploads
-      // Add a small delay to ensure KV writes are complete
-      await new Promise(resolve => setTimeout(resolve, 500));
       await onMediaChange();
 
       // Show results
