@@ -49,9 +49,21 @@ export default async function handler(
     return res.status(200).json(projectsWithUrls);
   } catch (error) {
     console.error('Error fetching projects:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Log detailed error for debugging
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
+      hasApiToken: !!process.env.CLOUDFLARE_API_TOKEN,
+      hasKvNamespace: !!process.env.CLOUDFLARE_KV_NAMESPACE_ID,
+    });
+    
     return res.status(500).json({ 
       error: 'Failed to fetch projects',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: errorMessage
     });
   }
 }

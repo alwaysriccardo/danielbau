@@ -57,11 +57,26 @@ const Portfolio: React.FC = () => {
     );
   }
 
+  if (showAdmin) {
+    return <PortfolioAdmin onClose={() => setShowAdmin(false)} projects={projects} setProjects={setProjects} />;
+  }
+
   if (error) {
     return (
       <section ref={sectionRef} className="py-24 px-6 md:px-20 bg-[#E3E1DC]">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center relative">
+          {/* Admin Button - Always visible even on error */}
+          <div className="absolute top-0 right-0">
+            <button
+              onClick={() => setShowAdmin(true)}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Admin"
+            >
+              ⚙️
+            </button>
+          </div>
           <div className="text-red-600 mb-4">Error: {error}</div>
+          <div className="text-sm text-gray-500 mt-2">Click ⚙️ to access admin panel</div>
         </div>
       </section>
     );
@@ -70,15 +85,22 @@ const Portfolio: React.FC = () => {
   if (projects.length === 0) {
     return (
       <section ref={sectionRef} className="py-24 px-6 md:px-20 bg-[#E3E1DC]">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="text-gray-600">No projects available.</div>
+        <div className="max-w-7xl mx-auto text-center relative">
+          {/* Admin Button - Always visible even with no projects */}
+          <div className="absolute top-0 right-0">
+            <button
+              onClick={() => setShowAdmin(true)}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Admin"
+            >
+              ⚙️
+            </button>
+          </div>
+          <div className="text-gray-600 mb-4">No projects available.</div>
+          <div className="text-sm text-gray-500 mt-2">Click ⚙️ to create your first project</div>
         </div>
       </section>
     );
-  }
-
-  if (showAdmin) {
-    return <PortfolioAdmin onClose={() => setShowAdmin(false)} projects={projects} setProjects={setProjects} />;
   }
 
   const currentProject = projects[selectedProjectIndex];
