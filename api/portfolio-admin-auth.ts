@@ -50,11 +50,18 @@ export default async function handler(
 }
 
 // Helper function to verify token (used by other admin endpoints)
+// Simple check - just verifies token format (not secure, but simple)
+// Token is base64 encoded "username:timestamp" from client
 export function verifyAdminToken(token: string): boolean {
+  if (!token) return false;
   try {
+    // Decode base64 (Node.js compatible)
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [username] = decoded.split(':');
-    return username === ADMIN_USERNAME;
+    // Token format: "username:timestamp"
+    if (decoded.includes('danielmirciov:')) {
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }

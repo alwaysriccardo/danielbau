@@ -29,29 +29,23 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
     }
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
 
-    try {
-      const response = await fetch('/api/portfolio-admin-auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+    // Client-side authentication (password is in code - not secure but simple)
+    const ADMIN_USERNAME = 'danielmirciov';
+    const ADMIN_PASSWORD = 'Mirciov1*';
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setAdminToken(data.token);
-        localStorage.setItem('portfolio_admin_token', data.token);
-        localStorage.setItem('portfolio_admin_expires', data.expiresAt.toString());
-        setIsAuthenticated(true);
-      } else {
-        setAuthError('Invalid credentials');
-      }
-    } catch (error) {
-      setAuthError('Login failed. Please try again.');
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      // Generate a simple token (just for consistency, not real security)
+      const token = btoa(`${username}:${Date.now()}`);
+      setAdminToken(token);
+      localStorage.setItem('portfolio_admin_token', token);
+      localStorage.setItem('portfolio_admin_expires', (Date.now() + 24 * 60 * 60 * 1000).toString()); // 24 hours
+      setIsAuthenticated(true);
+    } else {
+      setAuthError('Invalid credentials');
     }
   };
 
