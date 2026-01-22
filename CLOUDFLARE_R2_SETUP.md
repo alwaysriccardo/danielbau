@@ -45,44 +45,80 @@
 
 ## Step 4: Set Up Cloudflare Workers KV
 
-1. Go to **Workers & Pages** → **KV** in Cloudflare dashboard
-2. Click **Create a namespace**
+1. Go to **Storage & databases** → **Workers KV** in Cloudflare dashboard
+2. You'll see a box that says "Create a KV namespace"
+   - **Option A**: Click on the box itself (it should be clickable)
+   - **Option B**: If there's no button, look for a "+" or "Add" button in the top right
+   - **Option C**: Use the command line shown: `npx wrangler kv namespace create portfolio-metadata`
 3. Name it: `portfolio-metadata` (or your preferred name)
-4. Click **Add**
-5. **Copy the Namespace ID** (you'll need this)
+4. Click **Add** or **Create**
+5. **Copy the Namespace ID** (you'll need this - it's shown after creation)
 
-## Step 5: Get Cloudflare API Token
+## Step 5: Get Cloudflare API Token (for KV)
 
-1. Go to **My Profile** → **API Tokens**
+This token is used to access Cloudflare KV from your serverless functions.
+
+1. Go to **My Profile** → **API Tokens** (top right corner, click your profile icon)
 2. Click **Create Token**
-3. Use **Edit Cloudflare Workers** template
-4. Set permissions:
-   - **Account** → **Workers KV Storage** → **Edit**
+3. You have two options:
+   - **Option A**: Use **Edit Cloudflare Workers** template (recommended)
+     - This automatically sets the right permissions
+   - **Option B**: Create a custom token
+     - Set permissions manually:
+       - **Account** → **Workers KV Storage** → **Edit**
+       - **Account** → **Account** → **Read** (if needed)
+4. Set TTL (Time To Live):
+   - **Start Date**: Today (or leave default)
+   - **End Date**: Set far in future (e.g., 2034) or leave blank for no expiration
 5. Click **Continue to summary** → **Create Token**
-6. **Copy the token** (you'll only see it once!)
+6. **IMPORTANT**: Copy the token immediately - you'll only see it once!
+   - This is your `CLOUDFLARE_API_TOKEN` value for Vercel
 
 ## Step 6: Add Environment Variables to Vercel
 
 1. Go to your Vercel project dashboard
 2. Go to **Settings** → **Environment Variables**
-3. Add these variables:
+3. Click **Add New** (or **+ Add** button)
+4. For each variable, fill in:
+   - **Key** (left field): The variable name (e.g., `CLOUDFLARE_ACCOUNT_ID`)
+   - **Value** (right field): The actual value (e.g., your account ID)
+5. Click **Save** after each variable
 
-```
-# R2 Storage (for files)
-CLOUDFLARE_ACCOUNT_ID=your_account_id_here
-CLOUDFLARE_ACCESS_KEY_ID=your_access_key_id_here
-CLOUDFLARE_SECRET_ACCESS_KEY=your_secret_access_key_here
-CLOUDFLARE_R2_BUCKET_NAME=danielbau-portfolio
-CLOUDFLARE_R2_PUBLIC_URL=https://your-bucket-name.r2.cloudflarestorage.com
+### Add these 7 environment variables:
 
-# KV Storage (for metadata)
-CLOUDFLARE_API_TOKEN=your_api_token_here
-CLOUDFLARE_KV_NAMESPACE_ID=your_kv_namespace_id_here
-```
+**1. R2 - Account ID**
+- **Key**: `CLOUDFLARE_ACCOUNT_ID`
+- **Value**: Your Cloudflare Account ID (from dashboard sidebar)
+
+**2. R2 - Access Key ID**
+- **Key**: `CLOUDFLARE_ACCESS_KEY_ID`
+- **Value**: Your R2 Access Key ID (from Step 2)
+
+**3. R2 - Secret Access Key**
+- **Key**: `CLOUDFLARE_SECRET_ACCESS_KEY`
+- **Value**: Your R2 Secret Access Key (from Step 2)
+
+**4. R2 - Bucket Name**
+- **Key**: `CLOUDFLARE_R2_BUCKET_NAME`
+- **Value**: `danielbau-portfolio` (or whatever you named your bucket)
+
+**5. R2 - Public URL**
+- **Key**: `CLOUDFLARE_R2_PUBLIC_URL`
+- **Value**: `https://e8ce8fbe1fc59ae9fca00f3b2fbc6621.r2.cloudflarestorage.com/danielbau-portfolio`
+  - (Ready to copy - uses your account ID: `e8ce8fbe1fc59ae9fca00f3b2fbc6621`)
+
+**6. KV - API Token**
+- **Key**: `CLOUDFLARE_API_TOKEN`
+- **Value**: Your Cloudflare API Token (from Step 5)
+
+**7. KV - Namespace ID**
+- **Key**: `CLOUDFLARE_KV_NAMESPACE_ID`
+- **Value**: Your KV Namespace ID (from Step 4, e.g., `823c05d998814240822ff03688a39865`)
 
 **Note**: For `CLOUDFLARE_R2_PUBLIC_URL`, you can either:
-- Use a custom domain (recommended)
+- Use a custom domain (recommended): `https://cdn.dani-bau.ch`
 - Use the R2 public URL format: `https://[account-id].r2.cloudflarestorage.com/[bucket-name]`
+- Or use: `https://[account-id].r2.cloudflarestorage.com/danielbau-portfolio`
 
 ## Step 7: Set Up Custom Domain (Optional but Recommended)
 
