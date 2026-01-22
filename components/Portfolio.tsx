@@ -270,14 +270,31 @@ const ProjectGallery: React.FC<{ project: PortfolioProject }> = ({ project }) =>
                     loading="lazy"
                   />
                 ) : (
-                  <div className="relative w-full h-full">
-                    <img
+                  <div className="relative w-full h-full bg-gray-800">
+                    <video
                       src={item.thumbnail || item.url}
-                      alt={`${project.name || project.title} - ${index + 1}`}
                       className="w-full h-full object-cover"
-                      loading="lazy"
+                      preload="metadata"
+                      muted
+                      playsInline
+                      onError={(e) => {
+                        console.error('Video thumbnail error:', e);
+                        console.error('Video URL:', item.thumbnail || item.url);
+                      }}
+                      onLoadedMetadata={(e) => {
+                        // Seek to first frame for thumbnail
+                        const video = e.currentTarget;
+                        video.currentTime = 0.1;
+                      }}
+                      onLoadedData={(e) => {
+                        // Ensure first frame is shown
+                        const video = e.currentTarget;
+                        if (video.currentTime < 0.1) {
+                          video.currentTime = 0.1;
+                        }
+                      }}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
                       <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>

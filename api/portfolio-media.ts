@@ -47,12 +47,17 @@ export default async function handler(
       // For videos, try to get presigned URL for better MIME type support
       // Fallback to public URL if presigned fails
       let videoUrl = baseUrl;
+      let thumbnailUrl = baseUrl;
+      
       if (item.type === 'video') {
         try {
+          // Use presigned URLs for both playback and thumbnails to ensure correct MIME types
           videoUrl = await generatePresignedGetUrl(item.r2Key, 3600);
+          thumbnailUrl = await generatePresignedGetUrl(item.r2Key, 3600); // Same URL, used for thumbnail
         } catch (error) {
           console.warn('Failed to generate presigned URL for video, using public URL:', error);
           videoUrl = baseUrl;
+          thumbnailUrl = baseUrl;
         }
       }
       
@@ -61,7 +66,9 @@ export default async function handler(
         projectId, // Add projectId for frontend
         key: item.r2Key, // Frontend compatibility
         url: item.type === 'video' ? videoUrl : baseUrl,
-        thumbnail: item.type === 'image' ? baseUrl : baseUrl.replace(/\.(mp4|webm|mov)$/, '.jpg'),
+        // For videos, use presigned URL for thumbnail (ensures correct MIME type)
+        // For images, use the image URL
+        thumbnail: item.type === 'video' ? thumbnailUrl : baseUrl,
       };
     }));
 
