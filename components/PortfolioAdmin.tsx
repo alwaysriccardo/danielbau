@@ -405,52 +405,93 @@ const MediaManager: React.FC<{
 
     setUploading(true);
 
+    const fileArray = Array.from(files);
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
     try {
-      for (const file of Array.from(files)) {
-        // Get presigned URL
-        const urlResponse = await fetch('/api/portfolio-upload-url', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            projectId: project.id,
-            fileName: file.name,
-            contentType: file.type,
-          }),
-        });
+      for (const file of fileArray) {
+        try {
+          // Get presigned URL
+          const urlResponse = await fetch('/api/portfolio-upload-url', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              projectId: project.id,
+              fileName: file.name,
+              contentType: file.type,
+            }),
+          });
 
-        const { uploadUrl, key } = await urlResponse.json();
+          if (!urlResponse.ok) {
+            const errorData = await urlResponse.json().catch(() => ({ error: 'Failed to get upload URL' }));
+            throw new Error(errorData.error || `Failed to get upload URL: ${urlResponse.status}`);
+          }
 
-        // Upload directly to R2
-        await fetch(uploadUrl, {
-          method: 'PUT',
-          body: file,
-          headers: {
-            'Content-Type': file.type,
-          },
-        });
+          const { uploadUrl, key } = await urlResponse.json();
 
-        // Create media metadata
-        await fetch('/api/portfolio-admin-media', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            projectId: project.id,
-            key,
-            type: file.type.startsWith('video/') ? 'video' : 'image',
-          }),
-        });
+          if (!uploadUrl || !key) {
+            throw new Error('Invalid response from upload URL endpoint');
+          }
+
+          // Upload directly to R2
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
+
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload to R2: ${uploadResponse.status}`);
+          }
+
+          // Create media metadata
+          const metadataResponse = await fetch('/api/portfolio-admin-media', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              projectId: project.id,
+              key,
+              type: file.type.startsWith('video/') ? 'video' : 'image',
+            }),
+          });
+
+          if (!metadataResponse.ok) {
+            const errorData = await metadataResponse.json().catch(() => ({ error: 'Failed to create metadata' }));
+            throw new Error(errorData.error || `Failed to create metadata: ${metadataResponse.status}`);
+          }
+
+          successCount++;
+          console.log(`Successfully uploaded: ${file.name}`);
+        } catch (fileError) {
+          failCount++;
+          const errorMessage = fileError instanceof Error ? fileError.message : 'Unknown error';
+          errors.push(`${file.name}: ${errorMessage}`);
+          console.error(`Error uploading ${file.name}:`, fileError);
+        }
       }
 
-      onMediaChange();
+      // Refresh media list after all uploads
+      await onMediaChange();
+
+      // Show results
+      if (failCount > 0) {
+        alert(`${successCount} file(s) uploaded successfully. ${failCount} file(s) failed:\n${errors.join('\n')}`);
+      } else if (successCount > 0) {
+        console.log(`All ${successCount} file(s) uploaded successfully`);
+      }
     } catch (error) {
-      console.error('Error uploading:', error);
-      alert('Upload failed. Please try again.');
+      console.error('Error in upload process:', error);
+      alert('Upload process failed. Please try again.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

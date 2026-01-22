@@ -43,8 +43,11 @@ export default async function handler(
 
       const projectMedia = await getProjectMedia(projectId);
       
+      // Generate unique ID with timestamp and random component to avoid collisions
+      const uniqueId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      
       const newMedia = {
-        id: `media-${Date.now()}`,
+        id: uniqueId,
         type,
         r2Key: key,
         order: projectMedia.length,
