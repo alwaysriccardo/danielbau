@@ -346,7 +346,7 @@ const ProjectCard: React.FC<{
 
   return (
     <div
-      className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+      className={`border-2 rounded-lg p-3 cursor-pointer transition-all ${
         isSelected ? 'border-[#121212] bg-gray-50' : 'border-gray-200 hover:border-gray-300'
       }`}
       onClick={onSelect}
@@ -358,37 +358,32 @@ const ProjectCard: React.FC<{
           onChange={(e) => setNewName(e.target.value)}
           onBlur={handleRename}
           onKeyPress={(e) => e.key === 'Enter' && handleRename()}
-          className="w-full px-2 py-1 border rounded"
+          className="w-full px-2 py-1 border rounded text-sm"
           autoFocus
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold">{project.name || project.title}</h3>
-          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setIsRenaming(true)}
-              className="text-xs text-blue-600 hover:text-blue-800"
-            >
-              Rename
-            </button>
-            <button
-              onClick={() => onDelete(project.id)}
-              className="text-xs text-red-600 hover:text-red-800"
-            >
-              Delete
-            </button>
+        <>
+          <div className="flex justify-between items-center mb-1">
+            <h3 className="font-semibold text-sm">{project.name || project.title}</h3>
+            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setIsRenaming(true)}
+                className="text-xs text-blue-600 hover:text-blue-800"
+              >
+                Rename
+              </button>
+              <button
+                onClick={() => onDelete(project.id)}
+                className="text-xs text-red-600 hover:text-red-800"
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
+          <p className="text-xs text-gray-600">{project.mediaCount} items</p>
+        </>
       )}
-      {project.coverImage && (
-        <img
-          src={project.coverImage}
-          alt={project.name || project.title}
-          className="w-full h-32 object-cover rounded mt-2"
-        />
-      )}
-      <p className="text-sm text-gray-600 mt-2">{project.mediaCount} items</p>
     </div>
   );
 };
