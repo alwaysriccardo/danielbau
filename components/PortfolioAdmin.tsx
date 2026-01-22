@@ -65,8 +65,7 @@ const PortfolioAdmin: React.FC<PortfolioAdminProps> = ({ onClose, projects, setP
   const loadProjectMedia = async (projectId: string) => {
     try {
       setLoading(true);
-      // Add cache-busting parameter to ensure fresh data
-      const response = await fetch(`/api/portfolio-media?projectId=${projectId}&_t=${Date.now()}`);
+      const response = await fetch(`/api/portfolio-media?projectId=${projectId}`);
       if (response.ok) {
         const data = await response.json();
         setMedia(data);
@@ -526,11 +525,6 @@ const MediaManager: React.FC<{
   const handleDeleteMedia = async (mediaId: string) => {
     if (!confirm('Delete this media item?')) return;
 
-    // Optimistically update UI immediately
-    const deletedItem = media.find(m => m.id === mediaId);
-    const updatedMedia = media.filter(m => m.id !== mediaId);
-    setMedia(updatedMedia);
-
     try {
       const response = await fetch(`/api/portfolio-admin-media?mediaId=${mediaId}&projectId=${project.id}`, {
         method: 'DELETE',
@@ -540,22 +534,10 @@ const MediaManager: React.FC<{
       });
 
       if (response.ok) {
-        // Refresh to ensure consistency with server (but UI already updated)
         onMediaChange();
-      } else {
-        // If deletion failed, restore the item
-        if (deletedItem) {
-          setMedia([...updatedMedia, deletedItem].sort((a, b) => a.order - b.order));
-        }
-        alert('Failed to delete media. Please try again.');
       }
     } catch (error) {
       console.error('Error deleting media:', error);
-      // If deletion failed, restore the item
-      if (deletedItem) {
-        setMedia([...updatedMedia, deletedItem].sort((a, b) => a.order - b.order));
-      }
-      alert('Failed to delete media. Please try again.');
     }
   };
 
