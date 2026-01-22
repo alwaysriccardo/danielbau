@@ -247,101 +247,62 @@ const ProjectGallery: React.FC<{ project: PortfolioProject }> = ({ project }) =>
 
   const selectedMedia = selectedMediaIndex !== null ? media[selectedMediaIndex] : null;
 
-  const mediaContainerRef = useRef<HTMLDivElement>(null);
-
-  const scrollMedia = (direction: 'left' | 'right') => {
-    if (!mediaContainerRef.current) return;
-    const scrollAmount = 300; // Scroll by 300px
-    const currentScroll = mediaContainerRef.current.scrollLeft;
-    const newScroll = direction === 'left' 
-      ? currentScroll - scrollAmount 
-      : currentScroll + scrollAmount;
-    mediaContainerRef.current.scrollTo({ left: newScroll, behavior: 'smooth' });
-  };
-
   return (
     <>
-      {/* Media Grid with Navigation */}
-      <div className="relative mb-8">
-        {media.length > 4 && (
-          <>
-            <button
-              onClick={() => scrollMedia('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/80 hover:bg-white rounded-full shadow-md transition-all"
-              aria-label="Previous media"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scrollMedia('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/80 hover:bg-white rounded-full shadow-md transition-all"
-              aria-label="Next media"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )}
-        <div 
-          ref={mediaContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth px-12"
-        >
-          {media.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex-shrink-0 w-[200px] aspect-square bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity snap-center"
-              onClick={() => openLightbox(index)}
-            >
-              {item.type === 'image' ? (
-                <img
-                  src={item.url}
-                  alt={`${project.name || project.title} - ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  loading={index < 4 ? 'eager' : 'lazy'}
-                  onError={(e) => {
-                    console.error('Image load error:', e);
-                    console.error('Image URL:', item.url);
-                    console.error('Image key:', item.key || item.r2Key);
-                  }}
-                />
-              ) : (
-                <div className="relative w-full h-full bg-gray-800">
-                  <video
-                    src={item.thumbnail || item.url}
+      {/* Media Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {media.map((item, index) => (
+              <div
+                key={item.id}
+                className="aspect-square bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => openLightbox(index)}
+              >
+                {item.type === 'image' ? (
+                  <img
+                    src={item.url}
+                    alt={`${project.name || project.title} - ${index + 1}`}
                     className="w-full h-full object-cover"
-                    preload="metadata"
-                    muted
-                    playsInline
+                    loading="lazy"
                     onError={(e) => {
-                      console.error('Video thumbnail error:', e);
-                      console.error('Video URL:', item.thumbnail || item.url);
-                    }}
-                    onLoadedMetadata={(e) => {
-                      // Seek to first frame for thumbnail
-                      const video = e.currentTarget;
-                      video.currentTime = 0.1;
-                    }}
-                    onLoadedData={(e) => {
-                      // Ensure first frame is shown
-                      const video = e.currentTarget;
-                      if (video.currentTime < 0.1) {
-                        video.currentTime = 0.1;
-                      }
+                      console.error('Image load error:', e);
+                      console.error('Image URL:', item.url);
+                      console.error('Image key:', item.key || item.r2Key);
                     }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+                ) : (
+                  <div className="relative w-full h-full bg-gray-800">
+                    <video
+                      src={item.thumbnail || item.url}
+                      className="w-full h-full object-cover"
+                      preload="metadata"
+                      muted
+                      playsInline
+                      onError={(e) => {
+                        console.error('Video thumbnail error:', e);
+                        console.error('Video URL:', item.thumbnail || item.url);
+                      }}
+                      onLoadedMetadata={(e) => {
+                        // Seek to first frame for thumbnail
+                        const video = e.currentTarget;
+                        video.currentTime = 0.1;
+                      }}
+                      onLoadedData={(e) => {
+                        // Ensure first frame is shown
+                        const video = e.currentTarget;
+                        if (video.currentTime < 0.1) {
+                          video.currentTime = 0.1;
+                        }
+                      }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                )}
+              </div>
+            ))}
       </div>
 
       {/* Lightbox */}

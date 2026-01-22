@@ -405,110 +405,52 @@ const MediaManager: React.FC<{
 
     setUploading(true);
 
-    const fileArray = Array.from(files);
-    let successCount = 0;
-    let failCount = 0;
-    const errors: string[] = [];
-    const successfulUploads: Array<{ key: string; type: string }> = [];
-
     try {
-      // Step 1: Upload all files to R2 first
-      for (const file of fileArray) {
-        try {
-          // Get presigned URL
-          const urlResponse = await fetch('/api/portfolio-upload-url', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${adminToken}`,
-            },
-            body: JSON.stringify({
-              projectId: project.id,
-              fileName: file.name,
-              contentType: file.type,
-            }),
-          });
+      for (const file of Array.from(files)) {
+        // Get presigned URL
+        const urlResponse = await fetch('/api/portfolio-upload-url', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            projectId: project.id,
+            fileName: file.name,
+            contentType: file.type,
+          }),
+        });
 
-          if (!urlResponse.ok) {
-            const errorData = await urlResponse.json().catch(() => ({ error: 'Failed to get upload URL' }));
-            throw new Error(errorData.error || `Failed to get upload URL: ${urlResponse.status}`);
-          }
+        const { uploadUrl, key } = await urlResponse.json();
 
-          const { uploadUrl, key } = await urlResponse.json();
+        // Upload directly to R2
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
 
-          if (!uploadUrl || !key) {
-            throw new Error('Invalid response from upload URL endpoint');
-          }
-
-          // Upload directly to R2
-          const uploadResponse = await fetch(uploadUrl, {
-            method: 'PUT',
-            body: file,
-            headers: {
-              'Content-Type': file.type,
-            },
-          });
-
-          if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload to R2: ${uploadResponse.status}`);
-          }
-
-          // Store successful upload for batch metadata creation
-          successfulUploads.push({
+        // Create media metadata
+        await fetch('/api/portfolio-admin-media', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            projectId: project.id,
             key,
             type: file.type.startsWith('video/') ? 'video' : 'image',
-          });
-
-          successCount++;
-          console.log(`Successfully uploaded to R2: ${file.name}`);
-        } catch (fileError) {
-          failCount++;
-          const errorMessage = fileError instanceof Error ? fileError.message : 'Unknown error';
-          errors.push(`${file.name}: ${errorMessage}`);
-          console.error(`Error uploading ${file.name}:`, fileError);
-        }
+          }),
+        });
       }
 
-      // Step 2: Create all metadata in a single batch request to avoid race conditions
-      if (successfulUploads.length > 0) {
-        try {
-          const batchResponse = await fetch('/api/portfolio-admin-media', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${adminToken}`,
-            },
-            body: JSON.stringify({
-              projectId: project.id,
-              media: successfulUploads, // Send array of {key, type}
-            }),
-          });
-
-          if (!batchResponse.ok) {
-            const errorData = await batchResponse.json().catch(() => ({ error: 'Failed to create metadata' }));
-            throw new Error(errorData.error || `Failed to create metadata: ${batchResponse.status}`);
-          }
-
-          console.log(`Successfully created metadata for ${successfulUploads.length} file(s)`);
-        } catch (batchError) {
-          console.error('Error creating metadata batch:', batchError);
-          // Don't count this as a file failure since files were uploaded successfully
-          errors.push(`Metadata creation failed: ${batchError instanceof Error ? batchError.message : 'Unknown error'}`);
-        }
-      }
-
-      // Refresh media list after all uploads
-      await onMediaChange();
-
-      // Show results
-      if (failCount > 0) {
-        alert(`${successCount} file(s) uploaded successfully. ${failCount} file(s) failed:\n${errors.join('\n')}`);
-      } else if (successCount > 0) {
-        console.log(`All ${successCount} file(s) uploaded successfully`);
-      }
+      onMediaChange();
     } catch (error) {
-      console.error('Error in upload process:', error);
-      alert('Upload process failed. Please try again.');
+      console.error('Error uploading:', error);
+      alert('Upload failed. Please try again.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
