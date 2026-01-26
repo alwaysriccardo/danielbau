@@ -84,6 +84,27 @@ export const TRANSLATIONS = {
     portfolio: {
       subheader: "PORTFOLIO",
       header: "Unsere Projekte"
+    },
+    promo: {
+      title: "Begrenztes Angebot für neue Kunden",
+      subtitle: "Erhalten Sie 10% Rabatt auf Ihr erstes Renovierungsprojekt",
+      off: "Rabatt",
+      subject: "Angebotsanfrage - 10% Rabatt",
+      cta: "Rabatt sichern & Angebot anfordern",
+      submitting: "Wird gesendet...",
+      noThanks: "Nein danke",
+      formName: "Name",
+      formEmail: "E-Mail",
+      formPhone: "Telefon",
+      formProjectType: "Projekttyp",
+      formDescription: "Projektbeschreibung",
+      formNotSpecified: "Nicht angegeben",
+      projectTypes: {
+        kitchen: "Küche",
+        bathroom: "Badezimmer",
+        fullRenovation: "Komplettrenovierung",
+        other: "Andere"
+      }
     }
   },
   en: {
@@ -161,6 +182,27 @@ export const TRANSLATIONS = {
     portfolio: {
       subheader: "PORTFOLIO",
       header: "Our Projects"
+    },
+    promo: {
+      title: "Limited Time Offer for New Customers",
+      subtitle: "Get 10% off your first renovation project",
+      off: "OFF",
+      subject: "Quote Request - 10% Discount",
+      cta: "Claim My Discount & Get Quote",
+      submitting: "Sending...",
+      noThanks: "No thanks",
+      formName: "Name",
+      formEmail: "Email",
+      formPhone: "Phone",
+      formProjectType: "Project Type",
+      formDescription: "Project Description",
+      formNotSpecified: "Not specified",
+      projectTypes: {
+        kitchen: "Kitchen",
+        bathroom: "Bathroom",
+        fullRenovation: "Full Renovation",
+        other: "Other"
+      }
     }
   },
   fr: {
@@ -238,6 +280,27 @@ export const TRANSLATIONS = {
     portfolio: {
       subheader: "PORTFOLIO",
       header: "Nos Projets"
+    },
+    promo: {
+      title: "Offre Limitée pour Nouveaux Clients",
+      subtitle: "Obtenez 10% de réduction sur votre premier projet de rénovation",
+      off: "RÉDUCTION",
+      subject: "Demande de Devis - 10% de Réduction",
+      cta: "Réclamer ma Réduction & Demander un Devis",
+      submitting: "Envoi en cours...",
+      noThanks: "Non merci",
+      formName: "Nom",
+      formEmail: "Email",
+      formPhone: "Téléphone",
+      formProjectType: "Type de Projet",
+      formDescription: "Description du Projet",
+      formNotSpecified: "Non spécifié",
+      projectTypes: {
+        kitchen: "Cuisine",
+        bathroom: "Salle de Bain",
+        fullRenovation: "Rénovation Complète",
+        other: "Autre"
+      }
     }
   },
   it: {
@@ -315,6 +378,27 @@ export const TRANSLATIONS = {
     portfolio: {
       subheader: "PORTFOLIO",
       header: "I Nostri Progetti"
+    },
+    promo: {
+      title: "Offerta Limitata per Nuovi Clienti",
+      subtitle: "Ottieni il 10% di sconto sul tuo primo progetto di ristrutturazione",
+      off: "SCONTO",
+      subject: "Richiesta Preventivo - 10% di Sconto",
+      cta: "Richiedi il Mio Sconto & Preventivo",
+      submitting: "Invio in corso...",
+      noThanks: "No grazie",
+      formName: "Nome",
+      formEmail: "Email",
+      formPhone: "Telefono",
+      formProjectType: "Tipo di Progetto",
+      formDescription: "Descrizione del Progetto",
+      formNotSpecified: "Non specificato",
+      projectTypes: {
+        kitchen: "Cucina",
+        bathroom: "Bagno",
+        fullRenovation: "Ristrutturazione Completa",
+        other: "Altro"
+      }
     }
   }
 };
