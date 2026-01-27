@@ -111,7 +111,7 @@ const AppContent = () => {
         <Navigation />
         <LanguageSidebar />
         <ContactButtons />
-        
+
         {showPromo && <PromoPopup onClose={() => setShowPromo(false)} />}
 
         {showPrivacy ? (
