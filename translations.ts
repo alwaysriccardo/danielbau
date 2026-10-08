@@ -16,8 +16,8 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualität im Detail.",
-      text: "Willkommen bei Danielbau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten. Zusätzlich bieten wir Reinigungsdienstleistungen an.",
-      location: "SCHWEIZ / ZÜRICH / AARGAU / BASEL / ZUG / LUZERN / BERN",
+      text: "Willkommen bei Probau. Wir sind Ihr Partner für Innenrenovierung und Malerarbeiten. Unser Hauptfokus liegt auf professionellem Innenausbau – von Malerei und Dekoration über Bodenverlegung bis hin zu Putz- und Isolierungsarbeiten.",
+      location: "DEUTSCHLAND",
       satisfiedClients: "zufriedene Kunden",
       nextClientNumber: "Sie",
       nextClient: "können der nächste zufriedene Kunde sein"
@@ -49,28 +49,14 @@ export const TRANSLATIONS = {
         }
       ]
     },
-    cleaning: {
-      header: "REINIGUNGSDIENSTE",
-      subheader: "Zusätzliche Services",
-      note: "Wir bieten auch professionelle Reinigungsdienstleistungen an",
-      items: [
-        "Grundreinigung",
-        "Umzugsreinigung",
-        "Fensterreinigung",
-        "Entsorgung"
-      ],
-      quoteButton: "Angebot",
-      call: "Anrufen",
-      email: "E-Mail"
-    },
     final: {
-      title: "Ihr Partner für die Schweiz",
+      title: "Ihr Partner für Deutschland",
       text: "Unser Ziel ist es, Ihre Vision Realität werden zu lassen. Mit einem Fokus auf Termintreue und Präzision haben wir bereits zahlreiche zufriedene Kunden erfolgreich betreut."
     },
     footer: {
       ready: "Bereit für Veränderung?",
       offer: "ANGEBOT",
-      copyright: "© 2026 DANIELBAU SCHWEIZ",
+      copyright: "© 2026 PROBAU DEUTSCHLAND",
       namePlaceholder: "Name",
       emailPlaceholder: "E-Mail",
       messagePlaceholder: "Nachricht",
@@ -122,8 +108,8 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Quality in Detail.",
-      text: "Welcome to Danielbau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work. We also offer cleaning services as an additional option.",
-      location: "SWITZERLAND / ZURICH / AARGAU / BASEL / ZUG / LUZERN / BERN",
+      text: "Welcome to Probau. We are your partner for interior renovation and painting services. Our main focus is professional interior renovation – from painting and decoration to flooring, plastering, and insulation work.",
+      location: "GERMANY",
       satisfiedClients: "satisfied clients",
       nextClientNumber: "You",
       nextClient: "can be the next satisfied client"
@@ -155,25 +141,14 @@ export const TRANSLATIONS = {
         }
       ]
     },
-    cleaning: {
-      header: "CLEANING SERVICES",
-      subheader: "Additional Services",
-      note: "We also offer professional cleaning services",
-      items: [
-        "Deep cleaning",
-        "Move-out cleaning",
-        "Window cleaning",
-        "Waste disposal"
-      ]
-    },
     final: {
-      title: "Your Partner for Switzerland",
+      title: "Your Partner for Germany",
       text: "Our goal is to make your vision a reality. With a focus on punctuality and precision, we have already successfully served numerous satisfied clients."
     },
     footer: {
       ready: "Ready for change?",
       offer: "QUOTE",
-      copyright: "© 2026 DANIELBAU SWITZERLAND",
+      copyright: "© 2026 PROBAU GERMANY",
       privacyPolicy: "Privacy Policy"
     },
     testimonials: {
@@ -220,8 +195,8 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "La Qualité en Détail.",
-      text: "Bienvenue chez Danielbau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation. Nous proposons également des services de nettoyage.",
-      location: "SUISSE / ZURICH / ARGOVIE / BÂLE / ZOUG / LUCERNE / BERNE",
+      text: "Bienvenue chez Probau. Nous sommes votre partenaire pour la rénovation intérieure et les services de peinture. Notre focus principal est la rénovation intérieure professionnelle – de la peinture et décoration au revêtement de sol, en passant par le plâtrage et l'isolation.",
+      location: "ALLEMAGNE",
       satisfiedClients: "clients satisfaits",
       nextClientNumber: "Vous",
       nextClient: "pouvez être le prochain client satisfait"
@@ -253,25 +228,14 @@ export const TRANSLATIONS = {
         }
       ]
     },
-    cleaning: {
-      header: "SERVICES DE NETTOYAGE",
-      subheader: "Services Supplémentaires",
-      note: "Nous proposons également des services de nettoyage professionnels",
-      items: [
-        "Nettoyage en profondeur",
-        "Nettoyage de déménagement",
-        "Nettoyage de vitres",
-        "Élimination des déchets"
-      ]
-    },
     final: {
-      title: "Votre Partenaire pour la Suisse",
+      title: "Votre Partenaire pour l'Allemagne",
       text: "Notre objectif est de faire de votre vision une réalité. En mettant l'accent sur la ponctualité et la précision, nous avons déjà servi de nombreux clients satisfaits."
     },
     footer: {
       ready: "Prêt pour le changement ?",
       offer: "DEVIS",
-      copyright: "© 2026 DANIELBAU SUISSE",
+      copyright: "© 2026 PROBAU ALLEMAGNE",
       privacyPolicy: "Politique de Confidentialité"
     },
     testimonials: {
@@ -318,8 +282,8 @@ export const TRANSLATIONS = {
     },
     intro: {
       title: "Qualità nel Dettaglio.",
-      text: "Benvenuti da Danielbau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento. Offriamo anche servizi di pulizia.",
-      location: "SVIZZERA / ZURIGO / ARGOVIA / BASILEA / ZUGO / LUCERNA / BERNA",
+      text: "Benvenuti da Probau. Siamo il vostro partner per ristrutturazione d'interni e servizi di pittura. Il nostro focus principale è la ristrutturazione d'interni professionale – dalla pittura e decorazione alla posa di pavimenti, intonaci e isolamento.",
+      location: "GERMANIA",
       satisfiedClients: "clienti soddisfatti",
       nextClientNumber: "Tu",
       nextClient: "puoi essere il prossimo cliente soddisfatto"
@@ -351,25 +315,14 @@ export const TRANSLATIONS = {
         }
       ]
     },
-    cleaning: {
-      header: "SERVIZI DI PULIZIA",
-      subheader: "Servizi Aggiuntivi",
-      note: "Offriamo anche servizi di pulizia professionali",
-      items: [
-        "Pulizia approfondita",
-        "Pulizia post-trasloco",
-        "Pulizia vetri",
-        "Smaltimento rifiuti"
-      ]
-    },
     final: {
-      title: "Il Vostro Partner per la Svizzera",
+      title: "Il Vostro Partner per la Germania",
       text: "Il nostro obiettivo è trasformare la vostra visione in realtà. Con un focus sulla puntualità e la precisione, abbiamo già servito numerosi clienti soddisfatti."
     },
     footer: {
       ready: "Pronto per il cambiamento?",
       offer: "PREVENTIVO",
-      copyright: "© 2026 DANIELBAU SVIZZERA",
+      copyright: "© 2026 PROBAU GERMANIA",
       privacyPolicy: "Informativa sulla Privacy"
     },
     testimonials: {

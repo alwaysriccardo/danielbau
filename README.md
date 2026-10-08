@@ -1,4 +1,4 @@
-# DANIELBAU - Premium Interiors
+# PROBAU - Premium Interiors
 
 A high-end construction and renovation portfolio website featuring smooth animations, sticky card stacks, and parallax effects. Built with React, TypeScript, GSAP, and Lenis smooth scrolling.
 
@@ -11,7 +11,6 @@ A high-end construction and renovation portfolio website featuring smooth animat
 - 🎯 **Performance** - Optimized with Vite for fast loading times
 - 💬 **WhatsApp Integration** - Direct contact via WhatsApp button
 - 🎨 **Interior Renovation Services** - Painting, flooring, plastering, and more
-- 🧹 **Cleaning Services** - Professional cleaning solutions
 
 ## Tech Stack
 
@@ -77,7 +76,6 @@ npm run preview
 ```
 danielbau/
 ├── components/          # React components
-│   ├── CleaningServices.tsx
 │   ├── Footer.tsx
 │   ├── Hero.tsx
 │   ├── Intro.tsx
@@ -101,4 +99,4 @@ danielbau/
 
 ## License
 
-© 2025 DANIELBAU SCHWEIZ. All rights reserved.
+© 2025 PROBAU DEUTSCHLAND. All rights reserved.

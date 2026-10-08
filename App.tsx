@@ -6,7 +6,6 @@ import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import Intro from './components/Intro';
 import ServiceStack from './components/ServiceStack';
-import CleaningServices from './components/CleaningServices';
 import Testimonials from './components/Testimonials';
 import Portfolio from './components/Portfolio';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -123,7 +122,6 @@ const AppContent = () => {
         <Hero />
         <Intro />
         <ServiceStack />
-        <CleaningServices />
         <Testimonials />
             <Portfolio />
         
@@ -135,15 +133,12 @@ const AppContent = () => {
           <div className="max-w-xl text-gray-600 font-light mb-12 leading-relaxed px-6">
             {t.final.text}
           </div>
-          {/* Switzerland Flag */}
+          {/* Germany Flag */}
           <div className="w-16 h-16 md:w-20 md:h-20 mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full">
-                  {/* Red background */}
-                  <rect x="0" y="0" width="100" height="100" fill="#FF0000" />
-                  {/* White cross - vertical arm */}
-                  <rect x="40" y="20" width="20" height="60" fill="white" />
-                  {/* White cross - horizontal arm */}
-                  <rect x="20" y="40" width="60" height="20" fill="white" />
+              <rect x="0" y="20" width="100" height="20" fill="#000000" />
+              <rect x="0" y="40" width="100" height="20" fill="#DD0000" />
+              <rect x="0" y="60" width="100" height="20" fill="#FFCE00" />
             </svg>
           </div>
           <div className="h-16 w-px bg-black/20"></div>

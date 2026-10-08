@@ -94,7 +94,7 @@ const Navigation: React.FC = () => {
       <nav ref={navRef} className="fixed top-0 w-full p-8 flex justify-between items-center z-50" style={{ willChange: 'transform' }}>
         <div ref={logoRef} className={`font-display font-bold text-xl tracking-tighter z-[60] danielbau-logo ${textColor}`} style={{
           willChange: 'transform'
-        }}>DANIELBAU</div>
+        }}>PROBAU</div>
         
         {/* Desktop Menu */}
         <nav className={`hidden md:flex gap-10 text-xs uppercase tracking-widest ${textColor}`} aria-label="Main navigation">
@@ -208,7 +208,7 @@ const Navigation: React.FC = () => {
         </a>
         
         <div className="absolute bottom-10 text-white/30 text-xs uppercase tracking-widest">
-           Danielbau Schweiz
+           Probau Deutschland
         </div>
       </div>
     </>

@@ -109,7 +109,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       }}
     >
       <div ref={textRef} className="font-display text-[5vw] font-bold mb-6" style={{ opacity: 0 }}>
-        DANIELBAU
+        PROBAU
       </div>
       <div 
         ref={flagRef}
@@ -119,7 +119,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         {/* Logo */}
         <img 
           src="/images/logo.png" 
-          alt="DANIELBAU Logo" 
+          alt="PROBAU Logo" 
           className="w-full h-full object-contain"
           onError={(e) => {
             console.error('Logo failed to load:', e);

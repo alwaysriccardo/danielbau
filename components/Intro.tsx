@@ -135,12 +135,12 @@ const Intro: React.FC = () => {
         <SplitText tag="h2" className="font-display text-4xl md:text-5xl leading-tight">
           {t.intro.title}
         </SplitText>
-                {/* Switzerland Flag */}
+                {/* Germany Flag */}
                 <div className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
                   <svg viewBox="0 0 100 100" className="w-full h-full">
-                    <rect x="0" y="0" width="100" height="100" fill="white" />
-                    <rect x="0" y="40" width="100" height="20" fill="black" />
-                    <rect x="40" y="0" width="20" height="100" fill="black" />
+                    <rect x="0" y="20" width="100" height="20" fill="#000000" />
+                    <rect x="0" y="40" width="100" height="20" fill="#DD0000" />
+                    <rect x="0" y="60" width="100" height="20" fill="#FFCE00" />
                   </svg>
                 </div>
               </div>

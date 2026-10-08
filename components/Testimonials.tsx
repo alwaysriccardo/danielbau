@@ -12,7 +12,7 @@ interface Testimonial {
 
 const originalTestimonials: Testimonial[] = [
   {
-    text: 'Ausgezeichnete Arbeit! Das Team von DANIELBAU hat unsere Küche komplett renoviert. Alles wurde pünktlich und in höchster Qualität abgeliefert. Sehr empfehlenswert!',
+    text: 'Ausgezeichnete Arbeit! Das Team von PROBAU hat unsere Küche komplett renoviert. Alles wurde pünktlich und in höchster Qualität abgeliefert. Sehr empfehlenswert!',
     language: 'DE'
   },
   {
@@ -20,7 +20,7 @@ const originalTestimonials: Testimonial[] = [
     language: 'DE'
   },
   {
-    text: 'DANIELBAU hat unser gesamtes Haus renoviert. Die Handwerker waren immer pünktlich, sehr freundlich und haben alles perfekt umgesetzt. Wir würden jederzeit wieder mit ihnen arbeiten.',
+    text: 'PROBAU hat unser gesamtes Haus renoviert. Die Handwerker waren immer pünktlich, sehr freundlich und haben alles perfekt umgesetzt. Wir würden jederzeit wieder mit ihnen arbeiten.',
     language: 'DE'
   },
   {

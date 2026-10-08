@@ -26,7 +26,7 @@ const PrivacyPolicy: React.FC = () => {
               {t.privacy?.introduction?.title || 'Introduction'}
             </h2>
             <p className="leading-relaxed">
-              {t.privacy?.introduction?.text || 'DANIELBAU ("we", "our", "us") is committed to protecting your privacy. This privacy policy explains how we handle information on our website (www.dani-bau.ch).'}
+              {t.privacy?.introduction?.text || 'PROBAU ("we", "our", "us") is committed to protecting your privacy. This privacy policy explains how we handle information on our website (www.dani-bau.ch).'}
             </p>
           </div>
 
@@ -78,8 +78,8 @@ const PrivacyPolicy: React.FC = () => {
             </h2>
             <p className="leading-relaxed">
               {t.privacy?.contact?.text || 'If you have questions about this privacy policy, please contact us at:'} {' '}
-              <a href="mailto:danielbau@mail.ch" className="text-[#121212] underline hover:text-blue-600">
-                danielbau@mail.ch
+              <a href="mailto:Pro-bau@mail.de" className="text-[#121212] underline hover:text-blue-600">
+                Pro-bau@mail.de
               </a>
             </p>
           </div>

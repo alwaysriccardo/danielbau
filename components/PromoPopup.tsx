@@ -63,7 +63,7 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ onClose }) => {
       `${t.promo.formDescription}:\n${formData.description || t.promo.formNotSpecified}`
     );
     
-    window.location.href = `mailto:danielbau@mail.ch?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:Pro-bau@mail.de?subject=${subject}&body=${body}`;
 
     setTimeout(() => {
       setIsSubmitting(false);

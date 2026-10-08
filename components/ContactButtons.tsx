@@ -5,7 +5,7 @@ const ContactButtons: React.FC = () => {
     <div className="fixed bottom-8 right-6 z-[90] flex flex-col gap-3">
       {/* Call Us Button */}
       <a
-        href="tel:+41762313831"
+        href="tel:+4915225838076"
         className="group"
         aria-label="Call us"
       >
@@ -28,7 +28,7 @@ const ContactButtons: React.FC = () => {
 
       {/* WhatsApp Us Button */}
       <a
-        href="https://wa.me/41762313831"
+        href="https://wa.me/4915225838076"
         target="_blank"
         rel="noopener noreferrer"
         className="group"
@@ -49,7 +49,7 @@ const ContactButtons: React.FC = () => {
 
       {/* Email Us Button */}
       <a
-        href="mailto:danielbau@mail.ch"
+        href="mailto:Pro-bau@mail.de"
         className="group"
         aria-label="Email us"
       >
@@ -72,7 +72,7 @@ const ContactButtons: React.FC = () => {
 
       {/* TikTok Button */}
       <a
-        href="https://www.tiktok.com/@dani1985bau"
+        href="https://www.tiktok.com/@probau1?_r=1&_t=ZN-9ANoSuaCJza"
         target="_blank"
         rel="noopener noreferrer"
         className="group"
