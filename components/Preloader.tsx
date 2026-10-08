@@ -15,7 +15,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
     
     // Preload logo image for smoother experience
     const logoImg = new Image();
-    logoImg.src = '/images/logo.png';
+    logoImg.src = '/images/probau-logo.png';
     
     const ctx = gsap.context(() => {
       // Wait for logo to load, then start animation
@@ -118,7 +118,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       >
         {/* Logo */}
         <img 
-          src="/images/logo.png" 
+          src="/images/probau-logo.png" 
           alt="PROBAU Logo" 
           className="w-full h-full object-contain"
           onError={(e) => {
