@@ -113,7 +113,7 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       </div>
       <div 
         ref={flagRef}
-        className="w-44 h-44 md:w-56 md:h-56 relative"
+        className="w-32 h-32 md:w-40 md:h-40 relative"
         style={{ opacity: 0 }}
       >
         {/* Logo */}
